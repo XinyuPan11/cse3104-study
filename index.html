@@ -654,6 +654,36 @@ pre.code.fill { white-space: pre-wrap; line-height: 2.2; font-size: 15px; }
 .ai-out p { margin: 0 0 8px; }
 .confirm { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 14px; padding: 9px 13px; border-radius: 10px; background: var(--warn-soft); }
 
+/* schema panel above SQL editors */
+.schp { border: 1.5px solid var(--line); border-radius: 14px; background: var(--surface); padding: 2px 12px 10px; }
+.schp summary { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; cursor: pointer; padding: 8px 0; font-size: 14px; list-style: none; }
+.schp summary::-webkit-details-marker { display: none; }
+.schp summary .ico { color: var(--c); }
+.schp summary span { color: var(--muted); font-size: 12.5px; }
+.schp summary::after { content: "收起"; margin-left: auto; font-size: 12px; color: var(--muted); }
+.schp:not([open]) summary::after { content: "展开"; }
+.schp-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.schp-t { flex: 1 1 220px; min-width: 0; max-width: 100%; border-radius: 12px; background: var(--k-soft); border: 1.5px solid transparent; padding: 8px 10px; animation: pop .3s; }
+.schp-t.used { border-color: var(--k-mid); box-shadow: 0 0 0 3px oklch(var(--Lm) var(--Cm) var(--k) / .18); }
+.schp-h { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
+.schp-name { font: 700 14.5px var(--mono); color: var(--k-strong); background: none; border: 0; padding: 0; cursor: pointer; }
+.schp-name:hover, .schp-c:hover, .schp-chip:hover { text-decoration: underline; }
+.schp-used { font: 700 11px var(--body); background: var(--k-strong); color: var(--surface); border-radius: 99px; padding: 1px 8px; }
+.schp-tag { font: 600 11px var(--body); color: var(--muted); }
+.schp-eye { margin-left: auto; display: inline-flex; gap: 4px; align-items: center; font: 12px var(--mono); color: var(--muted); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 2px 7px; cursor: pointer; }
+.schp-eye:hover { color: var(--ink); border-color: var(--c); }
+.schp-eye .ico { width: 14px; height: 14px; }
+.schp-cols { display: flex; flex-wrap: wrap; gap: 4px; }
+.schp-c { font: 12.5px var(--mono); padding: 2px 8px; border-radius: 7px; border: 1px solid oklch(var(--Lm) 0.06 var(--k) / .55); background: var(--surface); color: var(--ink); cursor: pointer; }
+.schp-c.pk { border-color: oklch(var(--Lm) var(--Cm) 85); font-weight: 700; }
+.schp-c.pk::after { content: " PK"; font-size: 9.5px; color: oklch(var(--Lk) var(--Ck) 70); }
+.schp-note { font-size: 11.5px; color: var(--muted); margin-top: 5px; }
+.schp-more { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; }
+.schp-more:empty { display: none; }
+.schp-chip { font: 600 12.5px var(--mono); padding: 3px 10px; border-radius: 99px; border: 1px dashed var(--line); background: none; color: var(--muted); cursor: pointer; }
+.schp-peek:empty { display: none; }
+.schp-peek .grid-wrap { border: 1px solid var(--line); border-radius: 10px; }
+
 /* static grids */
 .grid-wrap { overflow-x: auto; max-width: 100%; }
 .run-out .grid-wrap { max-height: 360px; overflow: auto; }
@@ -8887,10 +8917,62 @@ function withDB(box, fn) {
   box.append(ph);
   sqlReady.then(() => { ph.remove(); fn(); }).catch(() => { ph.innerHTML = 'SQL 引擎加载失败：请检查网络后刷新页面。'; ph.classList.add('err'); });
 }
-function explainErr(m) {
+/* tables and columns of a seed (cached; the viz db is never modified) */
+const schemaCache = {};
+function schemaInfo(seed) {
+  if (!seed || !SQLLIB) return [];
+  if (schemaCache[seed]) return schemaCache[seed];
+  const db = vizDB(seed);
+  const out = [];
+  const add = (schema, name, type) => {
+    const cols = q1(db, `PRAGMA "${schema}".table_info("${name}")`);
+    let n = 0;
+    try { n = q1(db, `SELECT COUNT(*) AS n FROM "${schema}"."${name}"`)[0].n; } catch (e) { n = 0; }
+    out.push({ name, schema: schema === 'main' ? '' : schema, cols, n, view: type === 'view' });
+  };
+  q1(db, 'PRAGMA database_list').filter((d) => d.name !== 'temp').forEach((d) => {
+    q1(db, `SELECT name, type FROM "${d.name}".sqlite_master WHERE type IN ('table','view') AND name NOT LIKE 'sqlite_%' ORDER BY rowid`).forEach((r) => add(d.name, r.name, r.type));
+  });
+  return (schemaCache[seed] = out);
+}
+function editDist(a, b) {
+  a = a.toLowerCase();
+  b = b.toLowerCase();
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return d[a.length][b.length];
+}
+function closest(word, cands) {
+  let best = null;
+  let bd = Infinity;
+  for (const c of cands) {
+    const dd = editDist(word, c);
+    if (dd < bd) { bd = dd; best = c; }
+  }
+  const w = word.toLowerCase();
+  const ok = best && (bd <= Math.max(1, Math.floor(word.length / 3)) || best.toLowerCase().startsWith(w) || w.startsWith(best.toLowerCase()));
+  return ok && best.toLowerCase() !== w ? best : null;
+}
+function explainErr(m, seed) {
+  const tables = schemaInfo(seed);
+  const tableHint = (x) => {
+    const name = x.split('.').pop();
+    const sug = closest(name, tables.map((t) => t.name));
+    if (sug) return `你是不是想写 <code>${esc(sug)}</code>？`;
+    return tables.length ? `这个数据库里的表有：${tables.map((t) => `<code>${esc(t.name)}</code>`).join('、')}。` : '';
+  };
+  const colHint = (x) => {
+    const name = x.split('.').pop();
+    const all = [];
+    tables.forEach((t) => t.cols.forEach((c) => all.push([c.name, t.name])));
+    const sug = closest(name, [...new Set(all.map((a) => a[0]))]);
+    if (sug) return ` 你是不是想写 <code>${esc(sug)}</code>（在 ${all.filter((a) => a[0] === sug).map((a) => esc(a[1])).join('、')} 表里）？`;
+    return '';
+  };
   const rules = [
-    [/no such column: ([\w.]+)/i, (x) => `找不到列 <code>${esc(x)}</code>。检查拼写；如果它本来是一个字符串值，要加单引号：<code>'${esc(x)}'</code>。`],
-    [/no such table: ([\w.]+)/i, (x) => `找不到表 <code>${esc(x)}</code>。看看「表结构」里有哪些表。`],
+    [/no such column: ([\w.]+)/i, (x) => `找不到列 <code>${esc(x)}</code>。${colHint(x) || ` 检查拼写；如果它本来是一个字符串值，要加单引号：<code>'${esc(x)}'</code>。`}`],
+    [/no such table: ([\w.]+)/i, (x) => `找不到表 <code>${esc(x)}</code>。${tableHint(x)}`],
     [/unknown join type: (\w+)/i, (x) => `不认识的 JOIN 写法 <code>${esc(x)}</code>：全外连接要写完整的 <code>FULL OUTER JOIN</code>。`],
     [/near "([^"]*)": syntax error/i, (x) => `在 <code>${esc(x)}</code> 附近有语法错误。检查逗号、括号、引号是否成对，以及子句顺序。`],
     [/misuse of aggregate/i, () => '聚合函数（COUNT / AVG / …）不能写在 WHERE 里。要筛选分组，请用 HAVING。'],
@@ -8980,11 +9062,27 @@ function mkEditor(initial, { onRun, label = 'SQL 编辑器' } = {}) {
     ta.style.height = Math.max(ta.scrollHeight, 44) + 'px';
   };
   ta.addEventListener('input', sync);
+  let pos = null;
+  const remember = () => { pos = [ta.selectionStart, ta.selectionEnd]; };
+  ['keyup', 'click', 'select', 'input'].forEach((ev) => ta.addEventListener(ev, remember));
   ta.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); onRun && onRun(); }
     e.stopPropagation();
   });
-  const api = { wrap, ta, sync, get value() { return ta.value; }, set value(v) { ta.value = v; sync(); } };
+  const api = {
+    wrap, ta, sync,
+    get value() { return ta.value; },
+    set value(v) { ta.value = v; sync(); },
+    insert(text) {
+      const [s, e] = pos || [ta.value.length, ta.value.length];
+      const before = ta.value.slice(0, s);
+      const pad = before && !/[\s(,.]$/.test(before) ? ' ' : '';
+      ta.setRangeText(pad + text, s, e, 'end');
+      sync();
+      ta.focus();
+      remember();
+    },
+  };
   editors.add(api);
   requestAnimationFrame(sync);
   return api;
@@ -9010,9 +9108,59 @@ function gridHTML(set, { max = 200, caption = '' } = {}) {
   h += `<div class="grid-foot">${set.values.length} 行 × ${set.columns.length} 列${more}${caption ? ' · ' + caption : ''}</div>`;
   return h;
 }
-function resultHTML(res) {
+/* schema panel shown above SQL editors: click a table/column to insert it, eye icon peeks 3 rows */
+function mkSchemaPanel(seed, { editor, ref = '' } = {}) {
+  const holder = el('div', 'schp-holder');
+  withDB(holder, () => {
+    const info = schemaInfo(seed);
+    if (!info.length) return;
+    const uses = (t) => new RegExp(`(^|[^\\w.])(${t.schema ? t.schema + '\\.' : ''})?${t.name}\\b`, 'i').test(ref);
+    const used = info.filter(uses);
+    const rest = info.filter((t) => !used.includes(t));
+    const compact = used.length > 0 && info.length > 4;
+    const box = el('details', 'schp');
+    box.open = true;
+    box.innerHTML = `<summary>${icon('table')}<b>表结构</b><span>${info.length} 张表 · 点表名或列名就能插进编辑器</span></summary><div class="schp-list"></div><div class="schp-more"></div><div class="schp-peek"></div>`;
+    const list = $('.schp-list', box);
+    const more = $('.schp-more', box);
+    const peek = $('.schp-peek', box);
+    const ins = (text) => { if (editor) editor.insert(text); Sound.play('tap'); };
+    const card = (t, i) => {
+      const c = el('div', `schp-t ${cat(i)}${used.includes(t) ? ' used' : ''}`);
+      const h = el('div', 'schp-h');
+      h.append(btn('schp-name', esc(t.name), () => ins(t.name)));
+      if (t.view) h.append(el('span', 'schp-tag', '视图'));
+      if (used.includes(t)) h.append(el('span', 'schp-used', '本题用到'));
+      const eye = btn('schp-eye', `${icon('eye')}<span>${t.n} 行</span>`, () => {
+        if (peek.dataset.t === t.name) { peek.innerHTML = ''; peek.dataset.t = ''; return; }
+        const r = vizDB(seed).exec(`SELECT * FROM ${t.schema ? `"${t.schema}".` : ''}"${t.name}" LIMIT 3`);
+        peek.dataset.t = t.name;
+        peek.innerHTML = r.length ? `<div class="mini-h">${esc(t.name)} 的前 3 行（共 ${t.n} 行）</div>` + gridHTML(r[0], { max: 3 }) : `<div class="muted small">${esc(t.name)} 是空表。</div>`;
+      });
+      eye.setAttribute('aria-label', `看 ${t.name} 的前 3 行`);
+      h.append(eye);
+      c.append(h);
+      const cols = el('div', 'schp-cols');
+      t.cols.forEach((col) => cols.append(btn('schp-c' + (col.pk ? ' pk' : ''), esc(col.name), () => ins(col.name))));
+      c.append(cols);
+      if (t.schema) c.append(el('div', 'schp-note', `也可以写成 ${esc(t.schema)}.${esc(t.name)}`));
+      return c;
+    };
+    (compact ? used : info).forEach((t) => list.append(card(t, info.indexOf(t))));
+    if (compact && rest.length) {
+      more.innerHTML = '<span class="muted small">其他表：</span>';
+      rest.forEach((t) => {
+        const b2 = btn('schp-chip', esc(t.name), () => { list.append(card(t, info.indexOf(t))); b2.remove(); if (!$('.schp-chip', more)) more.remove(); });
+        more.append(b2);
+      });
+    }
+    holder.append(box);
+  });
+  return holder;
+}
+function resultHTML(res, seed) {
   if (res.error) {
-    const why = explainErr(res.error);
+    const why = explainErr(res.error, seed);
     return `<div class="sqlerr"><div class="sqlerr-m">✕ ${esc(res.error)}</div>${why ? `<div class="sqlerr-why">${why}</div>` : ''}</div>`;
   }
   if (!res.sets.length) return `<div class="okmsg">执行成功 · 影响 ${res.modified} 行（这条语句不返回结果行）</div>`;
@@ -9950,7 +10098,7 @@ function choiceScreen(s, b, ctx) {
         const out = el('div', 'live');
         out.innerHTML = '<div class="mini-h">在数据库里真的跑一遍</div>';
         b.append(out);
-        withDB(out, () => { const db = freshDB(ctx.seed); out.insertAdjacentHTML('beforeend', resultHTML(runSQL(db, s.code))); db.close(); });
+        withDB(out, () => { const db = freshDB(ctx.seed); out.insertAdjacentHTML('beforeend', resultHTML(runSQL(db, s.code), ctx.seed)); db.close(); });
       }
     });
     opts.append(bt);
@@ -10205,7 +10353,7 @@ SCR.sql = (s, b, ctx) => {
   const run = () => withDB(out, () => {
     const db = freshDB(ctx.seed);
     const res = runSQL(db, ed.value);
-    out.innerHTML = resultHTML(res);
+    out.innerHTML = resultHTML(res, ctx.seed);
     out.classList.remove('pop'); void out.offsetWidth; out.classList.add('pop');
     if (s.check && !res.error) {
       const rdb = freshDB(ctx.seed);
@@ -10235,6 +10383,7 @@ SCR.sql = (s, b, ctx) => {
   row.append(sol);
   const ans = el('div', 'solbox', `<div class="mini-h">参考写法</div>${codeBlock(s.check || '')}`);
   ans.hidden = true;
+  if (ctx.seed) b.append(mkSchemaPanel(ctx.seed, { editor: ed, ref: s.check || s.sql || '' }));
   b.append(ed.wrap, row, fb, ans, out);
 };
 
@@ -10671,19 +10820,6 @@ function checkExercise(ex, sql, seed) {
     return Object.assign(c, { userSet: us, refSet: rs, dml: true });
   } finally { udb.close(); rdb.close(); }
 }
-function schemaHTML(seed) {
-  const db = vizDB(seed);
-  const tabs = [];
-  const add = (schema, name) => {
-    const prefix = schema === 'main' ? '' : schema + '.';
-    const cols = q1(db, `PRAGMA ${schema}.table_info("${name}")`);
-    const n = q1(db, `SELECT COUNT(*) AS n FROM ${prefix}"${name}"`)[0].n;
-    tabs.push({ label: prefix + name, cols, n });
-  };
-  q1(db, "SELECT name FROM sqlite_master WHERE type='table' ORDER BY rowid").forEach((r) => add('main', r.name));
-  q1(db, 'PRAGMA database_list').filter((d) => d.name !== 'main' && d.name !== 'temp').forEach((d) => q1(db, `SELECT name FROM "${d.name}".sqlite_master WHERE type='table'`).forEach((r) => add(d.name, r.name)));
-  return '<div class="schema">' + tabs.map((t, i) => `<div class="sch-t ${cat(i)}"><div class="sch-h"><b>${esc(t.label)}</b><span>${t.n} 行</span></div>` + t.cols.map((c) => `<div class="sch-c"><span>${c.pk ? '<i class="pk">PK</i>' : ''}${esc(c.name)}</span><span class="sch-ty">${esc(c.type || '')}</span></div>`).join('') + '</div>').join('') + '</div>';
-}
 function renderPractice(main) {
   const ch = CH(ui.ch);
   setHue(ch.hue);
@@ -10706,19 +10842,15 @@ function renderPractice(main) {
   const ws = el('section', 'ws');
   split.append(side, ws);
   main.append(split);
-  const sch = el('details', 'sch-wrap');
-  sch.innerHTML = '<summary>表结构（schema）</summary>';
-  sch.addEventListener('toggle', () => { if (sch.open && !sch.dataset.f) withDB(sch, () => { sch.insertAdjacentHTML('beforeend', schemaHTML(ch.db)); sch.dataset.f = 1; }); });
   if (ui.ex === 'sandbox') {
     ws.innerHTML = '<div class="eyebrow">自由沙盒</div><h2>随便写，随便试</h2><p class="prompt">每次运行都从一份全新的数据库开始，改坏了也没关系。</p>';
-    ws.append(sch);
     const out = el('div', 'run-out');
-    const run = () => withDB(out, () => { const db = freshDB(ch.db); out.innerHTML = resultHTML(runSQL(db, ed.value)); db.close(); });
-    const ed = mkEditor(ui.sandbox || 'SELECT name FROM sqlite_master;', { onRun: run, label: '沙盒 SQL' });
+    const run = () => withDB(out, () => { const db = freshDB(ch.db); out.innerHTML = resultHTML(runSQL(db, ed.value), ch.db); db.close(); });
+    const ed = mkEditor(ui.sandbox || '-- 点上面的表名、列名可以直接插入\nSELECT ', { onRun: run, label: '沙盒 SQL' });
     ed.ta.addEventListener('input', () => { ui.sandbox = ed.value.slice(0, 4000); saveUI(); });
     const row = el('div', 'btnrow');
     row.append(btn('btn primary', `${icon('play')} 运行 <kbd>Ctrl ↵</kbd>`, run));
-    ws.append(ed.wrap, row, out);
+    ws.append(mkSchemaPanel(ch.db, { editor: ed }), ed.wrap, row, out);
     return;
   }
   const ex = exs.find((e) => e.id === ui.ex);
@@ -10728,9 +10860,8 @@ function renderPractice(main) {
     <h2>${esc(ex.title)} ${rec.solved ? `<span class="pill ok">${icon('check')}已通过</span>` : ''}</h2>
     <p class="prompt">${ex.prompt}</p>
     <div class="cols-need"><span class="mini-h">${ex.dml ? '判分方式' : '返回列'}</span><code>${esc(ex.cols)}</code></div>`;
-  ws.append(sch);
   const ed = mkEditor(rec.sql || (ex.dml ? '-- 写 INSERT / UPDATE / DELETE，Ctrl/⌘ + Enter 运行并检查\n' : '-- 写一条 SELECT，Ctrl/⌘ + Enter 运行并检查\n'), { onRun: () => doCheck(), label: `练习 ${ex.id}` });
-  ws.append(ed.wrap);
+  ws.append(mkSchemaPanel(ch.db, { editor: ed, ref: (ex.ref || '') + ' ' + (ex.check || '') }), ed.wrap);
   const bar = el('div', 'btnrow');
   const bHint = btn('btn', '提示');
   const bExp = btn('btn ghost', '看期望结果');
@@ -10786,7 +10917,7 @@ function renderPractice(main) {
       if (res.err) {
         fb.classList.add('bad');
         fb.innerHTML = '<b>SQL 报错</b>';
-        out.innerHTML = resultHTML({ error: res.err });
+        out.innerHTML = resultHTML({ error: res.err }, ch.db);
         Sound.play('bad');
       } else if (res.ok) {
         const first = !r.solved;
