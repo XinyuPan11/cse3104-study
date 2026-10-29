@@ -833,6 +833,29 @@ blockquote.model { margin: 6px 0; padding: 12px 16px; border-radius: 12px; backg
 .toast.ok { background: var(--ok); color: oklch(100% 0 0); }
 canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 60; }
 
+/* data panel above predict questions */
+.dp { border: 1.5px solid var(--line); border-radius: 14px; background: var(--surface); padding: 2px 12px 4px; margin: 12px 0 4px; }
+.dp summary { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; cursor: pointer; padding: 8px 0; font-size: 14px; list-style: none; }
+.dp summary::-webkit-details-marker { display: none; }
+.dp summary .ico { color: var(--c); }
+.dp summary span { color: var(--muted); font-size: 12.5px; }
+.dp summary::after { content: "收起"; margin-left: auto; font-size: 12px; color: var(--muted); }
+.dp:not([open]) summary::after { content: "展开"; }
+.dp-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+.dp-tab { border: 1.5px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 999px; padding: 4px 11px; font: 600 12.5px var(--mono); cursor: pointer; }
+.dp-tab span { font-weight: 400; opacity: .8; }
+.dp-tab.on { background: var(--c); color: var(--c-ink); border-color: transparent; }
+.dp-scroll { max-height: 250px; overflow: auto; border: 1px solid var(--line); border-radius: 10px; }
+.dp-scroll table.grid th { padding: 0; z-index: 1; }
+.dp-scroll table.grid th.rn { padding: 7px 11px; }
+.dp-th { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 6px; width: 100%; padding: 7px 11px; cursor: pointer; font-weight: 700; white-space: nowrap; }
+.dp-th i { font-style: normal; font-size: 10.5px; color: var(--muted); }
+.dp-th:hover i, .dp-th.on i { color: var(--c); }
+.dp-th.use { background: oklch(var(--Ls) var(--Cs) var(--h)); color: oklch(var(--Lk) var(--Ck) var(--h)); }
+.dp-th:focus-visible { outline: 2px solid var(--c); outline-offset: -2px; }
+.dp-scroll td.u { background: oklch(var(--Ls) var(--Cs) var(--h) / .5); }
+@media (max-width: 760px) { .dp-scroll { max-height: 210px; } }
+
 /* mock interview */
 .mk-stage [hidden] { display: none !important; }
 .mk-top { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
@@ -2584,6 +2607,7 @@ window.CHAPTERS.push({
 
       { t: 'predict', lang: 'sql', run: true,
         code: 'SELECT q.Id, a.Score AS accepted, MAX(o.Score) AS best\nFROM Posts q\nJOIN Posts a ON a.Id = q.AcceptedAnswerId\nJOIN Posts o ON o.ParentId = q.Id\nGROUP BY q.Id, a.Score\nHAVING MAX(o.Score) > a.Score;',
+        peek: 'SELECT Id, PostTypeId, ParentId, AcceptedAnswerId, Score FROM Posts;',
         q: '被采纳的答案一定是分数最高的吗？这条查询返回几行？',
         opts: ['0 行：采纳的总是最高分', '1 行', '12 行', '报错：同一张表不能 join 三次'], a: 1,
         why: '问题 20 采纳了 Emma 的答案（6 分），但 Ada 的答案有 9 分。<b>采纳</b>是提问者一个人的决定，<b>Score</b> 是社区投票——两个不同的事实。第三个别名 <code>o</code> 遍历这个问题的所有答案，取 MAX。' },
@@ -9813,6 +9837,68 @@ function mkSchemaPanel(seed, { editor, ref = '' } = {}) {
   });
   return holder;
 }
+/* "先看数据" above predict questions: the tables the query reads (or the screen's own peek queries), sortable by column */
+function mkDataPanel(seed, code, peek) {
+  const holder = el('div', 'dp-holder');
+  withDB(holder, () => {
+    const db = vizDB(seed);
+    const words = new Set((code.replace(/'[^']*'/g, ' ').match(/[A-Za-z_]\w*/g) || []).map((w) => w.toLowerCase()));
+    const sets = [];
+    if (peek) {
+      [].concat(peek).forEach((q) => {
+        const r = db.exec(q)[0];
+        if (r) sets.push({ name: (q.match(/\bFROM\s+"?([\w.]+)/i) || [])[1] || '数据', columns: r.columns, values: r.values });
+      });
+    } else {
+      const at = (t) => code.search(new RegExp(`\\b${t.name}\\b`, 'i'));
+      schemaInfo(seed).filter((t) => words.has(t.name.toLowerCase())).sort((a, b) => at(a) - at(b)).forEach((t) => {
+        const r = db.exec(`SELECT * FROM ${t.schema ? `"${t.schema}".` : ''}"${t.name}"`)[0];
+        sets.push({ name: t.name, columns: r ? r.columns : t.cols.map((c) => c.name), values: r ? r.values : [] });
+      });
+    }
+    if (!sets.length) return;
+    const MAX = 100;
+    const box = el('details', 'dp');
+    box.open = true;
+    box.innerHTML = `<summary>${icon('eye')}<b>先看数据</b><span>${peek ? '' : '这条查询读的表 · '}点列名可以排序</span></summary><div class="dp-tabs"></div><div class="dp-body"></div>`;
+    const tabs = $('.dp-tabs', box);
+    const body = $('.dp-body', box);
+    let cur = 0, sortCol = -1, dir = 1;
+    const cmp = (a, b) => {
+      if (a === b) return 0;
+      if (a === null) return 1; // NULLs stay at the bottom either way
+      if (b === null) return -1;
+      return (typeof a === 'number' && typeof b === 'number' ? a - b : String(a).localeCompare(String(b))) * dir;
+    };
+    const draw = () => {
+      const s = sets[cur];
+      const use = s.columns.map((c) => words.has(c.toLowerCase()));
+      // keep the first column (usually the id or name), then the columns the query uses, then the rest
+      const order = [0, ...s.columns.map((_, j) => j).filter((j) => j && use[j]), ...s.columns.map((_, j) => j).filter((j) => j && !use[j])];
+      const rows = s.values.map((v, i) => [v, i]);
+      if (sortCol >= 0) rows.sort((x, y) => cmp(x[0][sortCol], y[0][sortCol]) || x[1] - y[1]);
+      body.innerHTML = `<div class="grid-wrap dp-scroll"><table class="grid"><thead><tr><th class="rn">#</th>${order.map((j) => `<th><button type="button" class="dp-th${use[j] ? ' use' : ''}${j === sortCol ? ' on' : ''}" data-j="${j}">${esc(s.columns[j])}<i>${j === sortCol ? (dir > 0 ? '▲' : '▼') : '⇅'}</i></button></th>`).join('')}</tr></thead><tbody>` +
+        rows.slice(0, MAX).map(([v], i) => `<tr><td class="rn">${i + 1}</td>${order.map((j) => `<td${use[j] ? ' class="u"' : ''}>${cellHTML(v[j])}</td>`).join('')}</tr>`).join('') +
+        `</tbody></table></div><div class="grid-foot">${esc(s.name)} · ${s.values.length} 行${s.values.length > MAX ? `，只显示前 ${MAX} 行` : ''}${use.some(Boolean) ? ' · 标色的列是查询里用到的' : ''}${sortCol >= 0 ? ' · # 是排序后的名次' : ''}</div>`;
+      $$('.dp-th', body).forEach((b) => (b.onclick = () => {
+        const j = +b.dataset.j;
+        if (sortCol !== j) { sortCol = j; dir = 1; } else if (dir > 0) dir = -1; else { sortCol = -1; dir = 1; }
+        Sound.play('tap');
+        draw();
+      }));
+    };
+    if (sets.length > 1) {
+      sets.forEach((s, i) => tabs.append(btn('dp-tab' + (i ? '' : ' on'), `${esc(s.name)} <span>${s.values.length} 行</span>`, () => {
+        cur = i; sortCol = -1; dir = 1;
+        $$('.dp-tab', tabs).forEach((x, k) => x.classList.toggle('on', k === i));
+        draw();
+      })));
+    } else tabs.remove();
+    draw();
+    holder.append(box);
+  });
+  return holder;
+}
 function resultHTML(res, seed) {
   if (res.error) {
     const why = explainErr(res.error, seed);
@@ -10725,6 +10811,8 @@ SCR.code = (s, b) => {
 function choiceScreen(s, b, ctx) {
   if (s.t === 'predict') {
     b.insertAdjacentHTML('beforeend', codeBlock(s.code, s.lang || 'sql', 'big'));
+    // a query you can't see the data for is a guess, so show the tables it reads
+    if (s.run && ctx.seed && s.data !== false && !/^\s*EXPLAIN\b/i.test(s.code)) b.append(mkDataPanel(ctx.seed, s.code, s.peek));
     b.insertAdjacentHTML('beforeend', `<div class="q">${s.q || '运行结果是？'}</div>`);
   } else {
     b.insertAdjacentHTML('beforeend', `<div class="q">${s.q}</div>`);
