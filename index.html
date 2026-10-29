@@ -916,6 +916,12 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; animation-delay: 0s !important; }
 }
 
+/* data tables inside questions */
+.qtabs { display: flex; flex-wrap: wrap; gap: 12px 22px; align-items: flex-start; margin: 10px 0 14px; }
+.qtab { margin: 0; min-width: 0; max-width: 100%; }
+.qtab figcaption { font: 700 12px var(--mono); color: var(--muted); margin-bottom: 5px; }
+.qtab-n { font-size: 12.5px; color: var(--muted); margin-top: 5px; }
+
 </style>
 <header class="top" id="top"></header>
 <main id="main"><div class="wrap" style="padding-block:40px">加载中…</div></main>
@@ -924,7 +930,7 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
   <div class="tutor-log" id="tutor-log"></div>
   <form class="tutor-f" id="tutor-f">
     <label class="sr-only" for="tutor-in">你的问题</label>
-    <textarea id="tutor-in" rows="3" placeholder="问本课的任何问题（Ctrl/⌘ + Enter 发送）"></textarea>
+    <textarea id="tutor-in" rows="3" placeholder="问本课的任何问题（Enter 发送，Shift + Enter 换行）"></textarea>
     <div class="tutor-btns"><button type="button" class="btn sm ghost" id="tutor-stop" hidden>停止</button><button class="btn sm primary" type="submit">发送</button></div>
   </form>
 </aside>
@@ -1099,7 +1105,7 @@ INSERT INTO teams VALUES (1,'Bears'),(2,'Ducks'),(3,'Hawks'),(4,'Wolves');
             { icon: 'clock', h: 'Performance 性能', p: '常用查询怎么更快、更省钱？' },
             { icon: 'layers', h: 'Scalability 可扩展', p: '数据涨 10 倍、100 倍怎么办？' },
           ] },
-          { t: 'quiz', q: '「如果数据量涨 100 倍，系统还撑得住吗？」属于哪一件？', opts: ['Quality', 'Automation', 'Performance', 'Scalability'], a: 3, why: 'Scalability 关心数据量和负载增长以后系统还能不能工作。' },
+          { t: 'quiz', q: '「如果数据量涨 100 倍，系统还撑得住吗？」属于数据工程师关心的四件事里的哪一件？', opts: ['Quality', 'Automation', 'Performance', 'Scalability'], a: 3, why: 'Scalability 关心数据量和负载增长以后系统还能不能工作。' },
           { t: 'vs', title: '两种工作负载', a: { name: 'Transactional 事务型', sub: '收银台扫码下单', points: ['每次只读写一点点数据', '要<b>快</b>，有人在等', '例：下单、转账、注册'] }, b: { name: 'Analytic 分析型', sub: '季度销售报表', points: ['一次读大量历史数据', '可以慢一点', '例：报表、趋势分析、训练模型'] }, bottom: '同一家公司两种都有，数据工程师要为不同负载选不同的系统。' },
           { t: 'quiz', q: '顾客在收银台排队，每扫一件商品就写入一条记录。这是？', opts: ['Transactional 事务型', 'Analytic 分析型'], a: 0, why: '小而快、有人在等 → transactional。' },
           { t: 'match', q: '每个角色的「产品」是什么？', pairs: [['Software engineer', '代码和应用本身'], ['Data scientist', '模型和分析'], ['Data engineer', '数据本身：准确、可靠、及时']], why: '对数据工程师来说，数据本身就是产品。' },
@@ -1116,7 +1122,7 @@ INSERT INTO teams VALUES (1,'Bears'),(2,'Ducks'),(3,'Hawks'),(4,'Wolves');
             b: { name: 'Declarative 声明式', sub: 'SQL：你只说要什么', points: ['数据库引擎 + <b>查询优化器</b>决定怎么做', '不用管按行存还是按列存', '数据库升级，同一句 SQL 可能自己变快'], code: "SELECT MenuItem\nFROM menu\nWHERE Vegetarian = 'Yes';" },
           },
           { t: 'sort', q: '这些是「声明式」还是「过程式」的思路？', buckets: ['声明式 declarative', '过程式 procedural'],
-            items: [['SELECT name FROM menu WHERE Price < 7', 0], ['写 for 循环逐行判断再 append', 1], ['「给我所有素食菜的名字」', 0], ['先排序，再二分查找', 1], ['数据库自己决定走索引还是全表扫描', 0], ['自己决定数据按行存还是按列存', 1]],
+            items: [['SELECT MenuItem FROM menu WHERE Price < 7', 0], ['写 for 循环逐行判断再 append', 1], ['「给我所有素食菜的名字」', 0], ['先排序，再二分查找', 1], ['数据库自己决定走索引还是全表扫描', 0], ['自己决定数据按行存还是按列存', 1]],
             why: '声明式只描述结果；过程式要写出每一步怎么做。' },
           { t: 'idea', title: '方言与 schema', icon: 'db', body: 'SQL 有很多<b>方言（dialect）</b>：PostgreSQL、MySQL、SQLite……核心相同、细节不同。本站跑 SQLite。<b>schema</b> 是数据库的结构，<code>McKelvey.students</code> 里 McKelvey 是 schema，students 是表。', terms: [['dialect', '方言'], ['schema', '模式 / 命名空间'], ['query optimizer', '查询优化器']] },
           { t: 'rows', title: 'WHERE 一行一行地判断', sql: 'SELECT MenuItem\nFROM menu\nWHERE Price < 7.00;',
@@ -1135,7 +1141,7 @@ INSERT INTO teams VALUES (1,'Bears'),(2,'Ducks'),(3,'Hawks'),(4,'Wolves');
             ] },
           { t: 'predict', code: "SELECT MenuItem FROM menu\nWHERE Vegetarian = 'Yes' AND Price > 6.00;", lang: 'sql', q: '在完整的 10 行 menu 表上，返回几行？', opts: ['3 行', '4 行', '7 行', '2 行'], a: 0, why: '素食且价格高于 6：Pasta Salad 8.95、Veggie Burger 7.25、Falafel Wrap 6.95。两个条件都要 TRUE。', run: true },
           { t: 'fill', q: "把 pandas 翻译成 SQL：<code>menu[menu['Vegetarian'] == 'Yes']</code>", tpl: 'SELECT * FROM menu {0} Vegetarian = {1};', blanks: [{ a: ['WHERE'] }, { a: ["'Yes'"], cs: true }], lang: 'sql', why: '布尔筛选对应 WHERE；字符串用单引号，大小写要和数据一致。' },
-          { t: 'quiz', q: '课件第 10 页的这条查询在 PostgreSQL 会报错。主要问题是？', code: 'SELECT MenuItem FROM Menu\nWHERE Vegetarian == Yes AND Price > 6.00;', opts: ['Yes 没加单引号，被当成了列名', 'AND 应该写成 &', 'Price 要加引号', 'SELECT 后面必须写 *'], a: 0, why: "字符串常量要写成 <code>'Yes'</code>；标准 SQL 用一个 <code>=</code> 比较（SQLite 碰巧也接受 ==）。" },
+          { t: 'quiz', q: '课件里「素食且价格高于 $6」的例子写成了下面这样（原样照抄），在 PostgreSQL 里会报错。主要问题是？', code: 'SELECT MenuItem FROM Menu\nWHERE Vegetarian == Yes AND Price > 6.00;', opts: ['Yes 没加单引号，被当成了列名', 'AND 应该写成 &', 'Price 要加引号', 'SELECT 后面必须写 *'], a: 0, why: "字符串常量要写成 <code>'Yes'</code>；标准 SQL 用一个 <code>=</code> 比较（SQLite 碰巧也接受 ==）。" },
           { t: 'sql', title: '轮到你', task: '价格低于 $5 的菜，返回 <code>MenuItem</code> 和 <code>Price</code>。', sql: '-- 在这里写，Ctrl/⌘ + Enter 运行\n', check: 'SELECT MenuItem, Price FROM menu WHERE Price < 5;', hint: '比较用 <，数字不加引号。' },
           { t: 'recap', points: ['SQL 是<b>声明式</b>的：说要什么，查询优化器决定怎么做', 'SELECT 管<b>列</b>，WHERE 管<b>行</b>', 'WHERE 只留结果为 TRUE 的行；和 NULL 比较得到 UNKNOWN', "字符串用单引号：<code>'Yes'</code>"] },
         ],
@@ -1223,7 +1229,7 @@ INSERT INTO teams VALUES (1,'Bears'),(2,'Ducks'),(3,'Hawks'),(4,'Wolves');
               { text: 'Eve（NULL）：同上 → <b>5 · 3 · 2</b>', hl: { a: 'pass', b: 'pass', c: 'pass', d: 'warn', e: 'warn' }, badge: { a: '+1 +1 +1', b: '+1 +1 ·', c: '+1 +1 +1', d: '+1 · ·', e: '+1 · ·' } },
               { text: '<b>5 / 3 / 2</b>：COUNT(*) 数行；COUNT(列) 跳过 NULL；COUNT(DISTINCT 列) 再跳过重复值。' },
             ] },
-          { t: 'predict', code: 'SELECT COUNT(*), COUNT(major), COUNT(DISTINCT major)\nFROM students;', lang: 'sql', q: '完整的 students 表（24 人，2 人专业是 NULL，一共 6 个专业）：', opts: ['24, 22, 6', '24, 24, 7', '22, 22, 6', '24, 22, 7'], a: 0, why: 'COUNT(*) = 24；有专业的 22 人；不重复的非 NULL 专业 6 个（NULL 不算一个值）。', run: true },
+          { t: 'predict', code: 'SELECT COUNT(*), COUNT(major), COUNT(DISTINCT major)\nFROM students;', lang: 'sql', q: '完整的 students 表：24 人，其中 2 人 major 是 NULL，其余 22 人分属 6 个不同专业。三个数分别是？', opts: ['24, 22, 6', '24, 24, 7', '22, 22, 6', '24, 22, 7'], a: 0, why: 'COUNT(*) = 24；有专业的 22 人；不重复的非 NULL 专业 6 个（NULL 不算一个值）。', run: true },
           { t: 'grid', title: 'LIMIT / OFFSET：一个滑动的窗口',
             frames: [
               { text: 'ORDER BY id 之后的 24 行（每格是一个 id）。', cells: grid4x6(Array.from({ length: 24 }, (_, i) => i + 1)) },
@@ -1233,7 +1239,7 @@ INSERT INTO teams VALUES (1,'Bears'),(2,'Ducks'),(3,'Hawks'),(4,'Wolves');
               { text: '第 5 页 <code>OFFSET 20</code>：只剩 4 行，也没关系。一定要配 ORDER BY，否则翻页可能重复或漏行。', mark: page(20, 5) },
             ] },
           { t: 'fill', q: '每页 10 行，按 id 排序，取第 4 页：', tpl: 'SELECT * FROM students\nORDER BY id\nLIMIT {0} OFFSET {1};', blanks: [{ a: ['10'] }, { a: ['30'] }], lang: 'sql', why: 'OFFSET = (4 − 1) × 10 = 30。' },
-          { t: 'vs', title: 'WHERE vs HAVING', a: { name: 'WHERE', sub: '分组之前', points: ['筛选的是<b>行</b>', '不能用聚合函数', '例：WHERE credits > 60'] }, b: { name: 'HAVING', sub: '分组之后', points: ['筛选的是<b>组</b>', '可以用聚合函数', '例：HAVING COUNT(*) > 50'] }, bottom: '课件第 25 页的套路：WHERE 先挑出大三大四，GROUP BY 按专业分组，HAVING 只留人多的专业。' },
+          { t: 'vs', title: 'WHERE vs HAVING', a: { name: 'WHERE', sub: '分组之前', points: ['筛选的是<b>行</b>', '不能用聚合函数', '例：WHERE credits > 60'] }, b: { name: 'HAVING', sub: '分组之后', points: ['筛选的是<b>组</b>', '可以用聚合函数', '例：HAVING COUNT(*) > 50'] }, bottom: '课件的典型例子：<code>WHERE credits &gt; 60</code> 先挑出大三大四的学生，<code>GROUP BY major</code> 按专业分组，<code>HAVING COUNT(*) &gt; 50</code> 只留这类学生超过 50 人的专业。' },
           { t: 'sql', title: '轮到你', task: '人数 ≥ 4 的专业，返回 <code>major</code> 和人数。', sql: '-- GROUP BY + HAVING\n', check: 'SELECT major, COUNT(*) FROM students GROUP BY major HAVING COUNT(*) >= 4;', hint: '先 GROUP BY major，再 HAVING COUNT(*) >= 4' },
           { t: 'recap', points: ['执行顺序：FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT', 'COUNT(*) 数行；COUNT(列) 跳过 NULL；COUNT(DISTINCT 列) 数不同值', 'OFFSET = (页码 − 1) × 每页行数，配 ORDER BY', 'WHERE 筛行（分组前），HAVING 筛组（分组后）'] },
         ],
@@ -1253,11 +1259,11 @@ INSERT INTO teams VALUES (1,'Bears'),(2,'Ducks'),(3,'Hawks'),(4,'Wolves');
           { t: 'rows', title: '忘了 WHERE', sql: "UPDATE students\nSET class_level = 'Senior';",
             cols: ['id', 'name', 'credits', 'class_level'], rows: UPD_ROWS,
             frames: [
-              { text: '同样 8 行数据。' },
+              { text: '8 行原始数据（Quinn 还是 Freshman）。这次 UPDATE 没写 WHERE。' },
               { text: '没有 WHERE = <b>每一行都命中</b>。', line: 1, hl: each(UK, 'warn'), badge: each(UK, '命中') },
               { text: '8 行全变成 Senior。在真实数据库里，这就是一次事故。', line: 1, vals: Object.fromEntries(UPD_ROWS.map((r) => [r.k, [r.v[0], r.v[1], r.v[2], 'Senior']])), hl: each(UK, 'del') },
             ] },
-          { t: 'quiz', q: "students 表有 24 行。<code>UPDATE students SET class_level = 'Senior';</code> 会改几行？", opts: ['0 行', '1 行', '24 行', '报错，必须写 WHERE'], a: 2, why: 'SQL 不会拦你：没有 WHERE 就是全部。' },
+          { t: 'quiz', q: "students 表有 24 行。<code>UPDATE students SET class_level = 'Senior';</code> 会命中（写入）几行？", opts: ['0 行', '1 行', '24 行', '报错，必须写 WHERE'], a: 2, why: 'SQL 不会拦你：没有 WHERE 就是全部 24 行都被写成 Senior（其中 6 人本来就是 Senior，值没变，但也被写了一遍）。' },
           { t: 'order', q: '在生产数据库上改数据，正确的步骤顺序是？', parts: ['写好 WHERE 条件', '用 SELECT * … WHERE … 预览命中的行', '确认行数和内容都对', '把 SELECT * 换成 UPDATE … SET', '再 SELECT 一次检查结果'], why: '先预演再动手；尽量不要改主键 / 索引列。' },
           { t: 'idea', title: 'INSERT 和 DELETE', icon: 'table', body: 'INSERT 时<b>总是写明列名</b>，表结构变了代码也不会坏；没写的列是 NULL。DELETE 和 UPDATE 一样靠 WHERE 选行，<code>DELETE FROM t</code> 不带 WHERE 会清空整张表。', code: "INSERT INTO students (name, credits)\nVALUES ('Alex', 15), ('Bea', 30);\n\nDELETE FROM students WHERE id = 24;" },
           { t: 'predict', code: 'SELECT COUNT(*) FROM students\nWHERE gpa > (SELECT AVG(gpa) FROM students);', lang: 'sql', q: '子查询先算出全体平均 GPA（约 3.35），外层再比较。结果是？', opts: ['11', '12', '23', '10'], a: 0, why: '括号里的<b>子查询</b>只算一次，得到一个数，外层再拿它比较。AVG 会忽略 Isabel 的 NULL GPA。', run: true },
@@ -1273,7 +1279,10 @@ INSERT INTO teams VALUES (1,'Bears'),(2,'Ducks'),(3,'Hawks'),(4,'Wolves');
               { text: 'David → 3.85，Diana → 3.5，Daniel → 2.5。', line: 1, vals: { s4: [4, 'David', 3.85], s5: [5, 'Diana', 3.5], s6: [6, 'Daniel', 2.5] }, hl: { s1: 'pass', s2: 'pass', s3: 'warn', s4: 'pass', s5: 'pass', s6: 'pass' } },
               { text: '更稳的写法：加上 <code>WHERE s.id IN (SELECT student_id FROM enrollments)</code>，没选课的人就不会被改。', hl: { s3: 'warn' } },
             ] },
-          { t: 'quiz', q: 'Dr. Brown 明明没带学生，这条查询却返回 0 行。为什么？', code: 'SELECT name FROM faculty\nWHERE id NOT IN (SELECT advisorID FROM students);', opts: ['子查询结果里有 NULL（有学生没有导师）', 'faculty 表里没有 Dr. Brown', 'NOT IN 不能接子查询'], a: 0, why: '<code>x NOT IN (…, NULL)</code> 永远不会是 TRUE。在子查询里加 <code>WHERE advisorID IS NOT NULL</code>，或改用 NOT EXISTS。' },
+          { t: 'quiz', q: '想找「一个学生都没带的老师」。数据如下：Dr. Brown（id 12）明明没带学生，这条查询却返回 0 行。为什么？', code: 'SELECT name FROM faculty\nWHERE id NOT IN (SELECT advisorID FROM students);',
+            tables: [{ name: 'faculty', head: ['id', 'name'], rows: [[10, 'Dr. Smith'], [11, 'Dr. Jones'], [12, 'Dr. Brown'], [13, 'Dr. Patel'], [14, 'Dr. Garcia'], [15, 'Dr. Okafor']] },
+              { name: 'students 的 advisorID（24 人汇总）', head: ['advisorID', '学生数'], rows: [[10, 7], [11, 4], [13, 4], [14, 3], [15, 3], [null, 3]], note: 'NULL 的 3 人：Charlie、Isabel、Quinn（没有导师）' }],
+            opts: ['子查询结果里有 NULL（有学生没有导师）', 'faculty 表里没有 Dr. Brown', 'NOT IN 不能接子查询'], a: 0, why: '<code>x NOT IN (…, NULL)</code> 永远不会是 TRUE。在子查询里加 <code>WHERE advisorID IS NOT NULL</code>，或改用 NOT EXISTS。' },
           { t: 'sql', title: '轮到你', task: '删除一门课都没选的学生，然后数一数还剩几人（最后一条语句返回人数）。', sql: '-- 第 1 步：DELETE … WHERE id NOT IN (…)\n-- 第 2 步：SELECT COUNT(*) FROM students;\n', check: 'DELETE FROM students WHERE id NOT IN (SELECT student_id FROM enrollments); SELECT COUNT(*) FROM students;', hint: '子查询：SELECT student_id FROM enrollments' },
           { t: 'recap', points: ['没有 WHERE 的 UPDATE / DELETE 作用于<b>每一行</b>', '安全流程：先 SELECT 预演，再改，再检查', '子查询先算出一个值或一个集合；<b>相关子查询</b>对外层每一行都算一次', '相关子查询找不到行时返回 NULL；NOT IN 遇到 NULL 会返回 0 行'] },
         ],
@@ -1287,21 +1296,25 @@ INSERT INTO teams VALUES (1,'Bears'),(2,'Ducks'),(3,'Hawks'),(4,'Wolves');
             left: { name: 'students s', cols: ['id', 'name', 'advisorID'], rows: [[1, 'Alice', 10], [2, 'Bob', 11], [3, 'Charlie', null]] },
             right: { name: 'faculty f', cols: ['id', 'name'], rows: [[10, 'Dr. Smith'], [11, 'Dr. Jones'], [12, 'Dr. Brown']] },
             on: [2, 0], out: [['L', 1], ['R', 1]], types: ['inner', 'left', 'right', 'full', 'cross'] },
-          { t: 'quiz', q: '同样两张表（Charlie 没导师，Dr. Brown 没学生），<b>LEFT JOIN</b> 返回几行？', opts: ['2', '3', '4', '9'], a: 1, why: '左表 3 行全部保留：2 行配上导师，Charlie 那行导师是 NULL。' },
-          { t: 'predict', code: 'SELECT s.name, f.name\nFROM students s\nRIGHT JOIN faculty f ON s.advisorID = f.id;', lang: 'sql', q: '课件第 44 页的 RIGHT JOIN，结果应该是？', opts: ['Alice|Dr. Smith、Bob|Dr. Jones、NULL|Dr. Brown', 'Alice|Dr. Smith、Bob|Dr. Jones、NULL|Dr. White', 'Alice|Dr. Smith、Bob|Dr. Jones、Charlie|NULL', '只有 2 行'], a: 0, why: 'RIGHT JOIN 保留右表全部。课件结果里写成了 Dr. White，但 faculty 表里没有这个人，应该是 Dr. Brown。' },
-          { t: 'match', q: 'SQL 的 JOIN 和 pandas merge 的 how= 连一连：', pairs: [['INNER JOIN', "how='inner'"], ['LEFT JOIN', "how='left'"], ['RIGHT JOIN', "how='right'"], ['FULL OUTER JOIN', "how='outer'"], ['CROSS JOIN', "how='cross'"]], why: "注意 pandas 叫 'outer'，SQL 要写全 <code>FULL OUTER JOIN</code>；单独写 <code>OUTER JOIN</code>（课件第 46 页）在 SQLite 和 PostgreSQL 里都是语法错误。" },
+          { t: 'quiz', q: '还是上一屏的这两张表：Charlie 没有导师，Dr. Brown 没有学生。<code>students s LEFT JOIN faculty f ON s.advisorID = f.id</code> 返回几行？',
+            tables: [{ name: 'students s', head: ['id', 'name', 'advisorID'], rows: [[1, 'Alice', 10], [2, 'Bob', 11], [3, 'Charlie', null]] }, { name: 'faculty f', head: ['id', 'name'], rows: [[10, 'Dr. Smith'], [11, 'Dr. Jones'], [12, 'Dr. Brown']] }],
+            opts: ['2', '3', '4', '9'], a: 1, why: '左表 students 的 3 行全部保留：Alice、Bob 配上导师，Charlie 那行导师是 NULL。Dr. Brown 没人配，LEFT JOIN 不保留他。' },
+          { t: 'predict', code: 'SELECT s.name, f.name\nFROM students s\nRIGHT JOIN faculty f ON s.advisorID = f.id;', lang: 'sql', q: '老师的课件里有一个 RIGHT JOIN 例子，用的正是下面这两张表，但印出来的结果写错了一个名字。正确结果是？',
+            tables: [{ name: 'students s', head: ['id', 'name', 'advisorID'], rows: [[1, 'Alice', 10], [2, 'Bob', 11], [3, 'Charlie', null]] }, { name: 'faculty f', head: ['id', 'name'], rows: [[10, 'Dr. Smith'], [11, 'Dr. Jones'], [12, 'Dr. Brown']] }],
+            opts: ['Alice|Dr. Smith、Bob|Dr. Jones、NULL|Dr. Brown', 'Alice|Dr. Smith、Bob|Dr. Jones、NULL|Dr. White', 'Alice|Dr. Smith、Bob|Dr. Jones、Charlie|NULL', '只有 2 行'], a: 0, why: 'RIGHT JOIN 保留右表 faculty 的全部 3 行：Dr. Smith、Dr. Jones 配上学生，Dr. Brown 没学生，学生名是 NULL。课件把最后一行印成了 Dr. White，但 faculty 表里根本没有这个人，应该是 Dr. Brown。' },
+          { t: 'match', q: 'SQL 的 JOIN 和 pandas merge 的 how= 连一连：', pairs: [['INNER JOIN', "how='inner'"], ['LEFT JOIN', "how='left'"], ['RIGHT JOIN', "how='right'"], ['FULL OUTER JOIN', "how='outer'"], ['CROSS JOIN', "how='cross'"]], why: "注意 pandas 叫 'outer'，SQL 要写全 <code>FULL OUTER JOIN</code>。课件里有一处只写了 <code>OUTER JOIN</code>，这在 SQLite 和 PostgreSQL 里都是语法错误。" },
           { t: 'grid', title: 'CROSS JOIN：每一行 × 每一行', rowLabels: TEAMS, colLabels: TEAMS,
             frames: [
               { text: '4 支队伍自己和自己 CROSS JOIN：4 × 4 = 16 种组合，包括自己对自己。', cells: pairs, mark: cross(() => true) },
               { text: '<code>WHERE t1.id &lt;&gt; t2.id</code>：去掉对角线，剩 <b>12</b> 场（主客场各一次）。', mark: cross((r, c) => r !== c) },
               { text: '<code>WHERE t1.id &lt; t2.id</code>：只留右上角，<b>6</b> 场不重复对阵。', mark: cross((r, c) => r < c) },
             ] },
-          { t: 'quiz', q: '1 GB、100 万行的表 CROSS JOIN 2 GB、200 万行的表，结果大约多大？', opts: ['约 3 GB', '约 2000 GB', '约 400 万 GB（4 PB）', '约 200 万行'], a: 2, why: '行数 = 100 万 × 200 万 = 2×10¹²；每行约 1 KB + 1 KB = 2 KB，总共约 4×10¹⁵ 字节。课件写的是 12 million GB，数字对不上，但结论一样：根本放不下。' },
+          { t: 'quiz', q: '1 GB、100 万行的表 CROSS JOIN 2 GB、200 万行的表，结果大约多大？', opts: ['约 3 GB', '约 2000 GB', '约 400 万 GB（4 PB）', '约 200 万行'], a: 2, why: '行数 = 100 万 × 200 万 = 2×10¹²；两表每行都约 1 KB，拼起来每行约 2 KB，总共约 4×10¹⁵ 字节。课件的估算写成「2 trillion rows is 12 million gigabytes」（1200 万 GB），按同样的假设算不出这个数，但结论一样：根本放不下。' },
           { t: 'sql', title: '轮到你', task: '列出<b>所有</b>学生和导师名（没有导师的也要，导师为 NULL）：返回 <code>firstname</code> 和导师 <code>name</code>。', sql: '-- 从 students s 出发，用 JOIN 连上 faculty f\n', check: 'SELECT s.firstname, f.name FROM students s LEFT JOIN faculty f ON s.advisorID = f.id;', hint: '要保留左表全部 → LEFT JOIN … ON s.advisorID = f.id' },
-          { t: 'sort', q: '课件里这些写法，哪些是对的，哪些有问题？', buckets: ['正确写法', '有问题'],
+          { t: 'sort', q: '下面这些 SQL 片段，哪些写对了，哪些有问题？（有问题的三种都在课件里出现过）', buckets: ['正确写法', '有问题'],
             items: [["WHERE Vegetarian = 'Yes'", 0], ['WHERE Vegetarian == Yes', 1], ['FULL OUTER JOIN faculty f', 0], ['OUTER JOIN faculty f（单独 OUTER）', 1], ["LIKE 'D___d'", 0], ["LIKE 'D _ _ _ d'（带空格）", 1]],
             why: '字符串要加单引号；全外连接要写全 FULL OUTER JOIN；LIKE 模式里的空格也会被当成字符。' },
-          { t: 'recap', points: ['外键（advisorID）指向另一张表的主键（faculty.id）', 'INNER 只留配上的；LEFT / RIGHT 保留一边全部；FULL OUTER 两边都保留', 'CROSS JOIN 是 m × n 的笛卡尔积，几乎永远不是你想要的', '课件勘误：Dr. White → Dr. Brown；OUTER JOIN 要写全'] },
+          { t: 'recap', points: ['外键（advisorID）指向另一张表的主键（faculty.id）', 'INNER 只留配上的；LEFT / RIGHT 保留一边全部；FULL OUTER 两边都保留', 'CROSS JOIN 是 m × n 的笛卡尔积，几乎永远不是你想要的', '课件勘误：RIGHT JOIN 的结果里印成了 Dr. White（faculty 表里没有这个人），应为 Dr. Brown；单独写 <code>OUTER JOIN</code> 是语法错误，要写全 <code>FULL OUTER JOIN</code>'] },
         ],
       },
     ],
@@ -1380,7 +1393,7 @@ window.CHAPTERS.push({
 
     /* ───────────── a · 闪电复习 ───────────── */
     { id: 'a', title: '闪电复习：上节课还剩多少？', min: 4, screens: [
-      { t: 'hook', big: '上节课的 SQL，还剩多少在脑子里？', sub: '闪电复习：每题 10 秒。顺便找出课件里的 4 个小错。', icon: 'bolt' },
+      { t: 'hook', big: '上节课的 SQL，还剩多少在脑子里？', sub: '闪电复习：每题 10 秒。顺便纠正课件里的 4 个小错，原文都会摆在题目里。', icon: 'bolt' },
 
       { t: 'quiz', q: 'SQL 是 <b>declarative（声明式）</b>语言。这句话的意思是？',
         opts: ['你描述「要什么结果」，数据库自己决定「怎么算」', '你必须一步步写出循环和遍历顺序', 'SQL 只能读数据，不能改数据', '子句必须按执行顺序书写'],
@@ -1401,7 +1414,7 @@ window.CHAPTERS.push({
         body: '<code>%</code> = 任意个字符（可以是 0 个），<code>_</code> = 恰好 1 个字符。模式必须从头到尾整体匹配。',
         code: "WHERE firstname LIKE 'D%s'   -- D 开头、s 结尾（如 Dennis）\nWHERE firstname LIKE '_o%'   -- 第二个字母是 o（如 Tom、Noah）",
         lang: 'sql',
-        trap: "课件第 4 页写的是 <code>LIKE 'S%s'</code>，注释却说「starting with a D and ending with an s」。模式和注释对不上：<code>'S%s'</code> 匹配 S 开头、s 结尾；想要 D 开头应写 <code>'D%s'</code>。",
+        trap: "课件里写的是 <code>WHERE firstname LIKE 'S%s'</code>，注释却说「matches names starting with a D and ending with an s」。模式和注释对不上：<code>'S%s'</code> 匹配 S 开头、s 结尾；想要 D 开头应写 <code>'D%s'</code>。",
         tip: 'SQLite 的 LIKE 对英文字母<b>不分大小写</b>；PostgreSQL 的 LIKE 区分大小写（不区分要用 ILIKE）。' },
 
       { t: 'predict', lang: 'sql', run: true,
@@ -1430,9 +1443,11 @@ window.CHAPTERS.push({
             hl: { tu: 'pass', ta: 'pass' } },
         ] },
 
-      { t: 'quiz', q: '找茬：课件的小表里，Mech Eng 只有 Charlie Brown（42 学分）一个人。<code>ORDER BY major ASC, credits DESC</code> 结果的<b>最后一行</b>应该是？',
+      { t: 'quiz', q: '找茬：课件在下面这张 4 行的小表上运行这条查询，印出的结果<b>最后一行</b>是 Marley | Mech Eng。正确的最后一行应该是？',
+        code: 'SELECT lastname, major\nFROM students\nORDER BY major ASC, credits DESC;',
+        tables: [{ name: 'students（课件的小表，不是 school 库）', head: ['firstname', 'lastname', 'major', 'credits'], rows: [['Alice', 'Caroll', 'Data Sci', 63], ['Bob', 'Marley', 'Data Sci', 97], ['Charlie', 'Brown', 'Mech Eng', 42], ['David', 'Smith', 'Comp Sci', 18]] }],
         opts: ['Marley | Mech Eng', 'Brown | Mech Eng', 'Smith | Comp Sci', 'Caroll | Data Sci'], a: 1,
-        why: '<b>课件勘误（第 8 页）</b>：结果表最后一行写成了 Marley | Mech Eng，可 Marley 是 Data Sci 的学生。正确顺序：Smith（Comp Sci）→ Marley 97、Caroll 63（Data Sci，学分降序）→ <b>Brown</b>（Mech Eng）。' },
+        why: '<b>课件勘误</b>：Marley 是 Data Sci 的学生，不可能和 Mech Eng 排在一行。正确顺序：Smith（Comp Sci）→ Marley 97、Caroll 63（Data Sci，学分降序）→ <b>Brown</b>（Mech Eng）。' },
 
       { t: 'grid', title: 'LIMIT / OFFSET 分页',
         rowLabels: ['第 1 页', '第 2 页', '第 3 页'],
@@ -1448,7 +1463,8 @@ window.CHAPTERS.push({
         blanks: [{ a: ['10'] }, { a: ['30'] }], lang: 'sql',
         why: 'OFFSET = (页码 − 1) × 每页条数 = 3 × 10 = 30。一定要配 ORDER BY，不然每一页的内容都不稳定。' },
 
-      { t: 'quiz', q: '课件第 24 页的全外连接写成 <code>FROM students s OUTER JOIN faculty f ON …</code>。在 SQLite 里运行会怎样？',
+      { t: 'quiz', q: '课件想演示全外连接，却写成了下面这样（只写了 <code>OUTER JOIN</code>）。在 SQLite 里运行会怎样？',
+        code: 'SELECT s.name, f.name\nFROM students s\nOUTER JOIN faculty f\n  ON s.advisorID = f.id;',
         opts: ['报错：unknown join type: OUTER', '等同于 FULL OUTER JOIN', '等同于 LEFT JOIN', '等同于 CROSS JOIN'], a: 0,
         why: '<b>课件勘误</b>：OUTER 只是修饰词，必须写 <code>FULL OUTER JOIN</code>（或 <code>FULL JOIN</code>）。SQLite 从 3.39 起支持；MySQL 至今不支持 FULL JOIN，要用 LEFT JOIN 和 RIGHT JOIN 的 UNION 拼出来。' },
 
@@ -1460,7 +1476,7 @@ window.CHAPTERS.push({
         body: '结果行数 = 左表行数 × 右表行数。真正有用的场景是<b>生成所有组合</b>，比如球队对阵表、T 恤颜色 × 尺码。',
         code: 'SELECT t1.name, t2.name\nFROM teams t1\nCROSS JOIN teams t2\nWHERE t1.id <> t2.id;   -- 4 × 4 − 4 = 12 场',
         lang: 'sql',
-        trap: '课件第 26 页估算结果约「1200 万 GB」。按它自己的假设（每行约 1 KB）算：2×10¹² 行 × 约 2 KB ≈ <b>400 万 GB（4 PB）</b>。数字有出入，结论一样：笔记本装不下。另外在 SQLite / MySQL 里，忘写 ON 的 <code>JOIN</code> 会悄悄变成 CROSS JOIN。' },
+        trap: '课件的估算是「2 trillion rows is about 12 million gigabytes」（约 1200 万 GB）。按它自己的假设（100 万行 = 1 GB，即每行约 1 KB）算：2×10¹² 行 × 约 2 KB ≈ <b>400 万 GB（4 PB）</b>。数字有出入，结论一样：笔记本装不下。另外在 SQLite / MySQL 里，忘写 ON 的 <code>JOIN</code> 会悄悄变成 CROSS JOIN。' },
 
       { t: 'recap', points: [
         '<code>NULL</code> 参与比较得 UNKNOWN，WHERE 不要它；<code>COUNT(col)</code> 跳过 NULL，<code>COUNT(*)</code> 不跳。',
@@ -1496,7 +1512,7 @@ window.CHAPTERS.push({
           { text: '留下 5 道菜。子查询只算了<b>一次</b>。', show: ['ps', 'vb', 'bc', 'pc', 'fw'] },
         ] },
 
-      { t: 'quiz', q: '放在 <code>&gt;</code> 右边的子查询，必须返回什么？',
+      { t: 'quiz', q: '像 <code>WHERE Price &gt; (SELECT AVG(Price) FROM menu)</code> 这样，放在 <code>&gt;</code> 右边的子查询必须返回什么？',
         opts: ['一行一列（一个值）', '一列多行', '多行多列', '什么都行，数据库会自动处理'], a: 0,
         why: '这叫 <b>scalar subquery（标量子查询）</b>。如果它返回了多行，PostgreSQL 会报错；SQLite 却<b>悄悄只取第一行</b>，不报错反而更危险。' },
 
@@ -1507,7 +1523,7 @@ window.CHAPTERS.push({
           ['WHERE id IN (SELECT student_id …)', '判断是否属于一个集合'],
           ['WHERE gpa = (SELECT MAX(gpa) …)', '找出「最高的那个人」'],
         ],
-        why: '课件第 12 页的三种用法：比较、计算列、集合成员。第四种是「比较」的特例，常用来代替 ORDER BY … LIMIT 1（有并列时也不会漏人）。' },
+        why: '课件总结的三种用法：和算出来的值比较、造计算列、判断集合成员。第四种是「比较」的特例，常用来代替 ORDER BY … LIMIT 1（有并列时也不会漏人）。' },
 
       { t: 'sql', title: '计算列',
         task: '在下面的查询上加一列 <code>pct</code>：每个 CS 学生的 gpa ÷ 全校最高 GPA，用 <code>ROUND(…, 3)</code> 保留 3 位小数。',
@@ -1515,9 +1531,9 @@ window.CHAPTERS.push({
         check: "SELECT firstname, gpa, ROUND(gpa / (SELECT MAX(gpa) FROM students), 3) AS pct FROM students WHERE major = 'CS';",
         hint: '<code>ROUND(gpa / (SELECT MAX(gpa) FROM students), 3) AS pct</code>' },
 
-      { t: 'idea', title: '这一列不是「名次」', icon: 'warn',
-        body: '<code>gpa / MAX(gpa)</code> 算的是「占第一名的比例」：Emma 0.99、David 0.975……它能用来排序，但数值本身不是第几名。',
-        trap: '课件第 12 页把这一列叫 <code>class_rank</code>，容易误会成 1、2、3 名。真正的名次要数「比我高的有几人」再加 1：<code>(SELECT COUNT(*) FROM students s2 WHERE s2.gpa &gt; s.gpa) + 1</code>（相关子查询，下一课讲），或以后的窗口函数 <code>RANK()</code>。' },
+      { t: 'idea', title: '比例不是「名次」', icon: 'warn',
+        body: '<code>gpa / (SELECT MAX(gpa) …)</code> 算的是「占第一名的比例」：最高 GPA 是 3.95，Emma 3.91 → 0.99、David 3.85 → 0.975……它能用来排序，但数值本身不是第几名。',
+        trap: '课件写的是 <code>SELECT student_id, gpa / (SELECT MAX(gpa) FROM students) AS class_rank … ORDER BY class_rank DESC</code>，把这个比例叫 <code>class_rank</code>，容易误会成 1、2、3 名。真正的名次要数「比我高的有几人」再加 1：<code>(SELECT COUNT(*) FROM students s2 WHERE s2.gpa &gt; s.gpa) + 1</code>（相关子查询，下一课讲），或以后的窗口函数 <code>RANK()</code>。' },
 
       { t: 'sql', title: 'IN：集合成员',
         task: '列出在 <code>test_scores</code> 里<b>有成绩</b>的学生的 firstname（每人一次）。把子查询补完整。',
@@ -1543,13 +1559,15 @@ window.CHAPTERS.push({
 
       { t: 'predict', lang: 'sql', run: true,
         code: "SELECT s.firstname\nFROM students s\nJOIN enrollments e ON e.student_id = s.id\nWHERE e.coursename LIKE 'CSE%';",
-        q: 'IN 版本返回 16 个学生。这条 JOIN 版本返回几行？',
+        q: '用 IN 写（<code>WHERE id IN (SELECT student_id FROM enrollments WHERE coursename LIKE \'CSE%\')</code>），选过 CSE 课的学生是 16 人，每人一行。这条 JOIN 版本返回几行？',
         opts: ['16', '24', '37', '8'], a: 1,
         why: 'Alice、David、Ethan、Grace、Kavya、Leo、Priya、Tom 各选了 2 门 CSE 课，各出现 2 次：16 + 8 = 24。想和 IN 一样，得写 <code>SELECT DISTINCT</code>。' },
 
-      { t: 'idea', title: '课件第 13 页：真的等价吗？', icon: 'puzzle',
+      { t: 'idea', title: 'JOIN 和 IN 真的等价吗？', icon: 'puzzle',
         body: '经验法则没错：能用 JOIN 就用 JOIN，引擎对它优化最多。但只有「不会产生重复、只取一边的列」时，两种写法才真正等价。',
-        trap: '课件说两条查询「等价」，可 JOIN 版 SELECT 了 <code>department_name</code>，IN 版只有 <code>employee_name</code>，列都不一样。条件「department_id 在两张表里都唯一」也不对：一个部门本来就有很多员工，需要唯一的只是 <b>departments</b> 这一边，否则 JOIN 会把员工复制多份。' },
+        code: '-- 课件说这两条「在 department_id 于两张表里都唯一时等价」\nSELECT e.employee_name, d.department_name\nFROM employees e\nJOIN departments d ON e.department_id = d.department_id;\n\nSELECT employee_name\nFROM employees\nWHERE department_id IN (SELECT department_id FROM departments);',
+        lang: 'sql',
+        trap: '两处不对：① JOIN 版多 SELECT 了 <code>department_name</code>，IN 版只有 <code>employee_name</code>，列都不一样。② 「department_id 在两张表里都唯一」要求过头了：一个部门通常有很多员工，employees 里的 department_id 本来就会重复。真正需要唯一的只是 <b>departments</b> 这一边，否则 JOIN 会把员工复制多份。' },
 
       { t: 'recap', points: [
         '<b>scalar subquery</b>：一行一列，可以放在比较符右边或 SELECT 列表里。',
@@ -1642,7 +1660,7 @@ window.CHAPTERS.push({
 
       { t: 'predict', lang: 'sql', run: true,
         code: 'SELECT e.student_id, e.coursename, e.grade\nFROM enrollments e\nJOIN (SELECT coursename, AVG(grade) AS avg_grade\n      FROM enrollments\n      GROUP BY coursename) a\n  ON a.coursename = e.coursename\nWHERE e.grade > a.avg_grade;',
-        q: '去掉课程过滤后，相关子查询版本返回 19 行。这个改写版本呢？',
+        q: '相关子查询版本 <code>SELECT student_id, coursename, grade FROM enrollments e WHERE grade &gt; (SELECT AVG(grade) FROM enrollments WHERE coursename = e.coursename)</code>（不限课程）返回 19 行。上面这个先聚合再 JOIN 的版本返回几行？',
         opts: ['一样，19 行', '更多，因为 JOIN 会复制行', '更少', '报错：FROM 里不能放子查询'], a: 0,
         why: '派生表里每门课只有一行，JOIN 不会复制选课记录，所以结果完全一样，都是 19 行。只是平均分少算了很多遍。' },
 
@@ -1717,13 +1735,14 @@ window.CHAPTERS.push({
 
       { t: 'predict', lang: 'sql', run: true,
         code: "SELECT major, AVG(credits)\nFROM students\nWHERE major IN ('Math', 'EE')\nGROUP BY major\nHAVING AVG(credits) > 50;",
-        q: '同一个数字 50，这次放进 HAVING。结果是？',
+        peek: "SELECT firstname, major, credits FROM students WHERE major IN ('Math', 'EE') ORDER BY major, credits DESC;",
+        q: "如果把 50 写成 <code>WHERE credits &gt; 50</code>（先筛学生），结果是 EE 72、Math 109。这次同一个 50 写进 HAVING，结果是？",
         opts: ['EE 72 和 Math 109', '只有 Math ≈ 55.67', 'EE 41 和 Math ≈ 55.67', '空结果'], a: 1,
         why: 'HAVING 在分组<b>之后</b>：先算出 EE 41、Math 55.67，再淘汰平均不到 50 的 EE。放在 WHERE 里筛的是<b>学生</b>，放在 HAVING 里筛的是<b>专业</b>。' },
 
       { t: 'idea', title: 'WHERE 筛行，HAVING 筛组', icon: 'filter',
         body: '逻辑顺序：FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY。WHERE 运行时聚合值还不存在，所以只有 HAVING 能用 COUNT、AVG。',
-        trap: "课件第 31 页写「GROUP BY filters after aggregation」，应为 <b>HAVING</b> filters after aggregation；同页结果表还多出一列查询里没 SELECT 的 major。另外第 27 页的 <code>WHERE major = 'Mech Sci'</code> 在那张表里应返回 <b>0</b>（表里写的是 Mech Eng），不是 1。",
+        trap: "课件勘误：① 写成了「WHERE filters before aggregation, <b>GROUP BY</b> filters after aggregation」，后半句应为 <b>HAVING</b>。② 同一处的查询只写了 <code>SELECT AVG(credits)</code>，印出的结果表却多出一列 major。③ 课件的 4 行小表里专业只有 Data Sci、Mech Eng、Comp Sci，<code>SELECT COUNT(*) FROM students WHERE major = 'Mech Sci'</code> 应得 <b>0</b>（没有 Mech Sci），课件写成了 1。",
         tip: 'SQLite 允许在 HAVING 里用 SELECT 的别名（<code>HAVING n &gt;= 2</code>），PostgreSQL 不允许。考试和面试里写 <code>HAVING COUNT(*) &gt;= 2</code> 最保险。' },
 
       { t: 'predict', lang: 'sql',
@@ -1771,7 +1790,7 @@ window.CHAPTERS.push({
       { t: 'fill', q: '「学分 > 60 的学生里，人数 ≥ 2 的专业」：',
         tpl: 'SELECT major, COUNT(*)\nFROM students\n{0} credits > 60\nGROUP BY major\n{1} COUNT(*) >= 2;',
         blanks: [{ a: ['WHERE'] }, { a: ['HAVING'] }], lang: 'sql',
-        why: '对单个学生的条件 → WHERE；对整组的条件（含 COUNT）→ HAVING。课件第 32 页的例子就是这个结构。' },
+        why: '对单个学生的条件 → WHERE；对整组的条件（含 COUNT）→ HAVING。课件的例子 <code>WHERE credits &gt; 60 … GROUP BY major HAVING COUNT(*) &gt; 50</code> 也是这个结构。' },
 
       { t: 'recap', points: [
         '<b>WHERE</b> 在分组前筛<b>行</b>，不能用聚合函数；<b>HAVING</b> 在分组后筛<b>组</b>。',
@@ -1817,7 +1836,10 @@ window.CHAPTERS.push({
           points: ['保留所有行，包括重复', '直接拼接，不用查重 → 更快', '适合：「所有交易记录」、合并按月拆开的表'] },
         bottom: '课件的建议：默认用 <b>UNION ALL</b>，只有结果<b>确实需要去重</b>时才用 UNION。' },
 
-      { t: 'quiz', q: '课件第 35 页用 <code>SELECT Customer, Amount … UNION …</code> 得到「List of all customers」。它真的是客户名单吗？',
+      { t: 'quiz', q: '课件把下面这条查询的结果叫作「List of all customers」（客户名单）。两张表的数据如下，它真的是客户名单吗？',
+        code: 'SELECT Customer, Amount FROM OnlineOrders\nUNION\nSELECT Customer, Amount FROM InStoreOrders;',
+        tables: [{ name: 'OnlineOrders', head: ['Customer', 'Amount'], rows: [['Alice', 50], ['Bob', 75], ['Alice', 65]] },
+          { name: 'InStoreOrders', head: ['Customer', 'Amount'], rows: [['Charlie', 100], ['Alice', 50]] }],
         opts: ['是：Alice、Bob、Charlie 各一行', '不是：4 行 (Customer, Amount)，Alice 出现两次', '不是：和 UNION ALL 一样是 5 行', '报错：两张表的名字不同'], a: 1,
         why: '<b>课件勘误</b>：UNION 比较的是整行。Alice 50 和 Alice 65 是不同的行，所以 Alice 还是出现两次。要客户名单，只选 <code>Customer</code> 一列再 UNION，结果才是 Alice、Bob、Charlie。' },
 
@@ -1859,11 +1881,11 @@ window.CHAPTERS.push({
         why: 'SQLite 报错：SELECTs to the left and right of UNION do not have the same number of result columns。pandas 的 <code>pd.concat</code> 会把缺的列补成 NaN，SQL 不会替你补。' },
 
       { t: 'sql', title: '全校通讯录',
-        task: "把 faculty 的 name 和学生的 name 合成一张表，第二列 <code>role</code> 写 'faculty' 或 'student'，按 name 排序。（课件第 33 页把类似的例子说成「all enrollments」，其实合并的是两个学院的<b>学生</b>名单。）",
+        task: "把 faculty 的 name 和学生的 name 合成一张表，第二列 <code>role</code> 写 'faculty' 或 'student'，按 name 排序。（课件有个类似例子：把 <code>McKelvey.students</code> 和 <code>ArtSci.students</code> 两个学院的学生 UNION 起来，却说结果是「all enrollments」。其实合并的是<b>学生</b>名单，不是选课记录。）",
         sql: "SELECT name, 'faculty' AS role\nFROM faculty;",
         check: "SELECT name, 'faculty' AS role FROM faculty UNION ALL SELECT name, 'student' FROM students ORDER BY name;",
         ordered: true,
-        hint: "第二个 SELECT 写 <code>SELECT name, 'student' FROM McKelvey.students</code>（schema.table 写法，同课件；直接写 students 也行）。中间用 UNION ALL，ORDER BY name 放最后，前面的分号要删掉。" },
+        hint: "第二个 SELECT 写 <code>SELECT name, 'student' FROM McKelvey.students</code>（schema.table 写法；直接写 students 也行）。中间用 UNION ALL，ORDER BY name 放最后，前面的分号要删掉。" },
 
       { t: 'match', q: '谁在做什么？',
         pairs: [
@@ -2311,7 +2333,11 @@ window.CHAPTERS.push({
           { text: '<b>enrollments</b> 只记“谁选了哪个 CRN”，两个外键连向两边。', on: ['e', 'r0', 'r1'] },
           { text: '换老师 → 改 offerings 1 行；退课 → 删 enrollments 1 行，老师还在；新课没人选 → 直接插进 offerings。', on: ['o', 'e'] } ] },
 
-      { t: 'quiz', q: '拆表之后，CSE 3104 换老师，要改几行？',
+      { t: 'quiz', q: '选课大平表拆成了下面三张表。CSE 3104（CRN 1223，有 3 个学生选）换老师，要改几行？',
+        tables: [
+          { name: 'students', head: ['id', 'name'], rows: [[1, 'Alice'], [2, 'Bob'], [3, 'Chen'], [4, 'Dana']] },
+          { name: 'enrollments', head: ['student_id', 'crn'], rows: [[1, 1223], [2, 1223], [1, 1220], [3, 2456], [4, 1223]] },
+          { name: 'offerings', head: ['crn', 'course_code', 'instructor'], rows: [[1223, 'CSE 3104', 'Ferry'], [1220, 'CSE 2407', 'Cole'], [2456, 'SDS 3030', 'Holdener']] } ],
         opts: ['1 行', '2 行', '3 行', '0 行，会自动同步'], a: 0,
         why: '老师只存在 <code>offerings</code> 里 CRN 1223 那一行。<b>一个事实，一个地方</b>：加一次、改一次、删一次。以后讲 normalization（规范化）时会把这条规则说得更正式。' },
 
@@ -2377,7 +2403,7 @@ window.CHAPTERS.push({
             colLabels: ['id', 'code', 'city', 'state', 'timezone', 'hub'],
             cells: [[1, 'STL', 'St. Louis', 'MO', 'CST', 'no'], [2, 'ORD', 'Chicago', 'IL', 'CST', 'yes'], [3, 'SFO', 'San Francisco', 'CA', 'PST', 'yes']],
             markCols: { 1: 'c', 2: 'c', 3: 'c', 4: 'c', 5: 'c' } },
-          { text: '分析时拿 fact 的外键来 dim 表“查字典”：<code>origin_id = 1</code> → STL，St. Louis。', markRows: { 0: 'on' } } ] },
+          { text: '分析时拿 fact 的外键来 dim 表“查字典”：完整的 fact 表还有出发机场 <code>origin_id</code> 一列，<code>origin_id = 1</code> → STL，St. Louis。', markRows: { 0: 'on' } } ] },
 
       { t: 'quiz', q: '一家航空公司运营一年后，哪张表的行数增长最多？',
         opts: ['fact_reservations', 'dim_airports', 'dim_flights', 'dim_customers'], a: 0,
@@ -2397,16 +2423,19 @@ window.CHAPTERS.push({
           { text: '<code>origin_id</code> 和 <code>dest_id</code> 都指向 <b>dim_airports</b>：同一个维度扮演两个角色。', on: ['a', 'r1'] },
           { text: '像一颗星：fact 在中间，dimension 围一圈。几乎任何问题都只要 fact → dim 一步 join。', on: ['f', 'c', 'fl', 'a'] } ] },
 
-      { t: 'fill', q: '用星型模式回答：从每个城市<b>出发</b>的机票总收入是多少？',
+      { t: 'fill', q: '用星型模式回答：从每个城市<b>出发</b>的机票总收入是多少？两张表的列和几行样本如下。',
+        tables: [
+          { name: 'fact_reservations r', head: ['id', 'cust_id', 'origin_id', 'dest_id', 'flight_id', 'price'], rows: [[901, 17, 1, 3, 3, 189], [902, 52, 1, 3, 3, 189], [903, 17, 2, 1, 8, 240]], note: '<code>origin_id</code> = 出发机场，<code>dest_id</code> = 到达机场，都指向 dim_airports.id' },
+          { name: 'dim_airports a', head: ['id', 'code', 'city'], rows: [[1, 'STL', 'St. Louis'], [2, 'ORD', 'Chicago'], [3, 'SFO', 'San Francisco']] } ],
         tpl: "SELECT a.city, {0}(r.price) AS revenue\nFROM fact_reservations r\nJOIN dim_airports a ON r.{1} = a.id\nGROUP BY a.city;",
         blanks: [{ a: ['SUM'] }, { a: ['origin_id'] }], lang: 'sql',
         why: 'price 是 fact 表里可加总的 measure → <code>SUM</code>；“从哪出发” 用 <code>origin_id</code> 去 dim_airports 查城市。换成 <code>dest_id</code> 就是“飞往每个城市的收入”——同一个维度，两种角色。' },
 
-      { t: 'quiz', q: 'dim_customers 里有一列 flights_last_12_mo。它是什么？',
+      { t: 'quiz', q: 'dim_customers 里有一列 flights_last_12_mo（这位乘客最近 12 个月订过几张票）。它是什么？',
         opts: ['从 fact_reservations 数出来的派生字段（derived field）', '指向 dim_flights 的外键', 'fact 表的主键', '违反星型模式，必须删除'], a: 0,
         why: '它随时可以用 <code>COUNT(*)</code> 从 fact 表算出来（这个乘客最近 12 个月有几笔订票）。存进维度表是为了查询方便，代价是要定期重算，否则就和事实<b>不同步</b>。' },
 
-      { t: 'quiz', q: 'fact_reservations 存了 <code>origin_id</code> / <code>dest_id</code>，而 <code>dim_flights</code> 里也有 origin / dest。假设一张票只对应一个航班，这说明？',
+      { t: 'quiz', q: 'fact_reservations 每行都有 <code>flight_id</code>（指向 <code>dim_flights</code>，那里记着每个航班的 origin / dest），却又另存了 <code>origin_id</code> / <code>dest_id</code>。假设一张票只对应一个航班，这说明？',
         opts: ['同一信息存了两处：为少写 join 故意冗余，代价是可能不同步', '完全没有冗余', 'dim_flights 其实是一张 fact 表', 'origin_id 应该当 fact 表的主键'], a: 0,
         why: '航班已经决定了起降机场，fact 表里再存一遍就是重复。分析型数据库常常<b>故意</b>这样做来少写 join——星型模式是常见套路，<b>不是铁律</b>（not an unbreakable law），但要清楚自己付出的代价。' },
 
@@ -2469,7 +2498,8 @@ window.CHAPTERS.push({
           { text: '帖子 ↔ 标签是多对多：中间的 <b>PostTags</b> 只有两列 (PostId, TagId)；标签名在 <b>Tags</b>。', on: ['ptg', 'r6', 't', 'r7'] },
           { text: '规律：名字以 <b>Id</b> 结尾的列，几乎都是指向另一张表的外键。图上没画的是 <code>ParentId</code>、<code>AcceptedAnswerId</code>：它们指回 Posts <b>自己</b>。' } ] },
 
-      { t: 'quiz', q: '在 SE 的 schema 里，一个“答案”存在哪？',
+      { t: 'quiz', q: '在 SE 的 schema 里，一个“答案”存在哪？（下表是帖子类型的查找表 PostTypes 的前 4 行）',
+        tables: [{ name: 'PostTypes', head: ['Id', 'Name'], rows: [[1, 'Question'], [2, 'Answer'], [3, 'Wiki'], [4, 'TagWikiExcerpt']] }],
         opts: ['Posts 表，PostTypeId = 2', '单独的 Answers 表', 'Comments 表', 'Posts 表，PostTypeId = 1'], a: 0,
         why: '问题和答案长得很像（作者、时间、正文、分数），所以 SE 把它们放进同一张 <code>Posts</code>，用 <code>PostTypeId</code> 区分：1 = Question，2 = Answer。' },
 
@@ -2572,16 +2602,17 @@ window.CHAPTERS.push({
         out: [['L', 0], ['L', 2], ['R', 1]],
         types: ['inner', 'left', 'right'] },
 
-      { t: 'fill', q: '补全：列出每个答案的 Id、Score 和它所属问题的标题',
+      { t: 'fill', q: '补全：列出每个答案的 Id、Score 和它所属问题的标题。下表是 Posts 的几行样本。',
+        tables: [{ name: 'Posts（样本）', head: ['Id', 'PostTypeId', 'ParentId', 'Score', 'Title'], rows: [[8, 1, null, 6, 'pandas groupby: count rows per group'], [9, 2, 8, 6, null], [10, 2, 8, 3, null], [20, 1, null, 7, 'SQLite: top 3 rows per group'], [21, 2, 20, 9, null]], note: 'PostTypeId：1 = Question，2 = Answer' }],
         tpl: 'SELECT a.Id, a.Score, q.Title\nFROM Posts a\nJOIN Posts q ON a.{0} = q.{1}\nWHERE a.PostTypeId = {2};',
         blanks: [{ a: ['ParentId'] }, { a: ['Id'] }, { a: ['2'] }], lang: 'sql',
-        why: '同一张 Posts 用两个别名：<code>a</code> 当答案、<code>q</code> 当问题，连接条件是“答案的 ParentId = 问题的 Id”。这就是 <b>self-join</b>（自连接）。上一屏选 RIGHT JOIN 时，没人回答的问题 40 也会留下来。' },
+        why: '同一张 Posts 用两个别名：<code>a</code> 当答案、<code>q</code> 当问题，连接条件是“答案的 ParentId = 问题的 Id”。这就是 <b>self-join</b>（自连接）。如果改成 <code>Posts q LEFT JOIN Posts a</code>，没人回答的问题（比如 40）也会留下来，a 那一侧全是 NULL。' },
 
       { t: 'sql', title: 'Ada 都回答了什么？',
         task: '列出 <b>Ada Lin</b>（<code>Users.Id = 1</code>）写的每个答案：答案 Id、答案 Score、所属问题的 Title。',
         sql: '-- Posts a JOIN Posts q ON ...\n',
         check: 'SELECT a.Id, a.Score, q.Title FROM Posts a JOIN Posts q ON a.ParentId = q.Id WHERE a.OwnerUserId = 1;',
-        hint: '上一题的 self-join，再加 WHERE a.OwnerUserId = 1' },
+        hint: 'self-join：Posts a JOIN Posts q ON a.ParentId = q.Id，再加 WHERE a.OwnerUserId = 1' },
 
       { t: 'code', title: '谁的答案被采纳了？', lang: 'sql',
         code: 'SELECT q.Title, u.DisplayName AS answerer\nFROM Posts q\nJOIN Posts a ON a.Id = q.AcceptedAnswerId\nJOIN Users u ON u.Id = a.OwnerUserId\nWHERE q.PostTypeId = 1;',
@@ -2618,9 +2649,9 @@ window.CHAPTERS.push({
         check: 'SELECT q.Id, q.Title FROM Posts q LEFT JOIN Posts a ON a.ParentId = q.Id WHERE q.PostTypeId = 1 AND a.Id IS NULL;',
         hint: '配不上的问题，a 那一侧全是 NULL：WHERE a.Id IS NULL。别忘了只要问题（PostTypeId = 1）' },
 
-      { t: 'quiz', q: 'Posts.AnswerCount 也能回答上一题。它和用 ParentId 现数出来的结果是什么关系？',
+      { t: 'quiz', q: '问题行上还有一列 <code>AnswerCount</code>（答案数），所以“没人回答的问题”也能写成 <code>WHERE PostTypeId = 1 AND AnswerCount = 0</code>。AnswerCount 和用 ParentId 现数出来的答案数是什么关系？',
         opts: ['AnswerCount 是存下来的派生字段：方便，但理论上可能和真实行数不同步', 'AnswerCount 是外键', '两者毫无关系', 'AnswerCount 才是原始事实，ParentId 是从它算出来的'], a: 0,
-        why: '本库里两者完全一致（验证过）。但 AnswerCount、CommentCount、Score、Tags.Count 都是从 fact 行<b>汇总</b>后存下来的——正是第一课说的“同一事实存两处”，要靠系统自己维护同步。' },
+        why: '本库里两者完全一致（验证过：两种写法都只找到问题 39、40）。但 AnswerCount、CommentCount、Score、Tags.Count 都是从 fact 行<b>汇总</b>后存下来的——同一个事实存了两处，要靠系统自己维护同步。' },
 
       { t: 'recap', points: [
         '答案 → 问题：<code>a.ParentId = q.Id</code>，同一张 Posts 用两个别名 = <b>self-join</b>',
@@ -2659,9 +2690,10 @@ window.CHAPTERS.push({
         series: [{ name: 'questions', y: [8, 7, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1] }],
         xlabel: 'TagName', ylabel: '问题数' },
 
-      { t: 'quiz', q: '想找所有带 <code>sql</code> 标签的问题。为什么不直接写 <code>WHERE Tags LIKE \'%sql%\'</code>？',
-        opts: ['它也会匹配 sqlite 这类标签：本库会多出 1 行', '这是语法错误', '它比 JOIN 慢一万倍', '没问题，两种写法结果永远一样'], a: 0,
-        why: '<code>Posts.Tags</code> 是一个拼起来的字符串（如 <code>&lt;python&gt;&lt;sqlite&gt;</code>），<code>%sql%</code> 也会命中 sqlite：本库 LIKE 得 9 行，JOIN PostTags + Tags 精确匹配 <code>TagName = \'sql\'</code> 只有 8 行。这个字符串只是 PostTags 的<b>冗余副本</b>，正经做法是走 junction table。' },
+      { t: 'quiz', q: '想找所有带 <code>sql</code> 标签的问题。<code>Posts.Tags</code> 是把标签拼在一起的字符串（见下表）。为什么不直接写 <code>WHERE Tags LIKE \'%sql%\'</code>？',
+        tables: [{ name: 'Posts（节选）', head: ['Id', 'Tags'], rows: [[4, '<sql><join>'], [20, '<sql><sqlite>'], [40, '<python><sqlite>']] }],
+        opts: ['它也会匹配 sqlite 这类标签，混进没有 sql 标签的问题', '这是语法错误', '它比 JOIN 慢一万倍', '没问题，两种写法结果永远一样'], a: 0,
+        why: '<code>%sql%</code> 也会命中 sqlite：问题 40（<code>&lt;python&gt;&lt;sqlite&gt;</code>）根本没有 sql 标签，也被选中。全库 LIKE 得 9 行，JOIN PostTags + Tags 精确匹配 <code>TagName = \'sql\'</code> 只有 8 行。这个字符串只是 PostTags 的<b>冗余副本</b>，正经做法是走 junction table。' },
 
       { t: 'join', title: '谁从没发过帖？（节选几行）',
         left: { name: 'Users u', cols: ['Id', 'DisplayName'], rows: [[1, 'Ada Lin'], [14, 'Nora Brooks'], [15, 'Omar Reyes'], [16, 'Priya Shah']] },
@@ -2678,7 +2710,7 @@ window.CHAPTERS.push({
 
       { t: 'predict', lang: 'sql', run: true,
         code: 'SELECT DisplayName\nFROM Users\nWHERE Id NOT IN (SELECT OwnerUserId FROM Posts);',
-        q: '换成 NOT IN 子查询，返回几行？',
+        q: '用 <code>Users u LEFT JOIN Posts p … WHERE p.Id IS NULL</code> 找“一个帖子都没发过的用户”，本库得到 4 人（Nora、Priya、Quinn、Sam）。改用上面的 NOT IN 子查询，返回几行？',
         opts: ['4 行，和 LEFT JOIN 一样', '0 行', '20 行', '报错'], a: 1,
         why: '帖子 36 的作者账号已删除，<code>OwnerUserId</code> 是 <b>NULL</b>（真实 SEDE 里很常见）。<code>x NOT IN (…, NULL)</code> 对每个 x 都是 UNKNOWN，所以一行都不返回。修法：子查询加 <code>WHERE OwnerUserId IS NOT NULL</code>，或者用 LEFT JOIN / NOT EXISTS。' },
 
@@ -2692,15 +2724,18 @@ window.CHAPTERS.push({
         bottom: 'SELECT / JOIN / GROUP BY 完全通用。把 SEDE 上的查询搬过来时，先检查这几处方言差异。' },
 
       { t: 'sql', title: '把 TOP 改成 LIMIT',
-        task: '把上一屏左边的 T-SQL 改成 SQLite：列出 Reputation 最高的 5 个用户（DisplayName、Reputation），从高到低。',
+        task: '编辑器注释里是 SEDE 的 T-SQL 写法（<code>SELECT TOP 5 …</code>），这里跑不了。改成 SQLite：列出 Reputation 最高的 5 个用户（DisplayName、Reputation），从高到低。',
         sql: '-- SEDE 写法（这里跑不了）：\n-- SELECT TOP 5 DisplayName, Reputation FROM Users ORDER BY Reputation DESC;\n',
         check: 'SELECT DisplayName, Reputation FROM Users ORDER BY Reputation DESC LIMIT 5;',
         ordered: true,
         hint: '删掉 TOP 5，在最后加 LIMIT 5' },
 
-      { t: 'quiz', q: 'Users.UpVotes 是什么？（Ada Lin 的值是 61）',
+      { t: 'quiz', q: '<code>Users.UpVotes</code> 记的是什么？对照下面 Ada Lin 的数据判断。',
+        tables: [
+          { name: 'Users（Ada 这一行）', head: ['Id', 'DisplayName', 'Reputation', 'UpVotes', 'DownVotes'], rows: [[1, 'Ada Lin', 941, 61, 4]] },
+          { name: 'Ada 的帖子（在 Votes / Posts 里数出来）', head: ['收到的赞', '收到的踩', 'Score 之和'], rows: [[78, 0, 78]] } ],
         opts: ['她投出去的赞的数量', '她的帖子收到的赞的数量', '她所有帖子的 Score 之和', 'Reputation ÷ 10'], a: 0,
-        why: '常见误读！<code>UpVotes</code> / <code>DownVotes</code> 是用户<b>投出去</b>的票。她收到的赞要去 Votes 里数：本库是 78 张。而且为保护隐私，赞 / 踩票的 <code>Votes.UserId</code> 都是 NULL——SEDE 里查不到“谁赞了谁”。' },
+        why: '常见误读！<code>UpVotes</code> / <code>DownVotes</code> 是用户<b>投出去</b>的票：61 ≠ 收到的 78 张赞，也 ≠ Score 之和 78，更不是 941 ÷ 10；她一张踩都没收到，DownVotes 却是 4。而且为保护隐私，赞 / 踩票的 <code>Votes.UserId</code> 都是 NULL——SEDE 里查不到“谁赞了谁”。' },
 
       { t: 'recap', points: [
         '帖子 ↔ 标签是多对多：在 <b>PostTags</b> 上 GROUP BY，再 join Tags 拿名字',
@@ -2919,7 +2954,8 @@ window.CHAPTERS.push({
         ] },
 
       { t: 'quiz', title: '复习：UNION 怎么去重',
-        q: '<code>SELECT customer_id, total FROM orders WHERE channel = \'online\'<br>UNION<br>SELECT customer_id, total FROM orders WHERE channel = \'store\';</code><br>Ava（customer_id = 1）一共下了 4 单，金额各不相同。她在结果里出现几次？',
+        q: '<code>SELECT customer_id, total FROM orders WHERE channel = \'online\'<br>UNION<br>SELECT customer_id, total FROM orders WHERE channel = \'store\';</code><br>Ava（customer_id = 1）一共下了 4 单（见下表），金额各不相同。她在结果里出现几次？',
+        tables: [{ name: 'orders（Ava 的 4 单）', head: ['order_id', 'customer_id', 'channel', 'total'], rows: [[1, 1, 'store', 8.5], [4, 1, 'online', 18], [10, 1, 'store', 11.5], [17, 1, 'online', 26]] }],
         opts: ['1 次：UNION 会去重', '4 次：去重要整行都相同', '2 次：每个渠道一次', '0 次'],
         a: 1,
         why: 'UNION 按<b>整行</b>去重：(1, 8.5)、(1, 18) 是不同的行，都保留。只有 Chloe 店里两单都是 (3, 12.0)，合成一行 → 结果 17 行；UNION ALL 不去重，18 行。<br><b>课件小误导</b>：它把类似的 UNION 查询叫作 "List of all customers"，但 SELECT 了金额列就不是顾客名单——要名单只 SELECT 顾客那一列。' },
@@ -3093,7 +3129,7 @@ window.CHAPTERS.push({
         ] },
 
       { t: 'match', title: '排名函数配对',
-        q: '同样是烘焙类价格 3.50、3.50、3.00、2.00（从高到低），各函数给出的编号是？',
+        q: '烘焙类 4 件商品的价格从高到低是 3.50、3.50、3.00、2.00（前两件并列）。都用 <code>OVER (ORDER BY price DESC)</code>，各函数依次给出的编号是？',
         pairs: [
           ['ROW_NUMBER()', '1, 2, 3, 4'],
           ['RANK()', '1, 1, 3, 4'],
@@ -3178,10 +3214,13 @@ window.CHAPTERS.push({
         ] },
 
       { t: 'quiz', title: '去掉 ORDER BY 呢？',
-        q: '把上面的 <code>SUM(revenue) OVER (ORDER BY day)</code> 改成 <code>SUM(revenue) OVER ()</code>，9/8 那一行显示什么？',
+        q: '累计和写的是 <code>SUM(revenue) OVER (ORDER BY day)</code>。下面把它改成空的 <code>OVER ()</code>，第 1 周的数据见表。9/8 那一行的 total 显示什么？',
+        code: 'SELECT day, revenue,\n       SUM(revenue) OVER () AS total\nFROM daily_sales\nWHERE week = 1;',
+        lang: 'sql',
+        tables: [{ name: 'daily_sales（week = 1）', head: ['day', 'revenue'], rows: [['2026-09-07', 420], ['2026-09-08', 380], ['2026-09-09', 450], ['2026-09-10', 510], ['2026-09-11', 640], ['2026-09-12', 820], ['2026-09-13', 700]] }],
         opts: ['800', '3920', '380', 'NULL'],
         a: 1,
-        why: '没有 ORDER BY → 窗口是整个结果（7 行），每一行都是总和 3920。<b>ORDER BY 让窗口变成「到当前行为止」</b>，这才有了「累计」。' },
+        why: '没有 ORDER BY → 窗口是整个结果（7 行），每一行都是总和 420 + 380 + … + 700 = 3920。用 <code>OVER (ORDER BY day)</code> 时，9/8 才是累计的 420 + 380 = 800。<b>ORDER BY 让窗口变成「到当前行为止」</b>，这才有了「累计」。' },
 
       { t: 'rows', title: '计算顺序 ≠ 显示顺序',
         sql: 'SELECT day, revenue,\n       SUM(revenue) OVER (ORDER BY revenue) AS rt\nFROM daily_sales\nWHERE week = 1\nORDER BY day;',
@@ -3245,10 +3284,13 @@ window.CHAPTERS.push({
         ] },
 
       { t: 'quiz', title: '课件里的 5000',
-        q: '课件的周环比例子写 <code>SalesTotal - LAG(SalesTotal, 1, 0) OVER (ORDER BY SalesWeek)</code>，第一周（销售额 5000）的结果是 5000。这个 5000 说明什么？',
+        q: '课件的周环比例子：Sales 表每周一行，用下面的查询算“比上周多卖多少”，结果见表。最早那一周的 WeekOverWeek 是 5000，这个 5000 说明什么？',
+        code: 'SELECT SalesWeek, SalesTotal,\n       SalesTotal - LAG(SalesTotal, 1, 0)\n         OVER (ORDER BY SalesWeek) AS WeekOverWeek\nFROM Sales\nORDER BY SalesWeek;',
+        lang: 'sql',
+        tables: [{ name: '查询结果（课件的数据）', head: ['SalesWeek', 'SalesTotal', 'WeekOverWeek'], rows: [['2026-09-07', 5000, 5000], ['2026-09-14', 7000, 2000], ['2026-09-21', 4000, -3000], ['2026-09-28', 5000, 1000]] }],
         opts: ['第一周比上一周多卖了 5000', '没有上一周，LAG 用默认值 0 顶替：5000 − 0', 'LAG 的第 3 个参数是偏移量', '这是 SUM 的累计值'],
         a: 1,
-        why: 'LAG 的三个参数：(列, 往回几行, 越界时的默认值)。默认值 0 让第一周看起来像暴涨了 5000；不写默认值得到 NULL，更诚实。<br><b>课件这页还有两处小错</b>：标题说 day-over-day，数据其实是按周的；最后一行 <code>ORDER BY SalesDate</code> 引用了不存在的列（应为 SalesWeek）。' },
+        why: 'LAG 的三个参数：(列, 往回几行, 越界时的默认值)。后面几周正常：7000 − 5000 = 2000……第一周没有上一周，只能用默认值 0：5000 − 0 = 5000，看起来像暴涨了 5000；不写默认值得到 NULL，更诚实。<br><b>课件这个例子还有两处小错</b>：标题写的是 day-over-day（日环比），数据其实每周一行；查询最后一行写成 <code>ORDER BY SalesDate</code>，表里根本没有这一列（上面的代码已改成 SalesWeek）。' },
 
       { t: 'fill', title: '和上周同一天比',
         q: 'daily_sales 每天恰好一行。补全：今天的营业额减去<b>上周同一天</b>的营业额。',
@@ -3375,13 +3417,13 @@ window.CHAPTERS.push({
         q: '把这个「每周内 3 日平均」按正确顺序拼起来。',
         parts: ['AVG(revenue) OVER (', 'PARTITION BY week', 'ORDER BY day', 'ROWS BETWEEN 2 PRECEDING AND CURRENT ROW', ') AS avg3'],
         lang: 'sql',
-        why: '顺序固定：PARTITION BY → ORDER BY → frame。<b>课件的滚动平均例子写错了</b>：它把 <code>PARTITION BY Symbol</code> 放在了 ROWS BETWEEN <b>之后</b>，任何数据库都会报语法错误。' },
+        why: '顺序固定：PARTITION BY → ORDER BY → frame。<b>课件的滚动平均例子写错了</b>：它写的是 <code>OVER (ORDER BY TransID ROWS BETWEEN 2 PRECEDING AND CURRENT ROW PARTITION BY Symbol)</code>，把 PARTITION BY 放在了 frame <b>之后</b>，任何数据库都会报语法错误（SQLite：<i>near "PARTITION": syntax error</i>）。' },
 
       { t: 'quiz', title: '「Last2」其实是几行？',
         q: '课件把 <code>ROWS BETWEEN 2 PRECEDING AND CURRENT ROW</code> 的结果命名为 Last2RollingAvg。这个窗口每次最多平均几行？',
         opts: ['2 行：前 2 行', '3 行：前 2 行 + 当前行', '整个分区', '7 行'],
         a: 1,
-        why: 'CURRENT ROW 也在窗口里，所以最多 3 行——叫 Last2 容易误导。<br><b>课件表格还算错了两个数</b>：AAPL 的 TransID 1007、1008 两行应是 (300 + 250 + 250) / 3 = 266.67 和 (250 + 250 + 300) / 3 = 266.67，课件写的是 233.33。' },
+        why: 'CURRENT ROW 也在窗口里，所以最多 3 行——叫 Last2 容易误导。<br><b>课件的结果表还算错了两个数</b>：AAPL 的 5 笔成交（TransID 1005–1009）价格依次是 300、250、250、300、350，按 3 行窗口应得 300、275、266.67、266.67、300。其中 1007 = (300 + 250 + 250) / 3、1008 = (250 + 250 + 300) / 3，课件都印成了 233.33。' },
 
       { t: 'idea', title: 'ROWS 数行，RANGE 看值', icon: 'warn',
         body: '只写 ORDER BY、不写 frame 时，默认是 <code>RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</code>：ORDER BY 值<b>相同</b>的行（peers）会被一起算进来。想严格逐行，就写 ROWS。',
@@ -3486,7 +3528,7 @@ window.CHAPTERS.push({
       { t: 'predict', title: '打开外键检查之后',
         code: 'PRAGMA foreign_keys = ON;\nINSERT INTO loyalty_cards (card_id, customer_id)\nVALUES (2, 99);',
         lang: 'sql',
-        q: '打开外键检查后，再插入顾客 99 的卡，会怎样？',
+        q: '<code>loyalty_cards.customer_id</code> 是外键（<code>REFERENCES customers (customer_id)</code>），而 customers 里只有 customer_id 1–8，没有 99。打开外键检查后执行上面的 INSERT，会怎样？',
         opts: ['插入成功', '报错：FOREIGN KEY constraint failed', '自动在 customers 里建一个 99 号顾客', 'customer_id 被改成 NULL'],
         a: 1,
         why: '父表里找不到 99 → 整条 INSERT 被拒绝。注意 PRAGMA foreign_keys 是<b>每个连接</b>单独设置的：每次连上数据库都要重新打开。' },
@@ -3760,7 +3802,7 @@ WHERE coursename = 'CSE 3104';` },
         why: '索引里排好序的是 <b>Price 本身</b>。对列做了运算（<code>Price + 1</code>、<code>ROUND(Price)</code>），排好的顺序就用不上了；查别的列当然也用不上。把 <code>Price + 1 &lt; 8</code> 改写成 <code>Price &lt; 7</code> 就能走索引（都用 EXPLAIN QUERY PLAN 验证过）。' },
 
       { t: 'predict', lang: 'sql', run: true,
-        q: 'enrollments 的主键是 <b>(student_id, coursename)</b>。<code>detail</code> 列会显示什么？',
+        q: 'enrollments 的主键是 <b>(student_id, coursename)</b>。SQLite 会自动给这个主键建一个索引，名叫 <code>sqlite_autoindex_enrollments_1</code>，按 (student_id, coursename) 排序。这条查询的 <code>detail</code> 列会显示什么？',
         code: `EXPLAIN QUERY PLAN
 SELECT * FROM enrollments
 WHERE student_id = 4;`,
@@ -3883,8 +3925,13 @@ FROM enrollments
 GROUP BY coursename;`,
         trap: '课件说底层数据一变，物化视图就会“触发重新计算”。这要看数据库：PostgreSQL <b>不会</b>自动刷新，必须手动 <code>REFRESH MATERIALIZED VIEW</code>，在那之前读到的都是旧数据；Oracle 可以设置成提交时自动刷新。' },
 
-      { t: 'quiz', q: '课件说可以“通过 view 查询、更新、删除”。在 SQLite 里对上面的 view 运行这条 UPDATE，会怎样？',
-        code: `UPDATE upper_students
+      { t: 'quiz', q: '课件说可以“通过 view 查询、更新、删除”。upper_students 是下面定义的 view（id 1 是 Alice）。在 SQLite 里运行这条 UPDATE，会怎样？',
+        code: `CREATE VIEW upper_students AS
+SELECT id, name, email, credits
+FROM students
+WHERE credits >= 60;
+
+UPDATE upper_students
 SET credits = 61
 WHERE id = 1;`,
         opts: ['改掉 students 表里 Alice 的 credits', '报错：cannot modify upper_students because it is a view', '只改 view 里的副本，students 不变'], a: 1,
@@ -3900,7 +3947,7 @@ WHERE id = 1;`,
           ['把一条长查询拆成几步，自己读着方便', 1],
           ['调试时临时看一眼中间结果', 1],
         ],
-        why: 'view 是<b>永久的数据库对象</b>：有名字、有权限、要有人维护。适合<b>共享逻辑、控制权限、做抽象层</b>（底层拆表了，view 还保持旧样子）。只是想让一条查询好读？用子查询或 WITH（第 4 课）就够了。' },
+        why: 'view 是<b>永久的数据库对象</b>：有名字、有权限、要有人维护。适合<b>共享逻辑、控制权限、做抽象层</b>（底层拆表了，view 还保持旧样子）。只是想让一条查询好读？用子查询或 WITH（本章第 4 课）就够了。' },
 
       { t: 'idea', title: 'Schema = 数据库里的文件夹', icon: 'db',
         body: '<b>schema</b>（模式）把表、view 分组，像文件夹分文件。<code>McKelvey.students</code> 和 <code>ArtSci.students</code> 同名不冲突，还能按 schema 分别授权。',
@@ -3924,7 +3971,7 @@ CREATE TABLE ArtSci.students
           { text: '索引也一样：必须和它的表在<b>同一个 schema</b>。下一题看语法。', mark: { '0,1': 'on' } },
         ] },
 
-      { t: 'quiz', q: '在本站给 students 的 lastname 列建索引，哪一句能成功？',
+      { t: 'quiz', q: '本站的 students 在 <b>McKelvey</b> schema 里（menu、faculty 等在默认的 <b>main</b> 里）。要给 students 的 lastname 列建索引，哪一句在 SQLite 里能成功？',
         opts: ['CREATE INDEX idx_ln ON students(lastname);', 'CREATE INDEX idx_ln ON McKelvey.students(lastname);', 'CREATE INDEX McKelvey.idx_ln ON students(lastname);', 'CREATE INDEX ON students(lastname);'], a: 2,
         why: 'SQLite 把 schema 前缀写在<b>索引名</b>上，表名不加前缀。A 会去 main 里找 students（<i>no such table: main.students</i>）；B 是 PostgreSQL 的写法，SQLite 报语法错；D 缺索引名。四句都在 SQLite 里跑过。' },
 
@@ -3960,7 +4007,7 @@ FROM students;`,
 
       { t: 'match', q: '各种“一行 if / else”写法，分别是什么情况？',
         pairs: [
-          ['IFF(…)', '课件的笔误，哪儿都不存在'],
+          ['IFF(…)', '拼写错误（课件里出现过），哪个数据库都没有'],
           ['IIF(…)', 'SQL Server、SQLite 3.32+'],
           ['IF(…)', 'MySQL（新版 SQLite 也认）'],
           ['CASE WHEN …', '标准 SQL，所有数据库通用'],
@@ -4053,7 +4100,7 @@ FROM students;
 
 -- 等价的 CASE 写法：
 -- CASE WHEN major IS NULL THEN 'Undeclared' ELSE major END`,
-        trap: '课件这两页有笔误：① “IFF 检查 NULL”判断的是 <code>grade IS NULL</code>，但列名其实是 <code>raw_grade</code>，应写 <code>IIF(raw_grade IS NULL, \'Incomplete\', raw_grade)</code>；② “CASE 替换 NULL”里 <code>grade</code> 后面<b>少了逗号</b>，直接语法错误，而且标题说 \'Incomplete\'，代码输出的却是 \'Not Reported\'。' },
+        trap: '课件处理 NULL 的两个例子都有错。① <code>SELECT student_id, raw_grade, IFF(grade IS NULL, \'Incomplete\', raw_grade) AS grade FROM gradebook</code>：数据列叫 raw_grade，判断的却是 grade，应写 <code>IIF(raw_grade IS NULL, \'Incomplete\', raw_grade)</code>。② <code>SELECT student_id, grade CASE WHEN grade IS NULL THEN \'Not Reported\' … END AS final_grade</code>：grade 后面<b>少了逗号</b>，直接语法错误；而且说明文字说 NULL 要变成 \'Incomplete\'，代码给的却是 \'Not Reported\'。' },
 
       { t: 'grid', title: 'COALESCE 从左往右找',
         rowLabels: ['Ann', 'Ben', 'Cal', 'Dee'],
@@ -4143,9 +4190,19 @@ WHERE grade > (SELECT AVG(grade) FROM cse);`,
           { text: '留下 6 人。同一个名字用了两次，子查询不用抄两遍。', show: ['s1', 's4', 's11', 's15', 's20', 's23'] },
         ] },
 
-      { t: 'quiz', q: '课件的 WITH 例子：一个 <code>WITH PeopleWhoPost AS (…)</code> 后面跟了<b>两条</b> SELECT。第二条 SELECT 还能用 PeopleWhoPost 吗？',
+      { t: 'quiz', q: '课件里的 WITH 例子（Stack Exchange 数据：发帖的人和不发帖的人各住哪儿）如下：一个 WITH 后面跟了<b>两条</b> SELECT。第二条 SELECT 还能用 PeopleWhoPost 吗？',
+        code: `WITH PeopleWhoPost AS (
+  SELECT OwnerUserId FROM Posts
+)
+SELECT Location, COUNT(*) FROM Users
+WHERE Id IN PeopleWhoPost
+GROUP BY Location;
+
+SELECT Location, COUNT(*) FROM Users
+WHERE Id NOT IN PeopleWhoPost
+GROUP BY Location;`,
         opts: ['能，WITH 定义的名字整个会话都有效', '不能，CTE 只属于紧跟在它后面的那一条语句', '能，但每个 CTE 只能被引用一次'], a: 1,
-        why: 'CTE 的作用域就是它所在的那一条语句，分号之后就没了。课件的第二条查询要么再写一遍 WITH，要么把它建成 view。另外课件的 <code>WHERE UserId IN PeopleWhoPost</code> 是 SQLite 独有的简写，标准写法是 <code>IN (SELECT OwnerUserId FROM PeopleWhoPost)</code>。' },
+        why: 'CTE 的作用域就是它所在的那一条语句，分号之后就没了：第二条会报错 <i>no such table: PeopleWhoPost</i>。要么再写一遍 WITH，要么把它建成 view。另外：<code>IN PeopleWhoPost</code>（IN 后面直接跟名字）是 SQLite 独有的简写，标准写法是 <code>IN (SELECT OwnerUserId FROM PeopleWhoPost)</code>；课件写的是 <code>UserId IN …</code>，但 Users 表的列叫 Id。' },
 
       { t: 'vs', title: '竖着数 vs 横着数',
         a: { name: 'GROUP BY', sub: '一组一行',
@@ -4211,7 +4268,7 @@ GROUP BY major;`,
 FROM students
 GROUP BY band
 ORDER BY band;`,
-        trap: '课件这一页写的是 <code>ORDER BY salary_band DESC</code>，下面的结果表却是 70000、80000、90000——<b>升序</b>。查询和结果对不上：按 DESC 应该是 90000 排在最前。' },
+        trap: '课件的工资分档例子：<code>SELECT FLOOR(salary/10000)*10000 AS salary_band, COUNT(*) … GROUP BY salary_band ORDER BY salary_band DESC</code>，印出来的结果却是 70000、80000、90000——<b>升序</b>。查询和结果对不上：按 DESC 应该是 90000 排在最前。' },
 
       { t: 'chart', title: '学分分档的结果', kind: 'bar',
         x: ['0', '30', '60', '90', '120'], series: [{ name: '学生人数', y: [5, 7, 6, 5, 1] }],
@@ -4237,7 +4294,7 @@ ORDER BY band;
 FROM students;`,
         check: 'SELECT FLOOR(gpa * 2) / 2.0 AS band, COUNT(*) AS n FROM students WHERE gpa IS NOT NULL GROUP BY band ORDER BY band DESC;',
         ordered: true,
-        hint: '档位 = <code>FLOOR(gpa * 2) / 2.0</code>。注意除以 <b>2.0</b>：在本站的 SQLite 里 FLOOR 返回整数，除以 2 会变成整除。' },
+        hint: '档位 = <code>FLOOR(gpa * 2) / 2.0</code>：先乘 2、向下取整、再除回去（3.62 → 7.24 → 7 → 3.5）。写成 <b>2.0</b> 更保险：两边都是整数时，<code>/</code> 是整除。' },
 
       { t: 'recap', points: [
         '<b>WITH</b> 名字 AS (查询)：给子查询起名、可以引用多次；只活在这一条语句里',
@@ -4267,7 +4324,13 @@ INSERT INTO t VALUES (28, 'Yuki', 50);`,
             rows: [{ k: 'a', v: [25, 30, 'Ann'] }, { k: 'b', v: [26, 60, 'Ben'] }, { k: 'z', v: [27, 45, 'Zoe'] }, { k: 'y', v: [28, 'Yuki', 50] }], hl: { y: 'warn' }, badge: { y: '错位了' } },
         ] },
 
-      { t: 'quiz', q: '课件的 UPDATE-SELECT 写成 <code>UPDATE students s SET s.gpa = (SELECT AVG(grade) …)</code>。在 SQLite 里会怎样？',
+      { t: 'quiz', q: '课件里的 UPDATE-SELECT 例子如下（MySQL 写法）：把每个学生的 gpa 改成他所有选课成绩的平均分。在 SQLite 里运行会怎样？',
+        code: `UPDATE students s
+SET s.gpa = (
+  SELECT AVG(grade)
+  FROM enrollments e
+  WHERE e.student_id = s.id
+);`,
         opts: ['能跑，和 MySQL 一样', '语法错误：要写成 UPDATE students AS s SET gpa = …', '能跑，但只更新第一行'], a: 1,
         why: 'SQLite 的 SET 左边只能写<b>列名</b>，不能写 <code>s.gpa</code>（PostgreSQL 也不行）；SQLite 给 UPDATE 的表起别名还必须带 AS。MySQL 两种都接受。另外别忘了：没选课的 3 个学生（id 3、13、22）会被改成 NULL。' },
 
@@ -4279,10 +4342,10 @@ WHERE id NOT IN (SELECT advisorID FROM students);
 
 SELECT COUNT(*) AS left_over FROM faculty;`,
         opts: ['5', '6', '0'], a: 1,
-        why: 'students.advisorID 里有 NULL。<code>12 NOT IN (10, 11, NULL, …)</code> 的结果是 NULL（不是 TRUE），所以<b>一行都没删</b>。课件的 DELETE-SELECT（删掉从没发帖、也没投过票的用户）有同样的坑：OwnerUserId 或 UserId 里只要有一个 NULL，就什么也删不掉。' },
+        why: 'students.advisorID 里有 NULL。<code>12 NOT IN (10, 11, NULL, …)</code> 的结果是 NULL（不是 TRUE），所以<b>一行都没删</b>。课件的 DELETE-SELECT 有同样的坑：<code>DELETE FROM Users WHERE Id NOT IN (SELECT OwnerUserId FROM Posts UNION ALL SELECT UserId FROM Votes)</code>（删掉从没发帖、也没投过票的用户）——OwnerUserId 或 UserId 里只要有一个 NULL，就什么也删不掉。' },
 
       { t: 'sql', title: '修好这条 DELETE',
-        task: '改写上面的 DELETE，让它真的删掉 Dr. Brown，然后列出剩下导师的 <code>name</code>。（真实环境里，先用 SELECT 确认要删的是谁！）',
+        task: '编辑器里的 DELETE 想删掉不带学生的导师（只有 Dr. Brown），可 students.advisorID 里有 NULL，它一行都删不掉。改写它，让它真的删掉 Dr. Brown，然后列出剩下导师的 <code>name</code>。（真实环境里，先用 SELECT 确认要删的是谁！）',
         sql: `DELETE FROM faculty
 WHERE id NOT IN (SELECT advisorID FROM students);
 
@@ -4326,7 +4389,7 @@ WHERE lastname = 'x' OR '1'='1';`,
         ] },
 
       { t: 'predict', lang: 'py',
-        q: '没有任何恶意，只是一个普通的姓。会发生什么？',
+        q: 'con 是连着 school 数据库的 sqlite3 连接。这次的输入没有任何恶意，只是一个普通的姓。会发生什么？',
         code: `q = "O'Brien"
 sql = "SELECT name FROM students WHERE lastname = '" + q + "'"
 con.execute(sql)`,
@@ -4349,7 +4412,7 @@ con.execute(sql)`,
         ] },
 
       { t: 'predict', lang: 'py',
-        q: '同一个恶意输入，改用参数化查询。打印什么？',
+        q: '把恶意输入 <code>x\' OR \'1\'=\'1</code> 用参数化查询传进去（con 连着 school 数据库，students 共 24 人）。打印什么？',
         code: `q = "x' OR '1'='1"
 rows = con.execute(
     "SELECT name, gpa FROM students WHERE lastname = ?", (q,)
@@ -4614,7 +4677,8 @@ window.CHAPTERS.push({
         task: '这是本章的 <code>bank</code> 数据库。先运行，看看 4 个账户。<br>然后删掉第二条语句前面的 <code>--</code> 再运行：把 Carol 的余额改成负数，会发生什么？',
         sql: "SELECT * FROM accounts;\n\n-- UPDATE accounts SET balance = -999 WHERE owner = 'Carol';",
         hint: '建表时写了 balance INTEGER NOT NULL CHECK (balance >= 0)' },
-      { t: 'quiz', q: '刚才那条 UPDATE 被拒绝了。拦住它的是哪个机制？',
+      { t: 'quiz', q: '有人想把 Carol 的余额改成 −999，这条 UPDATE 被数据库拒绝了。accounts 表的定义如下，拦住它的是哪个机制？',
+        code: "CREATE TABLE accounts (\n  id      INTEGER PRIMARY KEY,\n  owner   TEXT NOT NULL,\n  balance INTEGER NOT NULL CHECK (balance >= 0)\n);\n\nUPDATE accounts SET balance = -999\nWHERE owner = 'Carol';   -- 被拒绝",
         opts: ['CHECK 约束', 'PRIMARY KEY', '索引 index', '视图 view'], a: 0,
         why: '表定义里有 <code>CHECK (balance >= 0)</code>，数据库在<b>每一次</b>写入时自动检查。Excel 单元格里你想填 -999 就填 -999，没人拦你——这就是"数据库能强制 integrity"的意思。' },
       { t: 'quiz', q: 'Alice 和 Bob 的共同账户里有 $100,000。两人<b>同一时刻</b>在两家银行各取 $100,000。如果系统只是"先查余额、再扣钱"而没有任何保护，最坏会怎样？',
@@ -4744,7 +4808,7 @@ window.CHAPTERS.push({
         why: '<code>ROLLBACK</code> 撤销本事务里的所有修改，Alice 回到 4000。你手动 ROLLBACK 和崩溃后的自动回滚，是同一个机制。' },
       { t: 'quiz', q: 'Alice 有 $4000、Bob 有 $2000，Alice 转 $500 给 Bob。<b>其他</b>事务可能看到哪种 (Alice, Bob)？',
         opts: ['(3500, 2000)', '(4000, 2500)', '(3500, 2500)', '(3000, 3000)'], a: 2,
-        why: '外界只能看到"之前" (4000, 2000) 或"之后" (3500, 2500)，绝不能看到半截。<br>细节：课件把这条放在 Atomicity 下。严格说，"别的事务看不到半截"靠的是 <b>Isolation</b>；Atomicity 保证的是半截状态不会<b>留下来</b>（失败就全撤销）。面试时能分清会加分。' },
+        why: '外界只能看到"之前" (4000, 2000) 或"之后" (3500, 2500)，绝不能看到半截。<br>细节：课件是在讲 Atomicity 时说“外界只能看到之前或之后”的。严格说，"别的事务看不到半截"靠的是 <b>Isolation</b>；Atomicity 保证的是半截状态不会<b>留下来</b>（失败就全撤销）。面试时能分清会加分。' },
       { t: 'sql', title: '写一个转账事务',
         task: 'Bob 转 $300 给 Carol。把两条 UPDATE 包进一个事务，最后 <code>SELECT * FROM accounts;</code>',
         sql: "BEGIN;\n-- Bob 减 300\n\n-- Carol 加 300\n\nCOMMIT;\nSELECT * FROM accounts;",
@@ -4764,7 +4828,8 @@ window.CHAPTERS.push({
       ], why: '前四条能写成 CHECK / FOREIGN KEY / UNIQUE，由数据库自动执行。"总额不变"是业务<b>不变量</b>：数据库不知道一次转账该加多少、减多少——要靠你把两步写对、包进一个事务，再由 A 和 I 保护。' },
       { t: 'predict', lang: 'sql',
         code: "BEGIN;\nUPDATE accounts SET balance = balance + 5000 WHERE owner = 'Bob';\nUPDATE accounts SET balance = balance - 5000 WHERE owner = 'Alice'; -- ✗ CHECK 失败\nCOMMIT; -- 程序忽略了错误，照样提交",
-        q: '在 SQLite 里，第 3 行违反了 CHECK。如果程序忽略错误、照样 COMMIT，Bob 最后有多少钱？',
+        q: '运行前的余额见下表。在 SQLite 里，第 3 行会让 Alice 变成 −1000，违反了 CHECK。如果程序忽略错误、照样 COMMIT，Bob 最后有多少钱？',
+        tables: [{ name: 'accounts（运行前）', head: ['id', 'owner', 'balance'], rows: [[1, 'Alice', 4000], [2, 'Bob', 2000]], note: 'balance 列有 <code>CHECK (balance &gt;= 0)</code>' }],
         opts: ['$2000：整个事务自动回滚了', '$7000：只撤销了出错的那一条', '$2000：COMMIT 会报错'], a: 1,
         why: 'SQLite 默认只撤销<b>出错的那一条语句</b>，事务仍然开着，前面 Bob +5000 还在。照样 COMMIT → 凭空多出 $5000！<br>正确做法：一出错就 <code>ROLLBACK</code>。（PostgreSQL 不同：出错后整个事务进入 aborted 状态，之后的 COMMIT 实际执行的是 ROLLBACK。）' },
       { t: 'code', title: 'Python：出错自动回滚', lang: 'py',
@@ -4804,7 +4869,8 @@ window.CHAPTERS.push({
           { text: 'T1 报告 $2500——可真实总额一直是 $2000！它拿转账前的 A 和转账后的 B 拼出了一个从未存在过的状态', cells: [['读 A → 1000', null, 1000, 1000], [null, 'A −= 500', 500, 1000], [null, 'B += 500；COMMIT', 500, 1500], ['读 B → 1500', null, 500, 1500], ['返回 2500', null, 500, 1500]], mark: { '4,0': 'x', '0,0': 'a', '3,0': 'a' } },
           { text: '有了 Isolation：T1 要么完全在 T2 之前，要么完全在之后。比如先 T1 后 T2，结果是正确的 $2000', cells: [['读 A → 1000', null, 1000, 1000], ['读 B → 1000', null, 1000, 1000], ['返回 2000', null, 1000, 1000], [null, 'A −= 500', 500, 1000], [null, 'B += 500；COMMIT', 500, 1500]], mark: { '2,0': 'on' } },
         ] },
-      { t: 'quiz', q: 'T1 返回了 $2500（T2 那时已经 COMMIT）。T1 遇到的是哪种问题？',
+      { t: 'quiz', q: 'A、B 两个账户各有 $1000。T1 要算 A + B，T2 要从 A 转 $500 到 B。没有隔离时，步骤按下表交错执行：T1 读 B 时，T2 已经 COMMIT 了，T1 最后返回 $2500。T1 遇到的是哪种问题？',
+        tables: [{ name: '交错执行的顺序', head: ['步', 'T1：求和', 'T2：转账', 'A', 'B'], rows: [[1, '读 A → 1000', '', 1000, 1000], [2, '', 'A −= 500', 500, 1000], [3, '', 'B += 500；COMMIT', 500, 1500], [4, '读 B → 1500', '', 500, 1500], [5, '返回 2500', '', 500, 1500]] }],
         opts: ['读到了别人还没提交的数据（dirty read）', '前后两次读取看到不同时刻的数据，拼出一个不存在的状态', '两个事务互相等待，卡死了（deadlock）'], a: 1,
         why: 'T2 已经提交，所以不是 dirty read。T1 读 A 在转账前、读 B 在转账后，这叫 <b>inconsistent read</b>（也叫 read skew），和 non-repeatable read 同一家族：同一个事务里看到了不同时刻的数据。' },
       { t: 'flow', title: '$100K 被取了两次',
@@ -4821,7 +4887,7 @@ window.CHAPTERS.push({
           { text: 'Bob 按他读到的旧值，也写回 $0，ATM 再吐出 $100K', on: ['bo'], go: ['bo', 'db'] },
           { text: '账上显示 $0，银行却付出 $200K。Bob 的写入覆盖了 Alice 的——这叫 <b>lost update</b>（丢失更新）', on: ['db'] },
         ] },
-      { t: 'order', q: '有了 Atomicity + Isolation，假设 Alice 的事务先执行。把事件排成正确顺序',
+      { t: 'order', q: 'Alice 和 Bob 的共同账户里有 $100K，两人同时在两家银行各取 $100K。有了 Atomicity + Isolation，假设 Alice 的事务先执行。把事件排成正确顺序',
         parts: ['Alice：检查余额 ≥ $100K ✓', 'Alice：取走 $100K，余额变 $0', 'Alice 的事务 COMMIT', 'Bob：检查余额 ≥ $100K ✗（只剩 $0）', 'Bob 的事务 ROLLBACK，取款失败'],
         why: 'Isolation 让两个事务<b>效果上</b>一个接一个；Atomicity 让失败的那个完全不生效。数据库只保证存在<b>某个</b>顺序（也可能 Bob 先成功），不保证是哪个——但无论哪个，$100K 都只会被取一次。' },
       { t: 'quiz', q: '真实的数据库会让事务排队、一次只跑一个，保证操作绝不交错吗？',
@@ -4843,7 +4909,7 @@ window.CHAPTERS.push({
         ['Non-repeatable read 不可重复读', '同一事务里读同一行两次，值变了'],
         ['Phantom read 幻读', '同一条件查两次，多出或少了几行'],
         ['Lost update 丢失更新', '两个事务都"读-改-写"同一个值，一个的修改被覆盖'],
-      ], why: '黑客用的是 dirty read；$100K 双取是 lost update；求和出错是 read skew（和 non-repeatable read 同一家族）。' },
+      ], why: '本课的三个例子：黑客“先转账、再取现”用的是 dirty read；$100K 被取两次是 lost update；求和得出 $2500 是 read skew（和 non-repeatable read 同一家族）。' },
       { t: 'grid', title: 'SQL 标准的四个隔离级别', colLabels: ['Dirty read', 'Non-repeatable', 'Phantom'],
         rowLabels: ['READ UNCOMMITTED', 'READ COMMITTED', 'REPEATABLE READ', 'SERIALIZABLE'],
         frames: [
@@ -4857,7 +4923,8 @@ window.CHAPTERS.push({
         sql: "UPDATE seats SET passenger = 'Mei'\nWHERE flight = 'WU101' AND seat = '1C';\n\nUPDATE seats SET passenger = 'Noor'\nWHERE flight = 'WU101' AND seat = '1C';\n\nSELECT * FROM seats;",
         check: "UPDATE seats SET passenger = 'Mei'\nWHERE flight = 'WU101' AND seat = '1C' AND passenger IS NULL;\n\nUPDATE seats SET passenger = 'Noor'\nWHERE flight = 'WU101' AND seat = '1C' AND passenger IS NULL;\n\nSELECT * FROM seats;",
         hint: '加 AND passenger IS NULL（注意不是 = NULL）' },
-      { t: 'quiz', q: '为什么"一条带条件的 UPDATE"比"先 SELECT 查空座、再 UPDATE"更安全？',
+      { t: 'quiz', q: '订座有下面两种写法。为什么 ① "一条带条件的 UPDATE" 比 ② "先 SELECT 查空座、再 UPDATE" 更安全？',
+        code: "-- ① 一条语句\nUPDATE seats SET passenger = 'Mei'\nWHERE flight = 'WU101' AND seat = '1C'\n  AND passenger IS NULL;\n\n-- ② 两条语句\nSELECT passenger FROM seats\nWHERE flight = 'WU101' AND seat = '1C';\n-- 程序看到 NULL（空座），于是：\nUPDATE seats SET passenger = 'Mei'\nWHERE flight = 'WU101' AND seat = '1C';",
         opts: ['因为 UPDATE 比 SELECT 快', '检查和写入在同一条语句里原子完成，中间插不进别的事务', '因为 SELECT 不能带 WHERE'], a: 1,
         why: '单条语句本身是原子的，数据库会锁住要改的行：后来的 UPDATE 要等前一个完成，再重新检查 <code>passenger IS NULL</code> → 不成立，影响 0 行。程序看"影响行数"是 1 还是 0，就知道抢没抢到。<br>两步写法则必须放进同一个足够严格的事务（如 SERIALIZABLE；PostgreSQL / MySQL 也可以用 <code>SELECT … FOR UPDATE</code> 先锁住行）。' },
       { t: 'recap', points: [
@@ -5115,7 +5182,9 @@ window.CHAPTERS.push({
           { text: '按餐馆分组：Pho Saigon 有 3 个订单……', group: { o1: 'Pho Saigon', o3: 'Pho Saigon', o5: 'Pho Saigon', o2: 'Taco Loco', o4: 'Sichuan House' } },
           { text: '……所以它的地址被抄了 3 遍。同一个事实存好几份，叫 <b>redundancy</b>（冗余）', hl: { o1: 'warn', o3: 'warn', o5: 'warn' }, badge: { o1: '第 1 份', o3: '第 2 份', o5: '第 3 份' } },
           { text: '病根：一行里混了两种事实 —— <b>订单</b>的事实，和<b>餐馆</b>的事实', group: null, dimCols: [0, 1] } ] },
-      { t: 'quiz', q: 'Pho Saigon 搬家了。在这张大表里，要改几行才能让数据正确？',
+      { t: 'quiz', q: 'Pho Saigon 搬家了。在下面这张外卖大表 orders_flat 里，要改几行才能让数据正确？',
+        tables: [{ name: 'orders_flat', head: ['OrderID', 'Customer', 'Restaurant', 'RestAddress'],
+          rows: [[101, 'Ann', 'Pho Saigon', '12 Delmar Blvd'], [102, 'Bo', 'Taco Loco', '88 Forsyth Ave'], [103, 'Cy', 'Pho Saigon', '12 Delmar Blvd'], [104, 'Ann', 'Sichuan House', '7 Skinker Rd'], [105, 'Dee', 'Pho Saigon', '12 Delmar Blvd']] }],
         opts: ['1 行', '3 行', '5 行（整张表）', '0 行，地址会自动同步'], a: 1,
         why: '每个 Pho Saigon 的订单都抄了一份地址，3 行都得改。现在是 3 行；生意火了有 3000 单，就是 3000 行。' },
       { t: 'rows', title: '更新异常：只改了一半',
@@ -5131,7 +5200,9 @@ window.CHAPTERS.push({
           { text: '同一家店现在有两个地址，该信哪个？数据库<b>自相矛盾</b>（inconsistent）', vals: { o1: [101, 'Ann', 'Pho Saigon', '300 Euclid Ave'] }, hl: { o1: 'new', o3: 'warn', o5: 'warn' }, badge: { o1: '新地址', o3: '旧地址！', o5: '旧地址！' } },
           { text: '正确做法：<code>WHERE Restaurant = \'Pho Saigon\'</code>，三行一起改', vals: { o3: [103, 'Cy', 'Pho Saigon', '300 Euclid Ave'], o5: [105, 'Dee', 'Pho Saigon', '300 Euclid Ave'] }, hl: { o1: 'pass', o3: 'pass', o5: 'pass' } },
           { text: '一个事实变了却要改很多行，漏一行就不一致：这就是 <b>update anomaly</b>（更新异常）', hl: { o1: 'warn', o3: 'warn', o5: 'warn', o2: 'dim', o4: 'dim' } } ] },
-      { t: 'quiz', q: 'Ann 取消了订单 104 —— 这恰好是 Sichuan House 唯一的一单。<code>DELETE</code> 这一行后，数据库还会丢掉什么？',
+      { t: 'quiz', q: '下面是 Pho Saigon 搬家后的大表。Ann 取消了订单 104 —— 这恰好是 Sichuan House 唯一的一单。<code>DELETE</code> 这一行后，数据库还会丢掉什么？',
+        tables: [{ name: 'orders_flat', head: ['OrderID', 'Customer', 'Restaurant', 'RestAddress'],
+          rows: [[101, 'Ann', 'Pho Saigon', '300 Euclid Ave'], [102, 'Bo', 'Taco Loco', '88 Forsyth Ave'], [103, 'Cy', 'Pho Saigon', '300 Euclid Ave'], [104, 'Ann', 'Sichuan House', '7 Skinker Rd'], [105, 'Dee', 'Pho Saigon', '300 Euclid Ave']] }],
         opts: ['什么都不会丢', 'Ann 这个顾客', 'Sichuan House 和它的地址', 'Ann 的所有订单'], a: 2,
         why: 'Ann 还有订单 101，所以她还在表里。但 Sichuan House 只出现在 104 这一行 —— 删掉订单，餐馆的地址也跟着没了。' },
       { t: 'rows', title: '删除异常：删多了',
@@ -5146,7 +5217,10 @@ window.CHAPTERS.push({
           { text: 'Sichuan House 只出现在一行里', hl: { o4: 'focus' }, badge: { o4: '唯一一行' } },
           { text: '<code>DELETE FROM orders_flat WHERE OrderID = 104;</code>', hl: { o4: 'del' }, badge: { o4: '删除' } },
           { text: '订单删了，Sichuan House 的地址也消失了。删一个事实，连带丢了一个<b>不相关的事实</b>：<b>deletion anomaly</b>（删除异常）', show: ['o1', 'o2', 'o3', 'o5'] } ] },
-      { t: 'quiz', q: '新餐馆 Bagel Bros 刚入驻，还没有任何订单。想把它的地址存进这张大表，怎么办？',
+      { t: 'quiz', q: '新餐馆 Bagel Bros（5 Kingshighway）刚入驻，还没有任何订单。想把它的地址存进下面这张大表，怎么办？',
+        tables: [{ name: 'orders_flat', head: ['OrderID', 'Customer', 'Restaurant', 'RestAddress'],
+          rows: [[101, 'Ann', 'Pho Saigon', '300 Euclid Ave'], [102, 'Bo', 'Taco Loco', '88 Forsyth Ave'], [103, 'Cy', 'Pho Saigon', '300 Euclid Ave'], [105, 'Dee', 'Pho Saigon', '300 Euclid Ave']],
+          note: '主键：<code>OrderID</code>（不能为 NULL）。每一行 = 一个订单。' }],
         opts: ['正常 INSERT 一行就行', '只能编一个假订单，或让订单那几列填 NULL', '用 UPDATE 改一行现有订单', '把地址写进 Customer 列'], a: 1,
         why: '这张表的每一行都是“一个订单”。没有订单，餐馆就没地方放 —— 而 OrderID 是主键，还不能是 NULL。' },
       { t: 'rows', title: '插入异常：存不进去',
@@ -5186,7 +5260,7 @@ window.CHAPTERS.push({
           { text: '餐馆搬进 restaurants：每家店一行，地址全库只存<b>一次</b>', on: ['r', 'r1'] },
           { text: '顾客也单独一张表', on: ['c', 'r0'] },
           { text: 'orders 用 <b>foreign key</b>（外键）rest_id、customer_id 指回去。怎么画、怎么连，第 3 课细讲', on: ['o'] } ] },
-      { t: 'match', q: '拆表之后，问题各自是怎么消失的？',
+      { t: 'match', q: '外卖大表 orders_flat(OrderID, Customer, Restaurant, RestAddress) 拆成三张表：customers、orders(order_id, customer_id, rest_id, order_date)、restaurants(rest_id, name, address)。拆表之后，各个问题是怎么消失的？',
         pairs: [
           ['更新异常', 'Pho 搬家：只改 restaurants 里 1 行'],
           ['删除异常', '删订单 104，Sichuan House 还在 restaurants'],
@@ -5220,7 +5294,9 @@ window.CHAPTERS.push({
               { k: 'b1', v: ['Ben', 'Target'] }, { k: 'b2', v: ['Ben', 'Ford'] }, { k: 'b3', v: ['Ben', 'Nike'] }, { k: 'b4', v: ['Ben', 'Boeing'] },
               { k: 'c1', v: ['Cleo', 'Visa'] }, { k: 'd1', v: ['Dan', 'Ford'] }, { k: 'd2', v: ['Dan', 'Target'] } ], hl: { b4: 'new' }, badge: { b4: '新的一行' } },
           { text: '现在查 Target 只看一列：<code>WHERE Customer = \'Target\'</code>', hl: { b1: 'pass', d2: 'pass' } } ] },
-      { t: 'quiz', q: '新表里 “Visa” 还是出现了 2 次（Ava、Cleo 各一行）。Visa 改名就得改 2 行 —— 怎么彻底解决？',
+      { t: 'quiz', q: '改成“一行一个配对”的新表（下表）里，“Visa” 还是出现了 2 次（Ava、Cleo 各一行）。Visa 改名就得改 2 行 —— 怎么彻底解决？',
+        tables: [{ name: 'rep_customers', head: ['Rep', 'Customer'],
+          rows: [['Ava', 'Nike'], ['Ava', 'Visa'], ['Ben', 'Target'], ['Ben', 'Ford'], ['Ben', 'Nike'], ['Ben', 'Boeing'], ['Cleo', 'Visa'], ['Dan', 'Ford'], ['Dan', 'Target']] }],
         opts: ['不用管，才 2 行', '给客户建 customers 表，这里只存 customer_id', '删掉其中一行 Visa', '改回 Customer1/2/3 宽表'], a: 1,
         why: '客户本身也是实体，应该有自己的表。rep ↔ customer 其实是<b>多对多</b>（Nike 也有两个销售），这张配对表就是第 4 课的 <b>junction table</b>。' },
       { t: 'list', title: '结构化数据好在哪', cols: 2, items: [
@@ -5258,7 +5334,7 @@ window.CHAPTERS.push({
       { t: 'sort', q: '网店的 user stories：<br>① As a <b>customer</b>, I want to see which products are in stock and how many.<br>② As a customer, I want to save my address and email so I don\'t retype them.<br>③ As a <b>sales rep</b>, I want to place orders for customers.<br>④ As an analyst, I want monthly sales per product so we can restock early.<br>把下面的词分成实体和属性：',
         buckets: ['实体 entity', '属性 attribute'],
         items: [['customer', 0], ['product', 0], ['order', 0], ['sales rep', 0], ['email', 1], ['price', 1], ['quantity in stock', 1], ['order date', 1]],
-        why: '注意 <b>sales rep</b>：课件第一版把它当成 Orders 的一列，但销售是人、有自己的名字和邮箱 → 升级成 employees 实体更好。地址也可能升级成实体（一个顾客多个地址、要分析“最常寄往哪”）。' },
+        why: '注意 <b>sales rep</b>：课件给的第一版设计只把它当成 Orders 表里的一列 sales_rep，但销售是人、有自己的名字和邮箱 → 升级成 employees 实体更好。地址也可能升级成实体（一个顾客多个地址、要分析“最常寄往哪”）。' },
       { t: 'er', title: '第一版：起点，不是终点',
         ents: [
           { id: 'p', name: 'Products', cols: ['name', 'price', 'qty_in_stock'], x: 0, y: 0 },
@@ -5270,7 +5346,7 @@ window.CHAPTERS.push({
           { text: 'Orders 抄了 product_name —— 又是冗余，应该改存商品的 key', on: ['o'] },
           { text: 'price 要看含义：“下单时的价格”值得存（商品会涨价）；total_cost = quantity × price 能算出来', on: ['o'] },
           { text: '最要命的：没有任何 key，三张表之间一条线都连不上', on: ['p', 'c', 'o'] } ] },
-      { t: 'quiz', q: '第一版里，Orders 怎么知道是<b>哪个顾客</b>下的单？',
+      { t: 'quiz', q: '第一版设计只有这三张表：<br><code>Products(name, price, qty_in_stock)</code><br><code>Customers(first_name, last_name, address, city, state, zip, email)</code><br><code>Orders(sales_rep, date, product_name, quantity, price, total_cost)</code><br>Orders 怎么知道是<b>哪个顾客</b>下的单？',
         opts: ['靠 sales_rep 列', '不知道 —— 缺一个指向 Customers 的 key', '靠 product_name 列', '靠 date 列'], a: 1,
         why: '每张表要有自己的 <b>primary key</b>（主键），Orders 还要一列 customer_id（<b>foreign key</b>）指向 Customers。下一课：用 PK / FK 把表连起来，并把它画出来。' },
       { t: 'recap', points: [
@@ -5292,7 +5368,7 @@ window.CHAPTERS.push({
         items: [
           ['员工 ↔ 公司配的笔记本（每人一台）', 0],
           ['用户 ↔ 账户设置（每人一份）', 0],
-          ['部门 ↔ 员工', 1],
+          ['部门 ↔ 员工（每人只属于一个部门）', 1],
           ['顾客 ↔ 订单', 1],
           ['餐馆 ↔ 外卖订单', 1],
           ['订单 ↔ 商品', 2],
@@ -5321,7 +5397,7 @@ window.CHAPTERS.push({
           { text: 'employees 表：每人一个 dept_id' },
           { text: '按 dept_id 分组：部门 10 出现 3 次 —— 一个部门对应多个员工', group: { e1: 'dept 10', e3: 'dept 10', e5: 'dept 10', e2: 'dept 20', e6: 'dept 20', e4: 'dept 30' } },
           { text: '反过来，Cleo 只有<b>一个</b> dept_id 格子 → 一个员工只属于一个部门。这就是 1:N', hl: { e3: 'focus' }, badge: { e3: '只有一格' } } ] },
-      { t: 'quiz', q: '1:N 关系里，FK 为什么放在 N 那边（employees.dept_id），而不是在 departments 里放 emp_id？',
+      { t: 'quiz', q: '部门 ↔ 员工是 1:N（一个部门很多员工，每人只属于一个部门）。FK 为什么放在 N 那边（employees.dept_id），而不是在 departments 里放 emp_id？',
         opts: ['放哪边都一样', '一个部门有很多员工，一个格子装不下多个 emp_id', 'FK 只能放在后创建的表里', 'departments 已经有 PK，不能再有 FK'], a: 1,
         why: '一个格子只放一个值。站在 N 端，每个员工只需指向<b>一个</b>部门；站在 1 端，就得存一串 ID —— 又回到 Customer1/2/3 的老路。' },
       { t: 'er', title: '1:1 —— 员工和笔记本',
@@ -5337,7 +5413,7 @@ window.CHAPTERS.push({
         tpl: 'CREATE TABLE employees (\n  emp_id    INTEGER PRIMARY KEY,\n  name      TEXT NOT NULL,\n  laptop_id INTEGER {0}\n            REFERENCES laptops(asset_id)\n);',
         blanks: [{ a: ['UNIQUE'] }],
         why: '没有 UNIQUE，两个员工能填同一个 laptop_id —— 那其实是 N:1。<b>FK + UNIQUE = 1:1</b>。还没配电脑的员工填 NULL 即可（SQLite 等多数数据库允许 UNIQUE 列有多个 NULL）。' },
-      { t: 'quiz', q: '既然是 1:1，为什么不干脆把 laptops 的列并进 employees，变成一张表？',
+      { t: 'quiz', q: '员工 ↔ 笔记本是 1:1（每人一台，每台只配给一个人）。既然是 1:1，为什么不干脆把 laptops(asset_id, maker, model, bought) 的列并进 employees，变成一张表？',
         opts: ['笔记本是独立的实体：会换人、会闲置，有自己的属性', 'SQL 表达不了 1:1 关系', '合并后查询一定更慢', '合并后 emp_id 就不能当主键了'], a: 0,
         why: '电脑可以闲置（没主人），员工离职后电脑转给别人 —— 合成一张表，这些情况又会变回插入 / 删除异常。所以 1:1 也常常“still want to separate the entities”。' },
       { t: 'rows', title: '自引用：经理也是员工',
@@ -5377,9 +5453,9 @@ window.CHAPTERS.push({
           { text: '订单里买的东西，用 product_id 这个 FK 指向 products', on: ['p', 'o'] },
           { text: '一个商品可以出现在很多订单里：products 1 — N orders', on: ['r0'] },
           { text: '可是 orders 每行只有<b>一个</b> product_id 格子……', on: ['o'] } ] },
-      { t: 'quiz', q: 'Ann 想<b>一次下单</b>买 Cat Hammock 和 Glow Mug。在上面的设计里会怎样？',
+      { t: 'quiz', q: '设计是这样的：<br><code>products(product_id PK, name, price, qty_in_stock)</code><br><code>orders(order_id PK, customer_id FK, order_date, product_id FK, quantity)</code><br>orders 每个订单一行，每行只有一个 product_id。Ann 想<b>一次下单</b>买 Cat Hammock 和 Glow Mug，会怎样？',
         opts: ['没问题，product_id 可以存两个值', '只能拆成两个订单，或者把订单行抄两遍', '在 products 里加一列 order_id 就行', 'SQL 会自动建一张关联表'], a: 1,
-        why: '订单 ↔ 商品其实是 <b>N:M</b>：一单多件商品，一件商品在很多单里。⚠ 课件 “Relating Tables” 那页的 Orders 就只有一个 ProductID (FK)，和下一页 “each order can contain multiple products” 矛盾 —— 那页只是在演示 PK/FK 怎么连，不是完整设计。' },
+        why: '订单 ↔ 商品其实是 <b>N:M</b>：一单多件商品，一件商品在很多单里。⚠ 课件演示 PK/FK 怎么连的 “Relating Tables” 页里，Orders 也只有一个 ProductID (FK)，可紧接着又说 “each order can contain multiple products” —— 两者矛盾。那页只是在演示怎么连表，不是完整设计。' },
       { t: 'rows', title: '硬塞的后果',
         cols: ['order_id', 'customer', 'order_date', 'product'],
         rows: [
@@ -5433,9 +5509,9 @@ window.CHAPTERS.push({
           { text: '有人又在 students 里加了 teacher_id，想记“学生的老师”', on: ['r3'] },
           { text: '可顺着 学生 → enrollments → 课程 → 老师 就能查到！能从别的路径推出来的关系叫 <b>redundant relationship</b>（冗余关系），存两份迟早对不上', on: ['r0', 'r1', 'r2'] } ] },
       { t: 'idea', title: '冗余，还是另一种含义？', icon: 'warn',
-        body: '判断冗余：这条关系能不能从别的路径推出来？能 → 删掉。但如果 students.teacher_id 表示<b>导师</b>（advisor），那是另一个事实，就不冗余。',
-        trap: '课件这页的 Course 表用 CourseName 当 PK，又放了一个 StudentID (FK) —— 这样<b>每门课只能有一个学生</b>！学生 ↔ 课程是 N:M，应该像上图那样用 enrollments 连接；课名也会改，不适合当主键。' },
-      { t: 'quiz', q: 'orders 里已经有 customer_id。有人想在 <b>order_items</b> 里也加一列 customer_id，“方便查询”。这条关系是？',
+        body: '判断冗余：这条关系能不能从别的路径推出来？能 → 删掉。例：学生 → enrollments → 课程 → 任课老师已能查到，再在 students 里放 teacher_id 就冗余。但如果它表示<b>导师</b>（advisor），那是另一个事实，就不冗余。',
+        trap: '课件讲冗余关系的例子里，Course 表用 CourseName 当 PK，又放了一个 StudentID (FK) —— 这样<b>每门课只能有一个学生</b>！学生 ↔ 课程是 N:M，应该用 enrollments(student_id, course_id) 连接；课名也会改，不适合当主键。' },
+      { t: 'quiz', q: '现有设计：<br><code>orders(order_id PK, customer_id FK, order_date)</code><br><code>order_items(order_id PK FK, product_id PK FK, quantity, unit_price)</code><br>有人想在 <b>order_items</b> 里也加一列 customer_id，“方便查询”。这条关系是？',
         opts: ['冗余：顺着 order_id → orders.customer_id 就能查到', '必须加，否则查不到是谁买的', '应该改成 N:M', '应该放进 products 表'], a: 0,
         why: '存两份就可能不一致：order_items 写 Ann、orders 写 Bo，听谁的？真为了速度故意这么做，叫 <b>denormalization</b>（反规范化），c08 再谈取舍。' },
       { t: 'recap', points: [
@@ -5471,7 +5547,7 @@ window.CHAPTERS.push({
         body: '<b>Superkey</b>：任何能唯一确定一行的列集合。<b>Candidate key</b>：最小的 superkey，少一列就不唯一。<b>Primary key</b>：设计者从候选键里挑定的那一个。',
         terms: [['superkey', '超键'], ['candidate key', '候选键'], ['primary key', '主键'], ['alternate key', '备用键']],
         tip: '没被选中的候选键叫 <b>alternate key</b>，通常加 <code>UNIQUE</code>。主键 = UNIQUE + NOT NULL，每表只有一个（SQLite 小坑：非 INTEGER 的主键要自己写 NOT NULL，否则允许 NULL）。',
-        trap: '课件写 “Every attribute is the trivial superkey”，容易读成“每一列都是超键” —— 错（FlightNo 单独就不是）。正确说法：<b>全部 attribute 合在一起</b>是 trivial superkey（前提是没有两行完全相同）。' },
+        trap: '课件写 “Every attribute is the trivial superkey”，容易读成“每一列都是超键” —— 错（航班号每天重复使用，FlightNo 单独就不是）。正确说法：<b>全部 attribute 合在一起</b>是 trivial superkey（前提是没有两行完全相同）。' },
       { t: 'sort', q: '<code>enrollments(StudentID, CourseID, Semester, EnrollDate, Grade)</code><br>规则：同一学期、同一门课，一个学生只选一次（可以下学期重修）。把这些列集合分类：',
         buckets: ['candidate key', 'superkey 但不最小', '不是 superkey'],
         items: [
@@ -5617,7 +5693,10 @@ window.CHAPTERS.push({
           { text: '<b>插入异常</b>：新顾客 Dana 还没下单，订单列只能填 NULL——可 OrderID 是键的一部分。', show: ['a1', 'a2', 'c1', 'c2', 'd1'], hl: { d1: 'fail' }, badge: { d1: '键不能是 NULL' } },
         ] },
 
-      { t: 'quiz', q: 'Bob 取消唯一的订单，结果连 Bob 的邮箱也丢了。这是哪种异常？',
+      { t: 'quiz', q: '在下面这张大表里，Bob 只有一行（订单 102）。他取消了这唯一的订单，删掉这一行后，连 Bob 的邮箱也丢了。这是哪种异常？',
+        tables: [{ name: 'BigTable', head: ['Customer', 'Email', 'OrderID', 'Item', 'Qty'],
+          rows: [['Alice', 'alice@mail.com', 101, 'Widget', 2], ['Alice', 'alice@mail.com', 101, 'Gadget', 1], ['Bob', 'bob@mail.com', 102, 'Doohickey', 3], ['Carol', 'carol@mail.com', 103, 'Widget', 1], ['Carol', 'carol@mail.com', 103, 'Gadget', 2]],
+          note: '键：{OrderID, Item}' }],
         opts: ['Insertion anomaly（插入异常）', 'Update anomaly（更新异常）', 'Deletion anomaly（删除异常）'], a: 2,
         why: '删一条事实（订单）连带删掉了另一条事实（Bob 是顾客、邮箱是什么）——<b>deletion anomaly</b>。三种异常的根源都一样：两种事实挤在同一行里。' },
 
@@ -5672,7 +5751,9 @@ window.CHAPTERS.push({
         ],
         why: '列表、JSON、重复列组都违反 1NF。Phone 虽然有横线，但我们一直把它当一个整体用——那它就是原子的。' },
 
-      { t: 'quiz', q: '猫表拍平成 1NF 之后（Owner, Email, CatName），三种异常都解决了吗？',
+      { t: 'quiz', q: '猫表拍平成 1NF 之后（下表：一只猫一行），插入、更新、删除这三种异常都解决了吗？',
+        tables: [{ name: 'Cats (1NF)', head: ['Owner', 'Email', 'CatName'],
+          rows: [['Alice', 'alice@mail.com', 'Mittens'], ['Alice', 'alice@mail.com', 'Muffins'], ['Bob', 'bob@mail.com', 'Wiggles'], ['Bob', 'bob@mail.com', 'Biggles'], ['Bob', 'bob@mail.com', 'Tofu']] }],
         opts: ['都解决了', '一个都没解决：插入、更新、删除异常都还在', '只剩插入异常'], a: 1,
         why: 'Alice 的 Email 每只猫抄一遍 → 更新异常；Bob 送走最后一只猫 → Bob 的 Email 也没了；没养猫的新会员插不进来。<b>1NF 只是起点</b>，冗余要靠 2NF、3NF 去掉。' },
 
@@ -5731,7 +5812,7 @@ window.CHAPTERS.push({
         body: '<b>Second Normal Form</b>（第二范式）：已在 1NF，并且没有 non-prime 列只依赖于某个 candidate key 的<b>一部分</b>。这种依赖叫 <b>partial dependency</b>（部分依赖）。',
         terms: [['partial dependency', '部分依赖'], ['prime attribute', '主属性']],
         tip: '所有 candidate key 都只有一列？那就没有"一部分"可言 → 自动 2NF。部分依赖只出现在<b>多列键</b>上。',
-        trap: '课件 "Normalizing into 2NF" 那两页：拆完的三张表和原表对不上（有两条选课记录的课程被互换，CSE 1301 FL25 的老师也从 Goodman 变成了 Shook）。拆表只是<b>投影</b>，任何值都不该改变——下一屏是正确的做法。' },
+        trap: '课件 "Normalizing into 2NF" 的例子里，拆完的三张表和原表对不上：有两条选课记录的课程被互换了；原表里 CSE 1301 FL25 由 Goodman 教，拆完却写成 Shook。拆表只是<b>投影</b>（挑列、去重），任何值都不该改变——下一屏用我们自己的数据演示正确做法。' },
 
       { t: 'split', title: '拆到 2NF：选课表',
         table: { name: 'Enrollments', cols: ['StudentID', 'CourseID', 'Semester', 'StudentName', 'Instructor', 'Grade'], pk: [0, 1, 2],
@@ -5777,7 +5858,7 @@ window.CHAPTERS.push({
         ],
         why: '<b>non-prime</b> 列依赖于 candidate key 的<b>一部分</b>（真子集）= partial dependency。prime 列不受 2NF 约束——这个漏洞第 5 课会遇到。' },
 
-      { t: 'quiz', q: 'AirlineFlights(FlightNo, Date, Origin, Destination, Captain)，键 {FlightNo, Date}。哪条依赖违反 2NF？',
+      { t: 'quiz', q: 'AirlineFlights(FlightNo, Date, Origin, Destination, Captain)，键 {FlightNo, Date}。业务规则：同一个航班号每天都飞同一条航线；机长每天可能换人。下面两条依赖都成立，哪条违反 2NF？',
         opts: ['FlightNo → {Origin, Destination}', '{FlightNo, Date} → Captain', '没有违反'], a: 0,
         why: 'UA777 天天都是芝加哥 → 拉斯维加斯：航线只看航班号，是键的一部分 → 部分依赖。机长每天可能换人，要整个键才能确定。修法：拆出 Routes(FlightNo, Origin, Destination)。' },
 
@@ -5856,7 +5937,10 @@ window.CHAPTERS.push({
         terms: [['transitive dependency', '传递依赖']],
         tip: '找 3NF 违规和找 2NF 违规一样：<b>先找重复的数据</b>。同一对 (DeptID, DeptName) 出现很多次 → 有人在"搭便车"。' },
 
-      { t: 'quiz', q: '原来的 Courses(CRN, DeptID, DeptName) 里只有一门 MATH 课。把这门课删掉会怎样？',
+      { t: 'quiz', q: '拆表之前的 Courses(CRN, DeptID, DeptName)（下表）里只有一门 MATH 课。把这门课删掉会怎样？',
+        tables: [{ name: 'Courses', head: ['CRN', 'DeptID', 'DeptName'],
+          rows: [[20101, 'CSE', 'Computer Science'], [20102, 'CSE', 'Computer Science'], [20103, 'CSE', 'Computer Science'], [20104, 'MATH', 'Mathematics'], [20105, 'ESE', 'Electrical & Systems Eng.']],
+          note: '键：CRN' }],
         opts: ['什么都不会丢', '"MATH = Mathematics" 这个事实也跟着没了', '数据库会报错，不让删'], a: 1,
         why: '<b>删除异常</b>：系名寄存在课程行里，最后一门课一走，系名就没了。拆出 Depts 后，一个系哪怕暂时一门课都没有也能存在。' },
 
@@ -5875,14 +5959,14 @@ window.CHAPTERS.push({
           { icon: 'shield', h: 'Nothing but the key · 3NF', p: '不能经过别的非键列间接依赖' },
         ] },
 
-      { t: 'match', q: '口诀的每一句 → 它禁止的东西',
+      { t: 'match', q: '口诀 “The key, the whole key, and nothing but the key, so help me Codd.” 的每一句 → 它禁止的东西',
         pairs: [
           ['the key', '格子里放列表 / 重复列组'],
           ['the whole key', '部分依赖（只依赖键的一部分）'],
           ['nothing but the key', '传递依赖（经过非键列）'],
           ['so help me Codd', '（玩笑）E. F. Codd：关系模型之父'],
         ],
-        why: '完整口诀："The key, the whole key, and nothing but the key, so help me Codd." 分别对应 1NF、2NF、3NF。' },
+        why: '前三句分别对应 1NF、2NF、3NF；最后一句模仿法庭宣誓 "so help me God"，是向 Codd 致敬的玩笑。' },
 
       { t: 'rows', title: '冗余的代价：改座位数',
         cols: ['FlightNo', 'Date', 'AircraftID', 'AircraftType', 'Seats'],
@@ -5899,7 +5983,10 @@ window.CHAPTERS.push({
           { text: '现在 A320 到底几座？数据自相矛盾——<b>更新异常</b>。', hl: { f2: 'fail', f3: 'fail', f4: 'fail' }, badge: { f2: '160?', f3: '150?', f4: '150?' } },
         ] },
 
-      { t: 'quiz', q: '这张 Flights 表（键 {FlightNo, Date}）有<b>部分依赖</b>吗？',
+      { t: 'quiz', q: '下面这张 Flights 表（键 {FlightNo, Date}）有<b>部分依赖</b>吗？',
+        tables: [{ name: 'Flights', head: ['FlightNo', 'Date', 'AircraftID', 'AircraftType', 'Seats'],
+          rows: [['UA777', '10/01', 'N101', 'B787', 250], ['UA777', '10/02', 'N102', 'A320', 150], ['UA888', '10/01', 'N102', 'A320', 150], ['UA888', '10/02', 'N103', 'A320', 150], ['UA555', '10/01', 'N101', 'B787', 250]],
+          note: 'AircraftID 是机尾号（哪一架飞机）。' }],
         opts: ['有：FlightNo → AircraftID', '没有：飞机每天都可能换，AircraftID 要整个键才能确定', '有：Date → Seats'], a: 1,
         why: 'UA777 在 10/01 用 N101、10/02 用 N102 → FlightNo 决定不了飞机；同一天也有不同飞机 → Date 也不行。所以已在 2NF。问题出在<b>非键列之间</b>：AircraftID → AircraftType → Seats。' },
 
@@ -5940,7 +6027,7 @@ window.CHAPTERS.push({
           { text: '很多飞机是同一机型：N:1。座位数只在这里存一次。', on: ['f', 'a', 't', 'r0', 'r1'] },
         ] },
 
-      { t: 'quiz', q: '拆完后，要查"UA777 在 10/02 有几个座位"，需要用到几张表？',
+      { t: 'quiz', q: 'Flights 拆成了三张表：<br><code>Flights(FlightNo, Date, AircraftID)</code><br><code>Aircraft(AircraftID, AircraftType)</code><br><code>AircraftTypes(AircraftType, Seats)</code><br>要查“UA777 在 10/02 有几个座位”，需要用到几张表？',
         opts: ['1 张', '2 张', '3 张'], a: 2,
         why: 'Flights → Aircraft → AircraftTypes，两次 JOIN。这就是 normalize 的代价：表多了、JOIN 多了。值不值？第 6 课讲 denormalization。' },
 
@@ -6009,9 +6096,9 @@ window.CHAPTERS.push({
         opts: ['2NF', '3NF', '都不违反'], a: 1,
         why: '键是单列 OrderID → 没有部分依赖。ProductID 是非键列 → 传递依赖 → <b>3NF</b>。' },
 
-      { t: 'quiz', q: '同一张 Orders，改成<b>一张订单可以买多种商品</b>（键 = {OrderID, ProductID}）。同一条 ProductID → {ProductName, Price} 现在违反什么？',
+      { t: 'quiz', q: '还是 Orders(OrderID, ProductID, Quantity, ProductName, Price)，但这次<b>一张订单可以买多种商品</b>（键 = {OrderID, ProductID}）。ProductID → {ProductName, Price} 现在违反什么？',
         opts: ['2NF', '3NF', '都不违反'], a: 0,
-        why: 'ProductID 现在是键的一部分 → 部分依赖 → <b>2NF</b>。<b>同一条 FD，键不同，结论就不同</b>——所以永远先确定键。' },
+        why: 'ProductID 现在是键的一部分 → 部分依赖 → <b>2NF</b>。如果键只是 OrderID（一单一种商品），ProductID 是非键列，同一条 FD 就是 3NF 问题。<b>同一条 FD，键不同，结论就不同</b>——所以永远先确定键。' },
 
       { t: 'split', title: '拆成 OrderItems + Products',
         table: { name: 'Orders', cols: ['OrderID', 'ProductID', 'Quantity', 'ProductName', 'Price'], pk: [0, 1],
@@ -6066,8 +6153,9 @@ window.CHAPTERS.push({
           { text: 'Enrollments 只剩键；Offerings 和 Rooms 各管一件事。', stage: 'split' },
         ] },
 
-      { t: 'idea', title: '课件这页少说了一句', icon: 'warn',
-        body: '课件把这个例子当成纯 3NF 问题，只拆出 Rooms(Room, Seats)，留下 Enrollments(StudentID, Course, Semester, Room)。这只在"教室因学生而异"时才对，比如同一门课分多个 section、每人分到不同考场。',
+      { t: 'idea', title: '课件的拆法少说了一句', icon: 'warn',
+        body: '课件把 Enrollments(StudentID, Course, Semester, Room, Seats) 当成纯 3NF 问题，只拆出 Rooms(Room, Seats)，留下 Enrollments(StudentID, Course, Semester, Room)。',
+        tip: '课件的拆法只在"教室因学生而异"时才对，比如同一门课分多个 section、每人分到不同考场。',
         trap: '如果一门课一学期只有一个教室，{Course, Semester} → Room 是部分依赖，课件留下的 Enrollments 仍然<b>违反 2NF</b>。考试和面试时，先把假设说出来，再下结论。' },
 
       { t: 'sort', q: '综合练习：这条依赖让表"最先坏在"哪一级？', buckets: ['2NF 违反', '3NF 违反', '2NF、3NF 都满足'],
@@ -6105,7 +6193,9 @@ window.CHAPTERS.push({
             mark: { '0,1': 'c', '0,2': 'c', '2,1': 'c', '2,2': 'c', '1,1': 'd', '1,2': 'd', '4,1': 'd', '4,2': 'd' } },
         ] },
 
-      { t: 'quiz', q: '这张 (StudentID, Major, FacMentor) 表满足 2NF 和 3NF 吗？',
+      { t: 'quiz', q: 'Mentoring(StudentID, Major, FacMentor)。规则：学生可以有多个专业，每个专业一个导师；每个导师只带一个专业。所以 FD 是 {StudentID, Major} → FacMentor 和 FacMentor → Major，candidate keys 是 {StudentID, Major} 和 {StudentID, FacMentor}。这张表满足 2NF 和 3NF 吗？',
+        tables: [{ name: 'Mentoring', head: ['StudentID', 'Major', 'FacMentor'],
+          rows: [[1001, 'DS', 'Bayes'], [1001, 'Econ', 'Keynes'], [1002, 'DS', 'Bayes'], [1003, 'DS', 'Pearson'], [1004, 'Econ', 'Keynes']] }],
         opts: ['都满足：根本没有 non-prime 列', '违反 2NF：Major 只依赖 FacMentor', '违反 3NF：FacMentor → Major 是传递依赖'], a: 0,
         why: '2NF、3NF 只约束 <b>non-prime</b> 列。三列全是 prime → 自动满足。可冗余明明还在——这就是 3NF 的漏洞。' },
 
@@ -6131,7 +6221,9 @@ window.CHAPTERS.push({
           { text: '<b>插入异常</b>：新导师 Fisher 加入 DS，但还没有学生——StudentID 是键的一部分，不能 NULL。', show: ['r1', 'r2', 'r3', 'r5', 'r6'], hl: { r6: 'fail' }, badge: { r6: '插不进来' } },
         ] },
 
-      { t: 'quiz', q: '违规的 FD 是 FacMentor → Major。按 BCNF 的拆法"R − Y 和 XY"，R(StudentID, Major, FacMentor) 应拆成？',
+      { t: 'quiz', q: 'R = Mentoring(StudentID, Major, FacMentor)，违反 BCNF 的 FD 是 X → Y：FacMentor → Major。BCNF 的拆法：把 R 拆成 <b>R − Y</b>（R 去掉 Y 的列）和 <b>XY</b>（只要 X 和 Y 的列）。应拆成？',
+        tables: [{ name: 'Mentoring', head: ['StudentID', 'Major', 'FacMentor'],
+          rows: [[1001, 'DS', 'Bayes'], [1001, 'Econ', 'Keynes'], [1002, 'DS', 'Bayes'], [1003, 'DS', 'Pearson'], [1004, 'Econ', 'Keynes']] }],
         opts: ['(StudentID, FacMentor) + (FacMentor, Major)', '(StudentID, Major) + (FacMentor, Major)', '(StudentID, Major) + (StudentID, FacMentor)'], a: 0,
         why: 'R − Y = 去掉 Major → (StudentID, FacMentor)；XY = (FacMentor, Major)，FacMentor 是它的键 → JOIN 无损。另两种都会 JOIN 出假行：比如第三种，1001 有两个专业、两个导师，拼回去 4 行，其中 2 行是假的。' },
 
@@ -6151,7 +6243,10 @@ window.CHAPTERS.push({
           { text: 'R − Y = (StudentID, FacMentor)；XY = (Major, FacMentor)，键是 FacMentor。"Bayes 带 DS" 只剩一行，Fisher 也能单独登记了。', stage: 'split' },
         ] },
 
-      { t: 'quiz', q: '拆完后，有一条规则<b>没法靠单张表的键</b>来保证了。是哪条？',
+      { t: 'quiz', q: 'Mentoring(StudentID, Major, FacMentor) 有两条规则：每个导师只带一个专业（FacMentor → Major）；每个学生在每个专业只有一个导师（{StudentID, Major} → FacMentor）。按 BCNF 拆成下面两张表后，哪条规则<b>没法靠单张表的键</b>来保证了？',
+        tables: [
+          { name: 'StudentMentor', head: ['StudentID', 'FacMentor'], rows: [[1001, 'Bayes'], [1001, 'Keynes'], [1002, 'Bayes'], [1003, 'Pearson'], [1004, 'Keynes']], note: '键：{StudentID, FacMentor}' },
+          { name: 'Mentors', head: ['FacMentor', 'Major'], rows: [['Bayes', 'DS'], ['Keynes', 'Econ'], ['Pearson', 'DS']], note: '键：FacMentor' }],
         opts: ['每个导师只带一个专业', '每个学生在每个专业只有一个导师', '每个学生至少有一个导师'], a: 1,
         why: '往 StudentMentor 插入 (1001, Pearson)：两张表各自都合法，可拼起来 1001 在 DS 有了两个导师。{StudentID, Major} → FacMentor 横跨两张表——BCNF 拆分总是 <b>lossless</b>，但不一定 <b>dependency-preserving</b>（保持依赖）。' },
 
@@ -6171,16 +6266,17 @@ window.CHAPTERS.push({
       { t: 'sort', q: '每张表最高能到哪一级？', buckets: ['BCNF ✓', '3NF ✓ 但 BCNF ✗', '连 3NF 都不满足'],
         items: [
           ['Students(StudentID, Email, Name)：StudentID、Email 都唯一', 0],
-          ['Mentoring(StudentID, Major, FacMentor)：FacMentor → Major', 1],
-          ['Courses(CRN, DeptID, DeptName)：DeptID → DeptName', 2],
-          ['Cats(Owner, Email, CatName, Color)：Owner 和 Email 一一对应', 1],
+          ['Mentoring(StudentID, Major, FacMentor)：键 {StudentID, Major}，另有 FacMentor → Major', 1],
+          ['Courses(CRN, DeptID, DeptName)：键 CRN，另有 DeptID → DeptName', 2],
+          ['Cats(Owner, Email, CatName, Color)：键 {Owner, CatName}，Owner 和 Email 一一对应', 1],
           ['Bookings(Room, Day, Slot, Guest)：键 {Room, Day, Slot}，没有别的 FD', 0],
-          ['Teaching(Course, Semester, Instructor, Office)：Instructor → Office', 2],
+          ['Teaching(Course, Semester, Instructor, Office)：键 {Course, Semester}，另有 Instructor → Office', 2],
         ],
         why: 'Students：两个决定因素都是 candidate key → BCNF。Cats：Email 唯一时 {Email, CatName} 也是 candidate key，Owner、Email 都是 prime → 3NF ✓；但 Owner 不是 superkey → BCNF ✗（下一屏细说）。' },
 
       { t: 'idea', title: '回看第 2 课的猫表', icon: 'eye',
-        body: '第 2 课说 Owner → Email 违反 2NF，前提是 Email 不能当键。如果 Email 也唯一，{Email, CatName} 也是 candidate key，Email 就成了 prime——2NF、3NF 都不管它，只有 BCNF 能抓到。',
+        body: 'Cats(Owner, Email, CatName, Color)，键 {Owner, CatName}。若 Email 也一人一个，{Email, CatName} 也是 candidate key，Email 成了 prime——2NF、3NF 都不管它，只有 BCNF 能抓到。',
+        tip: '第 2 课说 Owner → Email 违反 2NF，前提是 Email 不能当键（可能多人共用一个邮箱）。',
         trap: '课件 "You Try 2NF" 只问"该抽出什么"。严格结论取决于假设：Email 可能多人共用 → 2NF 违规；Email 一人一个 → 只违反 BCNF。<b>两种情况拆法完全一样</b>：Owners(Owner, Email) + Cats(Owner, CatName, Color)。' },
 
       { t: 'recap', points: [
@@ -6213,7 +6309,9 @@ window.CHAPTERS.push({
             mark: { '4,2': 'c', '4,3': 'c', '6,2': 'c', '6,3': 'c' } },
         ] },
 
-      { t: 'quiz', q: '拍平后的客户表 (CID, EID, Name, EmpCount)，candidate key 是？（公司名可能重名，CID 才是客户的唯一编号。）',
+      { t: 'quiz', q: '拍平后的客户表（下表）：每对（客户, 销售）一行，CID 是客户编号，EID 是销售的员工号。公司名可能重名，CID 才是客户的唯一编号。candidate key 是？',
+        tables: [{ name: 'CustomerLinks', head: ['CID', 'EID', 'Name', 'EmpCount'],
+          rows: [[1, 1001, 'Google', 187000], [2, 1001, 'LinkedIn', 18500], [3, 1002, 'Amazon', 1560000], [4, 1002, 'Microsoft', 228000], [5, 1002, 'Apple', 164000], [6, 1003, 'Meta', 76000], [5, 1003, 'Apple', 164000]] }],
         opts: ['CID', 'EID', '{CID, EID}', '{CID, EID, Name}'], a: 2,
         why: 'CID 5（Apple）出现两次 → CID 不唯一；一个销售有多个客户 → EID 不唯一。组合起来唯一且最小 → {CID, EID}。加上 Name 是 superkey，但不最小。销售 ↔ 客户是<b>多对多</b>。' },
 
@@ -6233,6 +6331,8 @@ window.CHAPTERS.push({
         ] },
 
       { t: 'quiz', q: 'SalesStaff(EID, FName, LName, Office, OfficePHN)，键 EID，每个办公室一部电话。它在 3NF 吗？',
+        tables: [{ name: 'SalesStaff', head: ['EID', 'FName', 'LName', 'Office', 'OfficePHN'],
+          rows: [[1001, 'Ava', 'Stone', 'Chicago', '555-0100'], [1002, 'Ben', 'Ortiz', 'New York', '555-0200'], [1003, 'Wei', 'Chen', 'Chicago', '555-0100']] }],
         opts: ['在', '不在：Office → OfficePHN 是传递依赖', '不在：EID → Office 是部分依赖'], a: 1,
         why: '单列键 → 2NF ✓。但非键列 Office 决定 OfficePHN → 传递依赖。数据里 "Chicago, 555-0100" 重复两次就是信号。' },
 
@@ -6252,7 +6352,10 @@ window.CHAPTERS.push({
           { text: 'Offices 单独成表。现在四张表：SalesStaff、Offices、Customers、StaffToCustomer——3NF，搞定？', stage: 'split' },
         ] },
 
-      { t: 'quiz', q: '新需求：Wei 同时在 Chicago 和 New York 两个办公室上班。SalesStaff(EID, FName, LName, Office) 会怎样？',
+      { t: 'quiz', q: '拆到 3NF 后，SalesStaff(EID, FName, LName, Office) 的键是 EID（下表），电话已搬进 Offices(Office, OfficePHN)。新需求：Wei（EID 1003）同时在 Chicago 和 New York 两个办公室上班。SalesStaff 会怎样？',
+        tables: [{ name: 'SalesStaff', head: ['EID', 'FName', 'LName', 'Office'],
+          rows: [[1001, 'Ava', 'Stone', 'Chicago'], [1002, 'Ben', 'Ortiz', 'New York'], [1003, 'Wei', 'Chen', 'Chicago']],
+          note: '键：EID' }],
         opts: ['没事，多加一行就好', 'EID 不再唯一，键变成 {EID, Office}；FName、LName 只依赖 EID → 违反 2NF', 'Office → FName，违反 3NF'], a: 1,
         why: 'Wei 要占两行，名字抄两遍。键变成 {EID, Office}，而名字只依赖 EID → 部分依赖。把<b>多对多关系</b>塞进实体表，几乎必然出这个问题。' },
 
@@ -6275,7 +6378,7 @@ window.CHAPTERS.push({
         body: '拆表本身不会制造新的部分依赖。翻车是因为<b>需求变了</b>：员工 ↔ 办公室从"多对一"变成"多对多"，EID → Office 不再成立，键跟着变了。',
         trap: '课件这里的标题 "No longer in 2NF!" 容易让人以为 3NF 那一步做错了。其实是业务规则变了。规律：多对多关系要用 junction table，别塞进实体表。' },
 
-      { t: 'match', q: '最终 schema：每张表 → 它的主键',
+      { t: 'match', q: '销售案例的最终 5 张表：SalesStaff(EID, FName, LName)、Offices(Office, OfficePHN)、StaffToOffice(EID, Office)、Customers(CID, Name, EmpCount)、StaffToCustomer(CID, EID)。销售 ↔ 办公室、销售 ↔ 客户都是多对多。每张表 → 它的主键：',
         pairs: [
           ['SalesStaff', 'EID'],
           ['Offices', 'Office'],
@@ -6402,7 +6505,7 @@ window.CHAPTERS.push({
         a: { name: 'Python 的长处', sub: 'jack-of-all-trades', points: ['数据处理顺手', '开发快、迭代快', '能把不同系统 <b>glue</b>（粘）在一起', '社区大、库多（numpy、pandas…）'] },
         b: { name: 'Python 的代价', sub: 'second-best', points: ['运行可能比 C/C++ 慢', '类型检查松，容易给自己挖坑（Rust 严到“烦人”）', '特定任务常有更专门的选择'] },
         bottom: '数据工作里<b>写得快</b>往往比<b>跑得快</b>更值钱；真正重的计算交给底层是 C 的 NumPy / pandas。' },
-      { t: 'quiz', q: '课上提到的 Python <b>缺点</b>是哪个？',
+      { t: 'quiz', q: 'Python 号称“什么都第二好”。下面哪一条是它<b>真实存在的缺点</b>？',
         opts: ['库太少，社区小', '运行速度可能比 C/C++ 慢', '不能处理文本数据', '只能在 Jupyter 里运行'], a: 1,
         why: '“second-best at everything”：什么都能做、开发快，但跑得不是最快。要极致性能用 C/C++，要严格的类型安全用 Rust。' },
       { t: 'flow', title: 'Jupyter 怎么跑代码',
@@ -6589,7 +6692,7 @@ lengths = [len(w) for w in ['apple', 'pear', 'kiwi']]   # [5, 4, 4]`,
         q: '目标：<code>sentence = \'CSE3104 rocks!\'</code> → <code>[[\'C\', \'S\', \'E\'], [\'r\', \'o\', \'c\', \'k\', \'s\']]</code>（每个单词只留字母）。把<b>不用推导式</b>的版本排好',
         parts: ['my_list = []', 'for word in sentence.split():', '    char_arr = []', '    for ch in word:', '        if ch.isalpha():', '            char_arr.append(ch)', '    my_list.append(char_arr)'],
         why: '外层循环每个单词，先建空的 <code>char_arr</code>，内层把字母一个个 append 进去，最后把整个 <code>char_arr</code> 放进 <code>my_list</code>。7 行 —— 下一屏看推导式怎么压缩它。' },
-      { t: 'code', title: '同一件事：嵌套推导式', lang: 'py',
+      { t: 'code', title: '嵌套推导式：单词只留字母', lang: 'py',
         code: `sentence = 'CSE3104 rocks!'
 my_list = [
     [ch for ch in word if ch.isalpha()]
@@ -6651,7 +6754,7 @@ print(my_list)
           { line: 4, text: '第二轮：b, 2 → total = 3', vars: { k: "'b'", v: '2', total: '3' }, out: 'a 1\nb 2\n' },
           { line: 4, text: '第三轮：c, 3 → total = 6（按插入顺序）', vars: { k: "'c'", v: '3', total: '6' }, out: 'a 1\nb 2\nc 3\n' },
           { line: 5, text: '循环结束，打印总和', out: 'a 1\nb 2\nc 3\ntotal 6\n' } ] },
-      { t: 'match', q: '把写法和它得到的东西配对',
+      { t: 'match', q: '<code>d</code> 是一个 dict。把写法和它得到的东西配对',
         pairs: [['for x in d:', '依次得到每个 key'], ['for x in d.values():', '依次得到每个 value'], ['for k, v in d.items():', '每次得到 (key, value) 并拆开'], ['len(d)', 'key 的个数'], ["d['k'] = 5", "新增 key 'k'，或覆盖它的旧值"]],
         why: '直接遍历 dict（或 <code>d.keys()</code>）得到 key；<code>values()</code> 得到值；<code>items()</code> 两个都要。' },
       { t: 'code', title: 'dict comprehension', lang: 'py',
@@ -6688,7 +6791,7 @@ big = {k: v for k, v in d.items() if v >= 2}   # {'b': 2, 'c': 3}`,
           { text: '<b>perfect number</b>（完全数）= 等于自己所有<b>真因数</b>（proper divisors：正因数，但不含自己）之和。6 的真因数 1、2、3 → 和是 6 ✓', cells: [[1, 2, 3, null, null, '= 6'], [null, null, null, null, null, null], [null, null, null, null, null, null]], markRows: { 0: 'a' } },
           { text: '28：1 + 2 + 4 + 7 + 14 = 28 ✓ —— 第二个完全数', cells: [[1, 2, 3, null, null, '= 6'], [1, 2, 4, 7, 14, '= 28'], [null, null, null, null, null, null]], markRows: { 1: 'b' } },
           { text: '反例 12：1 + 2 + 3 + 4 + 6 = 16 ≠ 12 ✗', cells: [[1, 2, 3, null, null, '= 6'], [1, 2, 4, 7, 14, '= 28'], [1, 2, 3, 4, 6, '= 16']], markRows: { 2: 'c' }, mark: { '2,5': 'x' } } ] },
-      { t: 'quiz', q: '10 的真因数之和是多少？10 是完全数吗？',
+      { t: 'quiz', q: '<b>真因数</b> = 能整除 n 的正整数，但不含 n 自己；<b>完全数</b> = 等于自己真因数之和的数。10 的真因数之和是多少？10 是完全数吗？',
         opts: ['8，不是', '10，是', '18，不是', '17，不是'], a: 0,
         why: '10 的真因数是 1、2、5（不含 10 本身），1 + 2 + 5 = 8 ≠ 10。18 是把 10 自己也加进去了。' },
       { t: 'code', title: '找出 10000 以内的完全数', lang: 'py',
@@ -6715,7 +6818,7 @@ print(perfect)   # [6, 28, 496, 8128]`,
           { line: 3, text: 'd = 4：6 % 4 = 2，不整除，跳过', vars: { d: '4' } },
           { line: 3, text: 'd = 5：6 % 5 = 1，跳过', vars: { d: '5' } },
           { line: 5, text: '6 == 6 → True', out: 'True\n' } ] },
-      { t: 'fill', q: '补全：d 是 n 的真因数', lang: 'py',
+      { t: 'fill', q: '补全推导式，让 <code>divisors</code> 装下 n 的全部<b>真因数</b>（能整除 n 的正整数，不含 n 自己）', lang: 'py',
         tpl: 'divisors = [d for d in range(1, {0}) if n {1} d == 0]',
         blanks: [{ a: ['n'] }, { a: ['%'] }],
         why: '<code>range(1, n)</code> 正好跑到 n−1（不含自己）；<code>%</code> 取余，余数为 0 就是整除。' },
@@ -6836,7 +6939,7 @@ window.CHAPTERS.push({
           { text: '<code>ids = [3, 1, 3, 2, 1]</code>：list 原样保存，重复的也照留', cells: [[3, 1, 3, 2, 1], [null, null, null, null, null]] },
           { text: '放进 set 时，第二个 3、第二个 1 已经在里面了 → 直接丢掉', mark: { '0,0': 'a', '0,1': 'a', '0,3': 'a', '0,2': 'x', '0,4': 'x' } },
           { text: '<code>print(set(ids))</code> → <code>{1, 2, 3}</code>：5 个变 3 个。<code>len(set(ids))</code> 就是“有几个不同的”', cells: [[3, 1, 3, 2, 1], [1, 2, 3, null, null]], markRows: { 1: 'b' } },
-          { text: '<code>2 in s</code> → <code>True</code>，<code>5 in s</code> → <code>False</code>：查“在不在”是 set 的强项，非常快', mark: { '1,1': 'on' } } ] },
+          { text: '<code>s = set(ids)</code> 之后：<code>2 in s</code> → <code>True</code>，<code>5 in s</code> → <code>False</code>。查“在不在”是 set 的强项，非常快', mark: { '1,1': 'on' } } ] },
 
       { t: 'idea', title: '怎么写一个 set', icon: 'puzzle',
         body: '<b>set</b>（集合）像 Java 的 HashSet：无顺序、无重复，元素通常同一类型。用花括号或 <code>set()</code> 创建；<code>in</code> 能用，但没有“第一个”元素。',
@@ -6879,7 +6982,7 @@ fruits.remove('Kiwi')        # KeyError: 'Kiwi'`,
           { text: '<code>A - B</code> 差集 <b>difference</b>：在 A、<b>不在</b> B → <code>{1, 2}</code>。反过来 <code>B - A</code> 是 <code>{5, 6}</code>：差集不对称', cells: [[1, 2, 3, 4, null, null], [null, null, 3, 4, 5, 6], [1, 2, null, null, null, null]], mark: { '0,0': 'c', '0,1': 'c', '2,0': 'c', '2,1': 'c', '1,2': 'off', '1,3': 'off', '1,4': 'off', '1,5': 'off' } },
           { text: '<code>A ^ B</code> 对称差 <b>symmetric difference</b>：只在<b>一边</b>的 → <code>{1, 2, 5, 6}</code>', cells: [[1, 2, 3, 4, null, null], [null, null, 3, 4, 5, 6], [1, 2, null, null, 5, 6]], mark: { '0,0': 'd', '0,1': 'd', '1,4': 'd', '1,5': 'd', '2,0': 'd', '2,1': 'd', '2,4': 'd', '2,5': 'd', '0,2': 'x', '0,3': 'x', '1,2': 'x', '1,3': 'x' } } ] },
 
-      { t: 'match', q: '运算符 ↔ 含义',
+      { t: 'match', q: '<code>A</code>、<code>B</code> 是两个 set，<code>x</code> 是一个值。运算符 ↔ 含义',
         pairs: [['A | B', '并集：在任意一边'], ['A & B', '交集：两边都有'], ['A - B', '差集：只在 A'], ['A ^ B', '对称差：恰好在一边'], ['x in A', '成员检测：True / False']],
         why: '也有方法写法：<code>A.union(B)</code>、<code>A.intersection(B)</code>、<code>A.difference(B)</code>、<code>A.symmetric_difference(B)</code>，结果一样。' },
 
@@ -6941,7 +7044,7 @@ print(name, job, x, y)`,
         opts: ['TypeError', '(1, 2, 3, 4)', '(1, 2, 3)', '(1, 2, 3, (4,))'], a: 1,
         why: '旧 tuple 一点没变：<code>t + (4,)</code> 造了一个<b>新</b> tuple，再让名字 t 指过去。“值不能改，但名字随时可以重新指向”—— 这就是 immutable。' },
 
-      { t: 'sort', q: '课件的分法：哪些类型可变？',
+      { t: 'sort', q: '这些类型的值能不能<b>原地修改</b>？能 = mutable，不能 = immutable',
         buckets: ['mutable 可变', 'immutable 不可变'],
         items: [['int', 1], ['float', 1], ['bool', 1], ['str', 1], ['tuple', 1], ['list', 0], ['dict', 0], ['set', 0]],
         why: '不可变：int、float、bool、str、tuple —— 内存里的值改不了。可变：list、dict、set。两类的名字都可以重新赋值。另外：能改不代表该改，函数最好返回新 list，而不是偷偷改参数（没有 <b>side effect</b> 副作用）。' },
@@ -6954,7 +7057,8 @@ print(name, job, x, y)`,
           { line: 3, text: 'str1 改指 "Cid"。现在没有任何名字指着 "Bob" 了', names: { str1: 'S3', str2: 'S2' }, objs: { S1: { type: 'str', v: "'Bob'" }, S2: { type: 'str', v: "'Amy'" }, S3: { type: 'str', v: "'Cid'" } } },
           { line: 3, text: '没人引用的值会被 Python 自动清理：values live until nothing references them', names: { str1: 'S3', str2: 'S2' }, objs: { S2: { type: 'str', v: "'Amy'" }, S3: { type: 'str', v: "'Cid'" } } } ] },
 
-      { t: 'quiz', q: '跑完上面 4 行，"Bob" 怎么样了？',
+      { t: 'quiz', q: '依次运行下面 4 行之后，值 "Bob" 怎么样了？',
+        code: 'str1 = "Bob"\nstr2 = str1\nstr2 = "Amy"\nstr1 = "Cid"', lang: 'py',
         opts: ['还在，str2 仍然指着它', '被自动回收了：没有名字再引用它', 'str1 和 str2 都变成了 "Cid"', '要手动 del 它才会消失'], a: 1,
         why: 'str2 早就改指 "Amy"，str1 最后改指 "Cid"。"Bob" 的引用数降到 0 → 被清理。值是<b>没办法</b>手动销毁的，<code>del</code> 删的只是名字。' },
 
@@ -6963,7 +7067,7 @@ print(name, job, x, y)`,
           { line: 0, text: 'x → 42', names: { x: 'I1' }, objs: { I1: { type: 'int', v: '42' } } },
           { line: 1, text: '<b>Assignment never copies data</b>：内存里还是只有一个 42，只是多了一个名字', names: { x: 'I1', y: 'I1' }, objs: { I1: { type: 'int', v: '42' } } },
           { line: 2, text: 'y 改指一个新的 100。42 是 int，不可变，也没人能去改它', names: { x: 'I1', y: 'I2' }, objs: { I1: { type: 'int', v: '42' }, I2: { type: 'int', v: '100' } } },
-          { line: 3, text: '所以 x 还是 <b>42</b> —— 开头那道题的答案', names: { x: 'I1', y: 'I2' }, objs: { I1: { type: 'int', v: '42' }, I2: { type: 'int', v: '100' } }, out: '42' } ] },
+          { line: 3, text: '所以 x 还是 <b>42</b>：y 改指别处，碰不到 x', names: { x: 'I1', y: 'I2' }, objs: { I1: { type: 'int', v: '42' }, I2: { type: 'int', v: '100' } }, out: '42' } ] },
 
       { t: 'idea', title: '内存怎么回收', icon: 'undo',
         body: 'Python 用 <b>reference counting</b>（引用计数）：记着每个值被引用了几次，降到 0 就自动释放。你<b>不能</b>手动销毁值，<code>del name</code> 删的只是名字。',
@@ -6979,9 +7083,10 @@ print(name, job, x, y)`,
           { line: 4, text: '<code>del b</code>：最后一个名字也没了，引用数 0', names: {}, objs: { L1: { type: 'list', v: '[1, 2]' } }, out: '[1, 2]' },
           { line: 4, text: 'Python 立刻回收这个 list', names: {}, objs: {}, out: '[1, 2]' } ] },
 
-      { t: 'quiz', q: '如果在 <code>del a</code> 之后执行 <code>print(a)</code>，会怎样？',
+      { t: 'quiz', q: '运行下面的代码，最后一行 <code>print(a)</code> 会怎样？',
+        code: 'a = [1, 2]\nb = a\ndel a\nprint(a)', lang: 'py',
         opts: ['打印 [1, 2]', '打印 None', "NameError: name 'a' is not defined", '打印 []'], a: 2,
-        why: '<code>del a</code> 把名字 a 整个删掉了，再用它就是 <code>NameError</code>。值在不在，要看还有没有别的名字指着它（这里 b 还指着）。' },
+        why: '<code>del a</code> 把名字 a 整个删掉了，再用它就是 <code>NameError</code>。list 本身还在，因为 b 还指着它：换成 <code>print(b)</code> 照样打印 <code>[1, 2]</code>。' },
 
       { t: 'predict', lang: 'py', code: 's = "Bob"\nt = s\ns += "by"\nprint(t)',
         opts: ['Bobby', 'Bob', 'by', 'TypeError'], a: 1,
@@ -7015,18 +7120,20 @@ print(name, job, x, y)`,
 
       { t: 'idea', title: '引用不只是名字', icon: 'link',
         body: 'list 的元素、dict 的键和值，本身也都是<b>引用</b>。同一个 list 放进容器 3 次 = 3 根箭头指向同一个对象，改一处，处处都变。',
-        code: `# 课件 p.17 跑完后：lst1 = [1, 99, 3]，lst2 = lst1
+        code: `lst1 = [1, 2, 3]
+lst2 = lst1          # 别名：两个名字，一个 list
+lst1[1] = 99         # 此时 lst1、lst2 都是 [1, 99, 3]
 lst1[0] = [1, 2, 3]
 lst1[1] = lst1[0]
 lst1[2] = lst1[0]
 lst1[0][1] = 99
 print(lst1[2])   # [1, 99, 3]
 print(lst2)      # [[1, 99, 3], [1, 99, 3], [1, 99, 3]]`, lang: 'py',
-        trap: '课件这页写的是 <code>print( lst[2] )</code>，注释说输出 <code>[ [1,99,3], [1,99,3], [1,99,3] ]</code>。两处都不对：<code>lst</code> 这个名字不存在（实测 NameError，应为 <code>lst1</code>）；而 <code>lst1[2]</code> 只是<b>一行</b> <code>[1, 99, 3]</code>，整个嵌套 list 要 <code>print(lst1)</code> 或 <code>print(lst2)</code>。' },
+        trap: '课件里这段代码的最后一行写的是 <code>print( lst[2] )</code>，注释说输出 <code>[ [1,99,3], [1,99,3], [1,99,3] ]</code>。两处都不对：<code>lst</code> 这个名字不存在（实测 NameError，应为 <code>lst1</code>）；而 <code>lst1[2]</code> 只是<b>一行</b> <code>[1, 99, 3]</code>，整个嵌套 list 要 <code>print(lst1)</code> 或 <code>print(lst2)</code>。' },
 
       { t: 'predict', lang: 'py', code: 'grid = [[0] * 2] * 3\ngrid[0][0] = 7\nprint(grid)',
         opts: ['[[7, 0], [0, 0], [0, 0]]', '[[7, 0], [7, 0], [7, 0]]', '[[7, 7], [0, 0], [0, 0]]', 'TypeError'], a: 1,
-        why: '<code>* 3</code> 复制的是<b>引用</b>：3 个格子指向同一个 <code>[0, 0]</code>，和上一页的 row 一模一样。要 3 个独立的行：<code>[[0] * 2 for _ in range(3)]</code>（实测改一格只变一行）。' },
+        why: '<code>* 3</code> 复制的是<b>引用</b>：3 个格子指向同一个 <code>[0, 0]</code>，等于 <code>row = [0, 0]; grid = [row, row, row]</code>。要 3 个独立的行：<code>[[0] * 2 for _ in range(3)]</code>（实测改一格只变一行）。' },
 
       { t: 'heap', title: '传参 = 赋值', code: 'def my_push(inside, x):\n    inside.append(x)\n\noutside = [1, 2, 3]\nmy_push(outside, 4)\nprint(outside)',
         frames: [
@@ -7038,7 +7145,7 @@ print(lst2)      # [[1, 99, 3], [1, 99, 3], [1, 99, 3]]`, lang: 'py',
 
       { t: 'quiz', q: '关于“Python 怎么传参数”，哪句话对？',
         opts: ['传 list 时会先复制一份，函数里改不到外面', '传参就是赋值：函数里改可变对象，外面也会变', '只有写 global 才能在函数里改外面的 list', 'int 传引用，list 传值'], a: 1,
-        why: '设计者不想区分 pass-by-value / pass-by-reference：统统是“赋值给参数名”。所以 <code>inside.append()</code> 改的是原对象；但函数里写 <code>inside = [9]</code> 只是让 inside 改指别处，外面还是 <code>[1, 2, 3]</code>（实测）。' },
+        why: '设计者不想区分 pass-by-value / pass-by-reference：统统是“赋值给参数名”。所以函数里 <code>inside.append(x)</code> 改的是传进来的原对象；但函数里写 <code>inside = [9]</code> 只是让 inside 改指别处 —— 实测传进 <code>outside = [1, 2, 3]</code>，调用后 outside 还是 <code>[1, 2, 3]</code>。' },
 
       { t: 'heap', title: '要独立的一份：.copy()', code: 'lst1 = [1, 2, 3]\nlst2 = lst1.copy()\nlst1[1] = 99\nprint(lst1)\nprint(lst2)',
         frames: [
@@ -7051,7 +7158,7 @@ print(lst2)      # [[1, 99, 3], [1, 99, 3], [1, 99, 3]]`, lang: 'py',
         opts: ['[1, 2, 3, 4] [1, 2, 3]', '[1, 2, 3, 4] [1, 2]', '[1, 2, 3, 4] [1, 2, 3, 4]', '[1, 2, 4] [1, 2, 3]'], a: 0,
         why: '<code>a += [3]</code> 对 list 是<b>原地</b>扩展（相当于 <code>a.extend([3])</code>），b 也看到 3。<code>a = a + [4]</code> 是拼接：造一个<b>新</b> list 让 a 指过去，b 还留在旧 list 上。课件只讲了后者（“Concatenation makes a copy”），<code>+=</code> 正好相反，最容易考。' },
 
-      { t: 'sort', q: '<code>lst = [3, 1, 2]; alias = lst</code>。这些操作会让 alias 跟着变吗？',
+      { t: 'sort', q: '<code>lst = [3, 1, 2]; alias = lst</code>。每个操作单独看（都从这一行开始执行），会让 alias 跟着变吗？',
         buckets: ['原地修改（alias 也变）', '造新对象（原 list 不变）'],
         items: [['lst.append(4)', 0], ['lst += [4]', 0], ['lst.sort()', 0], ['lst[0] = 9', 0], ['lst + [4]', 1], ['lst.copy()', 1], ['sorted(lst)', 1], ['lst[:]', 1]],
         why: '逐个实测过：左边 4 个都让 alias 一起变（方法本身返回 <code>None</code>）；右边 4 个都返回一个新 list，原 list 不动。切片 <code>lst[:]</code> 和 <code>.copy()</code> 一样是复制。' },
@@ -7085,7 +7192,7 @@ def test_no_side_effect():
 
       { t: 'recap', points: [
         '<b>aliasing</b>：两个名字指同一个可变对象，通过一个改，另一个也看到',
-        '容器的格子也是引用：<code>[[0] * 2] * 3</code> 是 3 根箭头指同一行；课件 p.18 的 <code>lst[2]</code> 应为 <code>lst1</code>',
+        '容器的格子也是引用：<code>[[0] * 2] * 3</code> 是 3 根箭头指同一行（课件勘误：<code>print(lst[2])</code> 应写 <code>lst1[2]</code>，输出只是一行 <code>[1, 99, 3]</code>）',
         '传参 = 赋值：函数里 <code>append</code> 会改到外面的 list',
         '<code>.copy()</code>、<code>lst + [x]</code>、<code>sorted()</code> 造新对象；<code>append</code>、<code>+=</code>、<code>.sort()</code> 原地改并返回 None',
         '默认参数别用 <code>[]</code>；用 <code>assert</code> + <b>pytest</b> 测“没有副作用”' ] },
@@ -7172,9 +7279,9 @@ arr * 2                # 整块交给编译好的 C 循环
 # n = 1M … 10M，各跑 3 次取最快
 # 10M：list 461 ms，NumPy 8.7 ms`},
 
-      { t: 'sort', q: '课件的效率小测（加了两道同类题）：哪边更快？',
+      { t: 'sort', q: '下面每件事，用 Python list 做更快，还是用 NumPy 数组做更快？',
         buckets: ['Python list 更快', 'NumPy 更快'],
-        items: [['一个一个 append 1000 万个数', 0], ['1000 万个数全部乘 2', 1], ['生成 1000 万个随机整数', 1], ['对 1000 万个数求和', 1], ['边读文件边添加，事先不知道总数', 0]],
+        items: [['一个一个 append 1000 万个数', 0], ['1000 万个数全部乘 2', 1], ['生成 100 万个随机整数', 1], ['对 1000 万个数求和', 1], ['边读文件边添加，事先不知道总数', 0]],
         why: '这台电脑实测：逐个 append 2 万次 list 0.6 ms vs np.append 60 ms；×2（1000 万）461 ms vs 8.7 ms；100 万个随机整数 563 ms vs 5.9 ms；求和（1000 万）<code>sum(list)</code> 136 ms vs <code>arr.sum()</code> 2.4 ms。规律：<b>长度会变</b>用 list，<b>批量算数</b>用 NumPy。' },
 
       { t: 'recap', points: [
@@ -7232,7 +7339,8 @@ v / np.linalg.norm(v)   # [0.26726124 0.53452248 0.80178373]`,
 
       { t: 'idea', title: '浮点数的“0”', icon: 'warn',
         body: '<code>np.pi</code> 只是 π 的近似值，所以 cos(π/2) 算出 6.1e-17 这种极小的数，而不是精确的 0。比较浮点数别用 <code>==</code>，用 <code>np.isclose</code>。',
-        code: `np.cos(np.pi / 2) == 0             # False
+        code: `V = np.linspace(0, 2 * np.pi, 5)   # 0、π/2、π、3π/2、2π
+np.cos(np.pi / 2) == 0             # False
 np.isclose(np.cos(np.pi / 2), 0)   # True
 np.round(np.cos(V), 3)             # [ 1.  0. -1. -0.  1.]`, lang: 'py',
         trap: '课件写 <code>V = np.cos(V) # gives [ 1, 0, -1, 0, 1 ]</code>。数学上没错，但实际打印的是 6.1e-17、-1.8e-16，不是 0（只有 <code>np.round</code> 之后才像 0，还会出现 <code>-0.</code>）。考“输出是什么”时要记得。' },
@@ -7276,11 +7384,11 @@ plt.show()`},
         opts: ['忘了 plt.show()', 'plot 里没写 label=...', 'x 和 y 是 list，不是 ndarray', '要先 import numpy'], a: 1,
         why: 'legend 只收集<b>有 label 的线</b>。实测 matplotlib 会警告：<code>No artists with labels found to put in legend.</code> 加上 <code>label="..."</code> 就好。list 和 ndarray 都能画。' },
 
-      { t: 'order', q: '把一张完整的折线图按顺序拼起来', lang: 'py',
+      { t: 'order', q: '把一张完整的折线图按顺序拼起来（照惯例，import 放第一行）', lang: 'py',
         parts: ['import matplotlib.pyplot as plt', 'x = [1, 2, 3, 4]', 'y = [v * 10 for v in x]', 'plt.plot(x, y, label="10x")', 'plt.legend()', 'plt.show()'],
         why: 'import → 数据（y 由 x 算出，所以 x 在前）→ plot → 修饰 → show。legend 必须在 plot <b>之后</b>：它只收集已经画好且有 label 的线（实测放在前面得到空图例 + 警告）。show 放最后。' },
 
-      { t: 'sort', q: '课件提到的三种数据格式，各有什么特点？',
+      { t: 'sort', q: '三种常见数据格式：每条特点属于 CSV、JSON 还是 Parquet？',
         buckets: ['CSV', 'JSON', 'Parquet'],
         items: [
           ['按行存（row-oriented），一行一条记录', 0],
@@ -7473,7 +7581,7 @@ memory usage: 55.5+ KB`,
           points: ['里面那层是一个<b>列名 list</b>', '1 列或多列都行，结果仍是一张表', '≈ SELECT firstname, surname'] },
         bottom: '外层 <code>[ ]</code> 是「取」，内层 <code>[ ]</code> 是「列名列表」。' },
 
-      { t: 'predict', lang: 'py', q: '输出是？',
+      { t: 'predict', lang: 'py', q: '<code>prize</code> 是诺奖 DataFrame：1012 行 × 7 列（year、category、surname、share…）。输出是？',
         code: `cols = prize[['year']]
 print(type(cols).__name__, cols.shape)`,
         opts: ['DataFrame (1012, 1)', 'Series (1012,)', 'Series (1012, 1)', 'list 1012'], a: 0,
@@ -7546,7 +7654,7 @@ df[df['age'] > 20 and df['age'] < 30]`,
             hl: { r7: 'warn' } },
         ] },
 
-      { t: 'sort', q: '每个表达式返回什么？',
+      { t: 'sort', q: '<code>prize</code> 是诺奖 DataFrame（有 year、share 等列，默认 index 0–1011）。每个表达式返回什么？',
         buckets: ['Series', 'DataFrame', '报错'],
         items: [
           ["prize['year']", 0],
@@ -7809,7 +7917,7 @@ planets = pd.read_html(url, attrs={'class': 'wikitable'})[0]`,
 
       { t: 'grid', title: 'th 变列名，td 变格子',
         frames: [
-          { text: '<code>tables[1]</code> 读出来的样子（真实运行结果）。<code>&lt;th&gt;</code> 那一行成了列名，index 自动 0–3。',
+          { text: '网页上的行星表（格子里写着 4,879、12,104、12,742[1]、6,779 和 0、0、1、2[a]），read_html 读成 <code>tables[1]</code>（<code>tables[0]</code> 是导航栏）就是这样（真实运行结果）。<code>&lt;th&gt;</code> 那一行成了列名，index 自动 0–3。',
             rowLabels: ['0', '1', '2', '3'], colLabels: ['Planet', 'Diameter (km)', 'Moons'],
             cells: [['Mercury', "'4879'", "'0'"], ['Venus', "'12104'", "'0'"], ['Earth', "'12,742[1]'", "'1'"], ['Mars', "'6779'", "'2[a]'"]] },
           { text: '脚注 <b>[1]</b>、<b>[a]</b> 被原样抓了下来。', mark: { '2,1': 'x', '3,2': 'x' } },
@@ -7846,9 +7954,19 @@ planets = pd.read_html(url, attrs={'class': 'wikitable'})[0]`,
     { id: 'e', title: '清洗、缺失值与画图', min: 6, screens: [
       { t: 'hook', big: "<code>planets['Diameter (km)'].mean()</code><br>TypeError: Could not convert string '48791210412,742[1]6779' to numeric", sub: '「数字」其实是字符串——求和时被首尾拼在了一起', icon: 'warn' },
 
-      { t: 'predict', lang: 'py', q: '还是那张没清洗的 planets 表，输出是？',
-        code: `planets = pd.read_html(StringIO(page), attrs={'class': 'wikitable'})[0]
+      { t: 'predict', lang: 'py', q: '上面代码里的网页表格用 read_html 读进来，还没清洗（读出来的样子见下表）。输出是？',
+        code: `from io import StringIO
+page = """<table class="wikitable">
+<tr><th>Planet</th><th>Diameter (km)</th></tr>
+<tr><td>Mercury</td><td>4,879</td></tr>
+<tr><td>Venus</td><td>12,104</td></tr>
+<tr><td>Earth</td><td>12,742[1]</td></tr>
+<tr><td>Mars</td><td>6,779</td></tr>
+</table>"""
+planets = pd.read_html(StringIO(page), attrs={'class': 'wikitable'})[0]
 print(planets['Diameter (km)'].max())`,
+        tables: [{ name: 'planets', head: ['Planet', 'Diameter (km)'], rows: [['Mercury', "'4879'"], ['Venus', "'12104'"], ['Earth', "'12,742[1]'"], ['Mars', "'6779'"]],
+          note: 'Diameter (km) 的 dtype 是 <code>object</code>：带引号 = 字符串（因为 12,742[1] 转不成数字）' }],
         opts: ['6779', '12742', '12,742[1]', 'TypeError'], a: 0,
         why: '字符串比大小是<b>逐个字符</b>比：\'6\' &gt; \'4\' &gt; \'1\'，所以 \'6779\'（火星）成了「最大」。不报错的错误最危险——清洗之前别相信任何统计。' },
 
@@ -7880,7 +7998,7 @@ for col in ['diameter_km', 'moons']:
                                  .str.replace(',', ''))
 planets['diameter_km'].mean()`,
         notes: [
-          { lines: [0, 1, 2], text: '<b>rename(columns={旧: 新})</b>：换成短、小写、无空格的列名，后面少打很多字。也可以整体赋值 <code>planets.columns = [\'planet\', …]</code>。' },
+          { lines: [0, 1, 2], text: '<code>planets</code> = read_html 读进来的行星表：列名 Planet、Diameter (km)、Moons，数字还是带脚注和逗号的字符串（如 \'12,742[1]\'、\'2[a]\'）。<b>rename(columns={旧: 新})</b>：换成短、小写、无空格的列名，后面少打很多字。也可以整体赋值 <code>planets.columns = [\'planet\', …]</code>。' },
           { line: 5, text: '正则 <code>\\[.*?\\]</code>：<code>\\[</code> 是真正的方括号，<code>.*?</code> 是里面尽量少的任意字符。一定要写 <code>regex=True</code>。' },
           { line: 6, text: '<code>.str.replace(\',\', \'\')</code>：去掉千分位逗号（pandas 2 默认按普通文字替换）。' },
           { line: 4, text: '<b>pd.to_numeric</b> 把字符串变数字。碰到 “—” 这种坏值会报错；加 <code>errors=\'coerce\'</code> 就变成 NaN。' },
@@ -7898,9 +8016,9 @@ print(pd.to_numeric(s, errors='coerce').tolist())`,
         opts: ['[12.0, nan, 7.0]', '[12, 7]', "[12, 'n/a', 7]", 'ValueError'], a: 0,
         why: '<code>coerce</code> = 转不了的变 <b>NaN</b>，行数不变。因为有了 NaN，整列变成 float（12.0）。不加 coerce 才会报 <code>ValueError: Unable to parse string "n/a"</code>。' },
 
-      { t: 'quiz', q: '2022 年和平奖得主 Ales Bialiatski 明明在 prize.csv 里，<code>prize[prize[\'surname\'] == \'Bialiatski\']</code> 却是 0 行。最可能的原因？',
+      { t: 'quiz', q: '2022 年和平奖得主 Ales Bialiatski 在 prize.csv 里：<code>prize[\'surname\'].str.contains(\'Bialiatski\').sum()</code> 返回 1。可 <code>prize[prize[\'surname\'] == \'Bialiatski\']</code> 却是 0 行。最可能的原因？',
         opts: ["值里藏了空格：实际是 'Bialiatski '", '== 不能比较字符串，必须用 .str.contains', 'surname 整列都是 NaN', "大小写不对，要写 'BIALIATSKI'"], a: 0,
-        why: '真实数据里这个姓<b>末尾多了一个空格</b>（<code>repr()</code> 一看便知）。修法：<code>prize[\'surname\'] = prize[\'surname\'].str.strip()</code>，之后就能查到 1 行。' },
+        why: '<code>str.contains</code> 找得到（它区分大小写，所以大小写没错，也不是全 NaN），<code>==</code> 却不相等 → 值里还有别的字符。真实数据里这个姓<b>末尾多了一个空格</b>（<code>repr()</code> 一看便知）。修法：<code>prize[\'surname\'] = prize[\'surname\'].str.strip()</code>，之后就能查到 1 行。' },
 
       { t: 'idea', title: 'NaN ≈ SQL 的 NULL', icon: 'eye',
         body: '<b>NaN</b>（Not a Number）是 pandas 的缺失值。有 NaN 的整数列会变成 float。<code>mean</code>、<code>sum</code>、<code>count</code> 默认<b>跳过</b> NaN。',
@@ -7943,7 +8061,7 @@ per_decade.plot(kind='line', marker='o')
 plt.xlabel('decade'); plt.ylabel('laureates')
 plt.show()` },
 
-      { t: 'quiz', q: '图里 2020 年代只有 62 人，几乎是 2010 年代（121）的一半。最合理的解释？',
+      { t: 'quiz', q: '<code>prize.groupby(prize[\'year\'] // 10 * 10).size()</code> 按年代数得主：2010 年代 121 人，2020 年代只有 62 人。prize 的 year 范围是 1901–2024。最合理的解释？',
         opts: ['数据只到 2024 年，这个年代只算了 5 年', '2020 年代诺奖名额减半了', 'NaN 被 size() 跳过了', '// 是普通除法，年份被算错了'], a: 0,
         why: 'year 只有 2020–2024 五年。<code>//</code> 是整除：2023 // 10 * 10 = 2020，把年份归到年代。读图前先想清楚每个点代表多少数据。画类别计数用 <code>value_counts().plot(kind=\'bar\')</code>。' },
 
@@ -8304,9 +8422,19 @@ print(req.prepare().url)`,
       { t: 'idea', title: 'DOM：网页是一棵树', icon: 'tree',
         body: '浏览器把 HTML 解析成 <b>DOM</b>（Document Object Model，文档对象模型）：每个元素是一个节点，有 parent、children、siblings。BeautifulSoup 在 Python 里建的是同一种树。',
         terms: [['parent', '父节点'], ['child', '子节点'], ['sibling', '兄弟节点'], ['descendant', '后代']],
-        trap: '幻灯片第 12 页的 HTML 最后一行写的是 <code>&lt;/div&gt;</code>：两个 div 却关了三次，而 <code>&lt;body&gt;</code> 从没关闭——应该是 <code>&lt;/body&gt;</code>。浏览器照样画出正确的树，这正是"浏览器对烂 HTML 很宽容"的例子。' },
+        trap: '课件上的 HTML 例子：<code>&lt;body&gt;</code> 里只有两个 div，结尾却写了三个 <code>&lt;/div&gt;</code>，<code>&lt;body&gt;</code> 也从没关闭——最后那个 <code>&lt;/div&gt;</code> 应该是 <code>&lt;/body&gt;</code>。浏览器照样画出正确的树，这正是"浏览器对烂 HTML 很宽容"的例子。' },
 
-      { t: 'quiz', q: '在刚才那棵树里，<code>h1</code> 和 "Dumplings are great." 那个 <code>p</code> 是什么关系？',
+      { t: 'quiz', q: '在下面这棵树里，<code>h1</code> 和 "Dumplings are great." 那个 <code>p</code> 是什么关系？',
+        code: `<div id="page">
+  <div class="intro">
+    <h1>My page about dumplings</h1>
+    <p>Dumplings are great.</p>
+    <p>Here is why.</p>
+  </div>
+  <div class="more">
+    <p>Recipes coming soon!</p>
+  </div>
+</div>`, lang: 'html',
         opts: ['siblings（兄弟）', 'parent 和 child（父子）', 'ancestor 和 descendant（祖先和后代）', '没有关系'], a: 0,
         why: '它们的 parent 都是 <code>div.intro</code>，所以是兄弟。<code>div#page</code> 是它们共同的 ancestor（祖先）。' },
 
@@ -8399,7 +8527,7 @@ print(soup.title)        # 文档里第一个 title 元素`,
         frames: [
           { text: '最常用的四个查找方法，先看全貌。',
             cells: [['tag 名 + 属性', '第一个 Tag', 'None'], ['tag 名 + 属性', 'list of Tag', '[]'], ['CSS 选择器', '第一个 Tag', 'None'], ['CSS 选择器', 'list of Tag', '[]']] },
-          { text: '按"怎么描述"分两派：<code>find</code> 家族用 tag 名和属性；<code>select</code> 家族用 CSS 选择器（上一课学的那套）。',
+          { text: '按"怎么描述"分两派：<code>find</code> 家族用 tag 名和属性；<code>select</code> 家族用 CSS 选择器（<code>.class</code>、<code>#id</code>、空格 = 里面的）。',
             mark: { '0,0': 'a', '1,0': 'a', '2,0': 'b', '3,0': 'b' } },
           { text: '只要<b>第一个</b>：<code>find</code> / <code>select_one</code>，返回一个 Tag。',
             markRows: { 0: 'c', 2: 'c' } },
@@ -8451,8 +8579,15 @@ print(soup.find('p').text, len(soup.find_all('p')), len(soup.select('p.x')))`,
         blanks: [{ a: ['class_'], cs: true }],
         why: '<code>class</code> 是 Python 关键字，不能当参数名，所以 bs4 用 <b>class_</b>（带下划线）。等价于 <code>soup.select("span.rating-count")</code>。' },
 
-      { t: 'predict', lang: 'py', q: '第 3 张卡片没有评分。输出是？',
-        code: `# soup = 上一屏那 3 张菜谱卡片
+      { t: 'predict', lang: 'py', q: '3 张菜谱卡片，第 3 张没有评分。输出是？',
+        code: `from bs4 import BeautifulSoup
+html = """
+<a class="card"><span class="card__title-text">Buffalo Chicken Dip</span>
+  <span class="rating-count">1,234 Ratings</span></a>
+<a class="card"><span class="card__title-text">Turkey Chili</span>
+  <span class="rating-count">87 Ratings</span></a>
+<a class="card"><span class="card__title-text">Easy Roast Turkey</span></a>"""
+soup = BeautifulSoup(html, 'html.parser')
 counts = [c.select_one('.rating-count') for c in soup.select('a.card')]
 print(len(counts), counts[2])`,
         opts: ['3 None', '2 None', '3 []', 'IndexError'], a: 0,
@@ -8467,7 +8602,7 @@ card.img['alt']                  # 'Buffalo chicken dip in a skillet'
 card.select_one('.card__title-text').text   # 'Buffalo Chicken Dip'
 card.get_text(' ', strip=True)   # 'Buffalo Chicken Dip 1,234 Ratings'`,
         notes: [
-          { line: 0, text: '用 id 精确拿到第一张卡片：一个 <b>Tag</b> 对象。' },
+          { line: 0, text: '第一张卡片是 <code>&lt;a class="card" id="card-1" href="/recipe/101/buffalo-dip"&gt;</code>，里面有一张 img（alt="Buffalo chicken dip in a skillet"）、标题 span（Buffalo Chicken Dip）和评分 span（1,234 Ratings）。用 id 精确拿到它：一个 <b>Tag</b> 对象。' },
           { line: 1, text: '<code>.name</code> = tag 名。' },
           { line: 2, text: '<code>tag[\'属性名\']</code> 像查字典一样取属性；链接就在 <b>href</b> 里。' },
           { line: 3, text: 'class 可以有多个值，所以 bs4 总是把它当 list 返回。' },
@@ -8477,14 +8612,19 @@ card.get_text(' ', strip=True)   # 'Buffalo Chicken Dip 1,234 Ratings'`,
         ] },
 
       { t: 'predict', lang: 'py', q: '第 2 张卡片的图片没有 alt。两次 print 分别怎样？',
-        code: `# soup = 同一组菜谱卡片
+        code: `from bs4 import BeautifulSoup
+html = """
+<a class="card"><img src="dip.jpg" alt="Buffalo chicken dip in a skillet"></a>
+<a class="card"><img src="chili.jpg"></a>
+<a class="card"><img src="turkey.jpg" alt="Roast turkey on a platter"></a>"""
+soup = BeautifulSoup(html, 'html.parser')
 imgs = soup.find_all('img')
 print(imgs[1].get('alt', 'no alt'))
 print(imgs[1]['alt'])`,
         opts: ["先打印 no alt，然后 KeyError: 'alt'", '先打印 no alt，然后打印 None', '先打印 no alt，然后打印空行', "两次都是 KeyError: 'alt'"], a: 0,
         why: '<code>tag[\'alt\']</code> 像字典取 key，属性不存在就 <b>KeyError</b>；<code>tag.get(\'alt\', 默认值)</code> 才安全。notebook 第一版 <code>card.img[\'alt\']</code> 就是这样崩的，修好的版本改成了 <code>card.img.get(\'alt\', \'\')</code>。' },
 
-      { t: 'fill', lang: 'py', q: '一行拿到所有卡片的链接（href 属性）。',
+      { t: 'fill', lang: 'py', q: '每张卡片本身就是一个带链接的 a，例如 <code>&lt;a class="card" href="/recipe/101/buffalo-dip"&gt;…&lt;/a&gt;</code>。一行拿到所有卡片的链接（href 属性）。',
         tpl: `links = [a{0} for a in soup.select('a.card')]`,
         blanks: [{ a: ["['href']", '["href"]', ".get('href')", '.get("href")'], cs: true }],
         why: '结果是 <code>[\'/recipe/101/buffalo-dip\', \'/recipe/102/turkey-chili\', \'/recipe/103/roast-turkey\']</code>。这些是相对路径，真要访问还得拼上域名（<code>urllib.parse.urljoin</code>）。' },
@@ -8532,8 +8672,18 @@ print(len(list(soup.ul.children)), len(list(soup.ul.descendants)))`,
         ],
         py: 'soup.select("{sel}")' },
 
-      { t: 'predict', lang: 'py', q: '同一个菜单，输出是？',
-        code: `# soup = 上一屏的嵌套菜单
+      { t: 'predict', lang: 'py', q: '嵌套菜单：空格和 > 各选中几个 li？',
+        code: `from bs4 import BeautifulSoup
+html = """<ul id="menu">
+  <li>Soups
+    <ul><li>Tomato</li><li>Miso</li></ul>
+  </li>
+  <li>Salads
+    <ul><li>Caesar</li></ul>
+  </li>
+  <li>Desserts</li>
+</ul>"""
+soup = BeautifulSoup(html, 'html.parser')
 print(len(soup.select('#menu li')), len(soup.select('#menu > li')))`,
         opts: ['6 3', '3 3', '6 6', '3 6'], a: 0,
         why: '空格 = <b>descendant</b>（后代，任意深度）：6 个 li 全中。<code>&gt;</code> = <b>child</b>（直接子元素）：只有顶层 3 个。' },
@@ -8593,8 +8743,19 @@ len(soup.select('table tr'))             # 1  ← 后代选择器更稳`,
         trap: '从 F12 复制的路径里有 <code>tbody</code>，不代表 response.text 里有。写 <code>table tr</code> 比 <code>table &gt; tbody &gt; tr</code> 稳。' },
 
       { t: 'predict', lang: 'py', q: '从营养表里取 Calories 列。输出是？',
-        code: `# soup = 刚才的营养表
-cal = [td.text for td in soup.select('#nutrition td:nth-of-type(2)')]
+        code: `from bs4 import BeautifulSoup
+html = """<table id="nutrition">
+  <thead>
+    <tr><th>Recipe</th><th>Calories</th><th>Protein</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Buffalo Dip</td><td>310</td><td>18g</td></tr>
+    <tr><td>Turkey Chili</td><td>260</td><td>24g</td></tr>
+    <tr><td>Roast Turkey</td><td>420</td><td>51g</td></tr>
+  </tbody>
+</table>"""
+soup = BeautifulSoup(html, 'html.parser')
+cal =[td.text for td in soup.select('#nutrition td:nth-of-type(2)')]
 print(cal)`,
         opts: ["['310', '260', '420']", '[310, 260, 420]', "['Calories', '310', '260', '420']", "['Buffalo Dip', 'Turkey Chili', 'Roast Turkey']"], a: 0,
         why: '<code>td:nth-of-type(2)</code> = 每行里的第 2 个 td。表头用的是 th 不是 td，所以 "Calories" 不在里面。<code>.text</code> 永远是<b>字符串</b>——要算数先 <code>int()</code>。' },
@@ -8652,7 +8813,7 @@ for card in soup.select('a.card'):
 print(rows[1])
 print(rows[2])`,
         frames: [
-          { line: 0, text: '用第 4 课那 3 张菜谱卡片。先准备一个空列表。', vars: { rows: '[]' } },
+          { line: 0, text: '页面上有 3 张 a.card 菜谱卡片：第 1 张评分 1,234、图片有 alt；第 2 张评分 87、图片没有 alt；第 3 张没有评分、图片有 alt。先准备一个空列表。', vars: { rows: '[]' } },
           { line: 1, text: 'select 返回 3 张卡片，先处理第 1 张。', vars: { card: '#card-1' } },
           { line: 2, text: '在卡片内部找标题。', vars: { title: "'Buffalo Chicken Dip'" } },
           { line: 3, text: '找到评分数的 span。', vars: { rc: "span '1,234 Ratings'" } },
@@ -8673,9 +8834,16 @@ df = pd.DataFrame({'title': ['Dip', 'Chili', 'Turkey'],
                    'ratings': ['1234', '87', 0]})
 print(df.sort_values('ratings'))`,
         opts: ['按 0、87、1234 排好', "按字符串排：'0'、'1234'、'87'", "TypeError: '<' not supported between instances of 'int' and 'str'", '先把 0 变成 NaN 再排'], a: 2,
-        why: 'notebook 最后一版：<code>ratings_count = 0</code>（int）和 <code>re.findall(...)[0]</code>（str）混在同一列，排序时 Python 没法比较 int 和 str，直接报错。修正：两边都变成 int——<code>int(re.findall(...)[0])</code>，像上一屏那样。' },
+        why: 'notebook 最后一版：<code>ratings_count = 0</code>（int）和 <code>re.findall(...)[0]</code>（str）混在同一列，排序时 Python 没法比较 int 和 str，直接报错。修正：两边都变成 int——<code>int(re.findall(...)[0])</code>，没评分时仍是 0。' },
 
-      { t: 'quiz', q: '要长期稳定地抓评分数，哪个选择器最好？',
+      { t: 'quiz', q: '搜索结果页的每张卡片都长下面这样。要长期稳定地抓评分数，哪个选择器最好？',
+        code: `<div id="results">
+  <a class="card" id="card-1" href="/recipe/101/buffalo-dip">
+    <span class="card__title-text">Buffalo Chicken Dip</span>
+    <div class="meta"><span class="rating-count">1,234 Ratings</span></div>
+  </a>
+  <!-- 其他卡片结构相同 -->
+</div>`, lang: 'html',
         opts: ['div:nth-of-type(3) > div > a > div > span:nth-of-type(2)', '.rating-count', 'span', '#results > a > div > span'], a: 1,
         why: '开发者工具里 "Copy selector" 复制出的长路径完全依赖页面结构，一改版就断；<code>span</code> 太宽，会连菜名一起抓。有含义的 class / id 最稳——但仍要定期检查。' },
 
@@ -8870,7 +9038,7 @@ window.CHAPTERS.push({
             { text: '想上 <b>91</b>，要让面试官几乎没有犹豫：概念清楚，思路说得出来，还会主动谈质量和取舍。', hl: { s: 'pass' } },
             { text: '<b>71–80</b> 常见原因：会背定义，但思路说不清，或者只给结论不给理由。', hl: { w: 'warn' } },
           ] },
-        { t: 'quiz', q: '根据考试说明，下面哪种表现最加分？', opts: ['第一句话就给出完全正确的最终答案', '一边说思路一边改进：「我先想到 X……但考虑到 Z，我会改成 Y」', '只说结论、不解释，显得很自信', '把相关术语全部说一遍'], a: 1, why: '考试说明原话：第一句是不是最好的答案并不重要，重要的是展示你能推理、能迭代出更好的方案（iterate to better solutions）。' },
+        { t: 'quiz', q: '口试不按题给分，看的是整体印象，尤其是你怎么推理。下面哪种表现最加分？', opts: ['第一句话就给出完全正确的最终答案', '一边说思路一边改进：「我先想到 X……但考虑到 Z，我会改成 Y」', '只说结论、不解释，显得很自信', '把相关术语全部说一遍'], a: 1, why: '考试说明原话：第一句是不是最好的答案并不重要，重要的是展示你能推理、能迭代出更好的方案（iterate to better solutions）。' },
         { t: 'vs', title: '同一道题，两种回答',
           a: { name: '弱回答', sub: '"How would you store data scraped from a recipe site?"', points: ['"I would use MongoDB."', '没问数据给谁用、有多少', '没说为什么，也没说代价'] },
           b: { name: '强回答', sub: '同一个问题', points: ['先问：谁用这些数据、多大、多久更新？', "说出假设：<i>\"I'll assume analysts want to compare recipes by ingredient.\"</i>", '给方案和理由：结构固定 → 关系型；食材多对多 → 单独一张表', '最后提数据质量检查和取舍'] },
@@ -8920,7 +9088,7 @@ window.CHAPTERS.push({
             { lines: [7, 8], text: '……然后自己发现问题并改进。这正是考试说明里的 <i>iterate to better solutions</i>。' },
             { line: 9, text: '主动提保留原始数据、清洗单独一步：典型的 data engineer 思维。' },
           ] },
-        { t: 'fill', q: '补全这句「边想边说」：', tpl: '"My first {0} is to use a relational database, {1} if the data is mostly nested JSON, I might {2} a document store."', blanks: [{ a: ['thought', 'instinct', 'idea'] }, { a: ['but'] }, { a: ['consider', 'use', 'choose', 'prefer'] }], lang: 'text', why: '「My first thought is X, but …, I might consider Y」是展示迭代最顺口的句型。' },
+        { t: 'fill', q: '补全这句「边想边说」：先说第一个想法，再转折，最后提出替代方案。', tpl: '"My first {0} is to use a relational database, {1} if the data is mostly nested JSON, I might {2} a document store."', blanks: [{ a: ['thought', 'instinct', 'idea', 'choice', 'plan', 'approach', 'inclination', 'reaction'] }, { a: ['but', 'though', 'although', 'however', 'yet'] }, { a: ['consider', 'use', 'choose', 'prefer', 'pick', 'try', 'go with', 'switch to', 'recommend', 'suggest', 'look at'] }], lang: 'text', why: '「My first thought is X, but …, I might consider Y」是展示迭代最顺口的句型。' },
         { t: 'quiz', q: '面试官说："Design a database for a campus food delivery app." 你的第一句话最好是？', opts: ['"I\'d use PostgreSQL with five tables."', '"Let me start writing the CREATE TABLE statements."', '"Before I design it, can I ask what the data is for — running the app itself, or analytics?"', '"That\'s easy, it\'s just orders and users."'], a: 2, why: 'App 自己用（transactional）和做分析（analytic）需要的设计不一样。先问清楚，后面每个选择就都有理由。' },
         { t: 'sort', q: '哪些是好的澄清问题，哪些是太早钻进细节？', buckets: ['好的澄清问题', '太早钻细节'],
           items: [['这些数据主要是谁在用？', 0], ['大概有多少数据，每天增长多少？', 0], ['数据要多实时？每天更新一次够吗？', 0], ['主键用 INT 还是 BIGINT？', 1], ['有没有隐私数据（比如手机号）要特别处理？', 0], ['price 列要不要加索引？', 1]],
@@ -8997,7 +9165,7 @@ window.CHAPTERS.push({
     {
       id: 'g', title: '官方样题 ②：把 8 个报表写成 SQL', min: 9,
       screens: [
-        { t: 'hook', big: '同一家医院，每个操作和报表都写成一句能跑的 SQL。', sub: '数据库就是上一节的模型。假设「今天」是 2026-10-28；时间都存成 \'YYYY-MM-DD HH:MM\' 文本，可以直接比大小。', icon: 'code' },
+        { t: 'hook', big: '官方样题的医院系统：每个操作和报表都写成一句能跑的 SQL。', sub: '8 张表：patients、doctors、units、admissions（一次住院一行）、unit_stays（每到一个科室一行）、procedures、procedure_types、appointments。假设「今天」是 2026-10-28；时间都存成 \'YYYY-MM-DD HH:MM\' 文本，可以直接比大小。', icon: 'code' },
         { t: 'code', title: '五个日常操作', lang: 'sql',
           code: `-- 1 Register a patient
 INSERT INTO patients (patient_id, first_name, last_name, birth_date, phone)
@@ -9026,8 +9194,8 @@ WHERE admission_id = 19 AND end_time IS NULL;`,
           notes: [
             { lines: [0, 2], text: '挂号：patients 加一行。真实系统里 patient_id 会自动生成。' },
             { lines: [3, 5], text: '门诊：只记一条 appointment，不产生住院。门诊做的检查写进 procedures，<code>admission_id</code> 留 NULL。' },
-            { lines: [6, 10], text: '入院：admissions 加一行（谁收治、为什么），再给 unit_stays 加第一段：ER。' },
-            { lines: [11, 17], text: '转科 = <b>关掉</b>当前那段（填 end_time），<b>再开</b>一段新的。两句放进一个 <b>transaction</b>，就不会出现「同时在两个科」或「哪都不在」。' },
+            { lines: [6, 10], text: '入院：admissions 加一行（谁收治、为什么）。表里原有 18 次住院，新行自动拿到 admission_id 19。再给 unit_stays 加第一段：ER（units 表里 unit_id 1 = ER）。' },
+            { lines: [11, 17], text: '转科 = <b>关掉</b>当前那段（填 end_time），<b>再开</b>一段新的（unit_id 3 = Floor 3）。两句放进一个 <b>transaction</b>，就不会出现「同时在两个科」或「哪都不在」。' },
             { lines: [18, 23], text: '出院：在 admission 上记出院时间和医生，再关掉最后一段 stay。这两句同样应该放进一个 transaction。' },
           ] },
         { t: 'sql', title: '现在谁在院？',
@@ -9075,7 +9243,7 @@ WHERE admission_id = 19 AND end_time IS NULL;`,
           task: '谁批准的出院，之后 30 天内病人又入院了？输出医生 <code>name</code>，不重复（不限时间）。',
           sql: 'SELECT admission_id, discharge_doctor_id\nFROM admissions;',
           check: 'SELECT DISTINCT d.name FROM admissions a1 JOIN admissions a2 ON a2.patient_id = a1.patient_id AND a2.admit_time > a1.discharge_time JOIN doctors d ON d.doctor_id = a1.discharge_doctor_id WHERE julianday(a2.admit_time) - julianday(a1.discharge_time) <= 30;',
-          hint: '还是上一题的自连接；再 <code>JOIN doctors d ON d.doctor_id = a1.discharge_doctor_id</code>（是<b>上一次</b>的出院医生），最后 SELECT DISTINCT d.name。' },
+          hint: 'admissions 自连接：<code>a1</code> = 上一次住院，<code>a2</code> = 同一病人之后的一次（<code>a2.admit_time &gt; a1.discharge_time</code>），<code>julianday(a2.admit_time) - julianday(a1.discharge_time) &lt;= 30</code>；再 <code>JOIN doctors d ON d.doctor_id = a1.discharge_doctor_id</code>（是<b>上一次</b>的出院医生），最后 SELECT DISTINCT d.name。' },
         { t: 'sql', title: '五年来每月的 ER 入院',
           task: '从 <code>\'2021-10-28\'</code> 起，每个月有几次进 ER？输出 <code>month, n</code>，month 形如 <code>2026-10</code>，按月份排序。',
           sql: "SELECT strftime('%Y-%m', '2026-10-28 14:00') AS month;",
@@ -9088,9 +9256,9 @@ WHERE admission_id = 19 AND end_time IS NULL;`,
           check: "SELECT admit_time AS time, 'Admission: ' || reason AS event FROM admissions WHERE patient_id = 1 UNION ALL SELECT p.performed_at, 'Procedure: ' || t.name FROM procedures p JOIN procedure_types t ON t.procedure_type_id = p.procedure_type_id WHERE p.patient_id = 1 ORDER BY time DESC;",
           ordered: true,
           hint: '用 UNION ALL 接上「procedures JOIN procedure_types」那一半（两半列数要一样），ORDER BY time DESC 写在最后，对整个结果排序。' },
-        { t: 'quiz', q: '如果用课件那种「一张 events 表」，「现在在院」= 有入院事件、且<b>之后没有</b>出院事件。空白处填什么？', lang: 'sql',
+        { t: 'quiz', q: '如果把入院、出院都存进一张 <code>events(patient_id, event_type, event_time)</code> 表（课件就是这种一张表的方案），「现在在院」= 有入院事件、且<b>之后没有</b>出院事件。空白处填什么？', lang: 'sql',
           code: "SELECT e1.patient_id\nFROM events e1\nWHERE e1.event_type = 'Admission'\n  AND ____ (\n    SELECT 1 FROM events e2\n    WHERE e2.patient_id = e1.patient_id\n      AND e2.event_type = 'Discharge'\n      AND e2.event_time > e1.event_time\n  );",
-          opts: ['NOT EXISTS', 'NOT', 'NOT IN', 'EXCEPT'], a: 0, why: '「之后找不到出院事件」= 子查询没有行 = <b>NOT EXISTS</b>。课件这一页写的是 <code>AND NOT (SELECT …)</code>，少了 EXISTS；再入院那页的 <code>d2.date</code> 也是笔误（应为 <code>e2.date</code>）。教授自己也说这个写法太绕，这正是分开建 admissions 表的理由。' },
+          opts: ['NOT EXISTS', 'NOT', 'NOT IN', 'EXCEPT'], a: 0, why: '「之后找不到出院事件」= 子查询没有行 = <b>NOT EXISTS</b>。课件的这条「在院」查询写成了 <code>AND NOT (SELECT …)</code>，少了 EXISTS；课件的 30 天再入院查询里写了 <code>d2.date</code>，也是笔误，按上下文应为 <code>e2.date</code>。教授自己也说这个写法太绕，这正是分开建 admissions 表的理由。' },
         { t: 'recap', points: ['入院 = admissions + 第一段 unit_stays；转科 = 关一段、开一段，放进 transaction', '在院 / census：<code>discharge_time IS NULL</code>；在哪个科：<code>end_time IS NULL</code>', '30 天再入院：admissions 自连接 + julianday 相减', '月度趋势：<code>strftime(\'%Y-%m\', …)</code> + GROUP BY；空月份要补 0', '病历时间线：UNION ALL + ORDER BY … DESC'] },
       ],
     },
@@ -9140,7 +9308,7 @@ WHERE admission_id = 19 AND end_time IS NULL;`,
             { text: 'menu_items：每条都带 <code>scraped_at</code>，才能看价格随时间的变化。', on: ['m', 'r0'] },
             { text: 'reviews：以后要加评价，也是一对多挂在 restaurants 上。', on: ['v', 'r1'] },
           ] },
-        { t: 'fill', q: '补全：', tpl: 'menu_items.restaurant_id is a {0} key that references restaurants.{1}.', blanks: [{ a: ['foreign'] }, { a: ['id'] }], lang: 'text', why: '外键把菜单项连到餐馆；加上 FOREIGN KEY 约束，就不会出现指向不存在餐馆的菜。' },
+        { t: 'fill', q: '补全（restaurants 的主键叫 <code>id</code>；menu_items 用 <code>restaurant_id</code> 记它属于哪家餐馆）：', tpl: 'menu_items.restaurant_id is a {0} key that references restaurants.{1}.', blanks: [{ a: ['foreign'] }, { a: ['id'] }], lang: 'text', why: '外键把菜单项连到餐馆；加上 FOREIGN KEY 约束，就不会出现指向不存在餐馆的菜。' },
         { t: 'sort', q: '这些质量检查放在哪一步？', buckets: ['采集时', '清洗时', '入库时（约束）'],
           items: [['HTTP 状态码不是 200：记日志、稍后重试', 0], ['请求之间等 1–2 秒，不给网站添负担', 0], ['把「$12.99」转成数字 12.99', 1], ['同一条记录被抓了两次：去重', 1], ['price 必须 ≥ 0：CHECK (price >= 0)', 2], ['restaurant_id 必须存在：FOREIGN KEY', 2]],
           why: '质量不是最后才检查的一步，每一层都有自己的关卡。面试里能说出这种分层，会很加分。' },
@@ -9183,7 +9351,7 @@ WHERE admission_id = 19 AND end_time IS NULL;`,
         { t: 'quiz', q: '"Would you always normalize to 3NF?" 哪个回答最好？', opts: ['"Yes, always."', '"Never, joins are slow."', '"Usually for transactional data, to avoid update anomalies. For read-heavy analytics I might denormalize to avoid expensive joins, and accept some redundancy."', '"Only when a table has more than ten columns."'], a: 2, why: '取舍题没有唯一正确答案。好回答说清楚「什么时候」和「代价是什么」。' },
         { t: 'sort', q: '这些是事实表（fact）还是维度表（dimension）的特征？', buckets: ['Fact 事实表', 'Dimension 维度表'],
           items: [['记录事件：每一笔订单、每一次点击', 0], ['行数增长很快', 0], ['描述谁、什么、在哪：用户、商品、门店', 1], ['有很多可以 SUM / AVG 的数值列', 0], ['行数相对少、变化慢', 1], ['给分析加上可读的名字和分类', 1]],
-          why: 'Star schema：中间一张 fact table，周围一圈 dimension tables。Stack Exchange 那一章的 Posts / Votes 就是例子。' },
+          why: 'Star schema：中间一张 fact table，周围一圈 dimension tables。比如订机票：fact_reservations 每卖一张票加一行；dim_customers、dim_airports 描述乘客和机场，很少变。' },
         { t: 'vs', title: '把技术讲给不懂技术的经理听',
           a: { name: '太技术', points: ['"An OLTP system optimized for row-level writes with ACID guarantees…"', '经理听不懂，也不知道和自己有什么关系'] },
           b: { name: '刚刚好', points: ['"The app\'s database is built to record each sale quickly and safely."', '"The warehouse is built to answer big questions like sales by month, without slowing down the app."', '用对方能懂的话，再加一个例子'] },
@@ -10808,6 +10976,12 @@ SCR.code = (s, b) => {
 };
 
 /* ── interactive: choice ── */
+/* small data tables a question needs: s.table, or several side by side in s.tables */
+function dataTables(s) {
+  const ts = s.tables || (s.table ? [s.table] : []);
+  if (!ts.length) return '';
+  return `<div class="qtabs">${ts.map((t) => `<figure class="qtab">${t.name ? `<figcaption>${esc(t.name)}</figcaption>` : ''}${staticTable(t.head, t.rows, 'mini')}${t.note ? `<div class="qtab-n">${t.note}</div>` : ''}</figure>`).join('')}</div>`;
+}
 function choiceScreen(s, b, ctx) {
   if (s.t === 'predict') {
     b.insertAdjacentHTML('beforeend', codeBlock(s.code, s.lang || 'sql', 'big'));
@@ -10818,7 +10992,7 @@ function choiceScreen(s, b, ctx) {
     b.insertAdjacentHTML('beforeend', `<div class="q">${s.q}</div>`);
     if (s.code) b.insertAdjacentHTML('beforeend', codeBlock(s.code, s.lang || 'sql'));
   }
-  if (s.table) b.insertAdjacentHTML('beforeend', staticTable(s.table.head, s.table.rows, 'mini'));
+  b.insertAdjacentHTML('beforeend', dataTables(s));
   const opts = el('div', 'opts' + (s.opts.every((o) => o.length <= 14) ? ' short' : ''));
   const why = el('div', 'why');
   why.hidden = true;
@@ -10853,6 +11027,7 @@ SCR.predict = choiceScreen;
 
 SCR.fill = (s, b, ctx) => {
   b.insertAdjacentHTML('beforeend', `<div class="q">${s.q}</div>`);
+  b.insertAdjacentHTML('beforeend', dataTables(s));
   const pieces = s.tpl.split(/\{(\d)\}/);
   const pre = el('pre', 'code fill');
   const code = el('code');
@@ -10920,6 +11095,7 @@ SCR.fill = (s, b, ctx) => {
 
 SCR.order = (s, b, ctx) => {
   b.insertAdjacentHTML('beforeend', `<div class="q">${s.q}</div>`);
+  b.insertAdjacentHTML('beforeend', dataTables(s));
   const ans = el('div', 'ord-ans');
   const pool = el('div', 'ord-pool');
   b.append(el('div', 'mini-h', '你的顺序（点下面的块加入，点已加入的块撤回）'), ans, el('div', 'mini-h', '可选的块'), pool);
@@ -10973,6 +11149,7 @@ SCR.order = (s, b, ctx) => {
 
 SCR.sort = (s, b, ctx) => {
   b.insertAdjacentHTML('beforeend', `<div class="q">${s.q}</div><div class="muted small">点一个卡片，再点它该去的格子（电脑上也可以直接拖）。</div>`);
+  b.insertAdjacentHTML('beforeend', dataTables(s));
   const pool = el('div', 'sort-pool');
   const bks = el('div', 'sort-buckets');
   bks.style.setProperty('--n', Math.min(s.buckets.length, 4));
@@ -11041,6 +11218,7 @@ SCR.sort = (s, b, ctx) => {
 
 SCR.match = (s, b, ctx) => {
   b.insertAdjacentHTML('beforeend', `<div class="q">${s.q}</div><div class="muted small">先点左边，再点右边和它对应的那一个。</div>`);
+  b.insertAdjacentHTML('beforeend', dataTables(s));
   const grid = el('div', 'match');
   const L = el('div', 'm-col');
   const R = el('div', 'm-col');
@@ -11948,6 +12126,9 @@ ${o.points.map((p, i) => `${i + 1}. ${p}`).join('\n')}
   };
 }
 
+/* chat boxes: Enter sends, Shift+Enter is a new line; the Enter that picks a Pinyin (IME) candidate must not send */
+const enterSends = (e) => e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229;
+
 /* ───────── mock interview ───────── */
 const BANDS = [[91, 'Strong', '几乎没有顾虑，会推荐录用', 's'], [81, 'Good', '典型的新毕业生，弱点在意料之中', 'g'], [71, 'Weaker', '懂概念，但需要较多指导', 'w'], [61, 'Weak', '不急缺人就不会招', 'k'], [0, 'Unacceptable', '培养成本太高', 'u']];
 const bandOf = (n) => BANDS.find(([min]) => n >= min);
@@ -12042,10 +12223,10 @@ function mockAI(stage, cur) {
   const ta = el('textarea', 'oral-ta');
   ta.id = 'mk-ta';
   ta.rows = 5;
-  ta.placeholder = 'Say it out loud first, then type what you said…  (Ctrl + Enter 发送)';
+  ta.placeholder = 'Say it out loud first, then type what you said…（Enter 发送，Shift + Enter 换行）';
   ta.value = Mock.draft || '';
   ta.addEventListener('input', () => (Mock.draft = ta.value));
-  ta.addEventListener('keydown', (e) => { e.stopPropagation(); if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); send(); } });
+  ta.addEventListener('keydown', (e) => { e.stopPropagation(); if (enterSends(e)) { e.preventDefault(); send(); } });
   const row = el('div', 'btnrow');
   const bSend = btn('btn primary', `${icon('next')}回答`, () => send());
   const bHelp = btn('btn', '卡住了？', () => { help.hidden = !help.hidden; });
@@ -12262,8 +12443,8 @@ const Tutor = {
   init() {
     $('#tutor-x').onclick = () => this.close();
     $('#tutor-stop').onclick = () => this.ctl && this.ctl.abort();
-    $('#tutor-f').addEventListener('submit', (e) => { e.preventDefault(); const i = $('#tutor-in'); const v = i.value; i.value = ''; this.ask(v); });
-    $('#tutor-in').addEventListener('keydown', (e) => { e.stopPropagation(); if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); $('#tutor-f').requestSubmit(); } });
+    $('#tutor-f').addEventListener('submit', (e) => { e.preventDefault(); if (this.ctl) return; const i = $('#tutor-in'); const v = i.value; i.value = ''; this.ask(v); });
+    $('#tutor-in').addEventListener('keydown', (e) => { e.stopPropagation(); if (enterSends(e)) { e.preventDefault(); $('#tutor-f').requestSubmit(); } });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#tutor').hidden) this.close(); });
   },
 };
