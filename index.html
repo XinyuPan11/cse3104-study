@@ -922,6 +922,58 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
 .qtab figcaption { font: 700 12px var(--mono); color: var(--muted); margin-bottom: 5px; }
 .qtab-n { font-size: 12.5px; color: var(--muted); margin-top: 5px; }
 
+/* full mock simulation (exam flow, 30 minutes) */
+.sim-head { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; margin-bottom: 12px; }
+.sim-clock { flex: 1 1 360px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; align-items: center; padding: 12px 14px; border-radius: 14px; background: var(--surface); border: 1.5px solid var(--line); }
+.sim-time { grid-row: 1 / 3; display: flex; flex-direction: column; align-items: flex-start; }
+.sim-time b { font: 800 30px/1 var(--mono); }
+.sim-clock.over .sim-time b { color: var(--warn); }
+.sim-bar { position: relative; display: flex; gap: 3px; height: 32px; }
+.sim-seg { display: flex; flex-direction: column; justify-content: center; padding: 0 8px; border-radius: 8px; background: var(--surface-2); color: var(--muted); font-size: 12px; min-width: 0; overflow: hidden; white-space: nowrap; }
+.sim-seg i { font-style: normal; font-weight: 700; }
+.sim-seg em { font-style: normal; font-size: 10.5px; }
+.sim-seg.on { background: oklch(var(--Ls) var(--Cs) var(--h)); color: oklch(var(--Lk) var(--Ck) var(--h)); }
+.sim-now { position: absolute; top: -3px; bottom: -3px; width: 3px; border-radius: 2px; background: var(--c); transform: translateX(-1px); transition: left 1s linear; }
+.sim-hint { grid-column: 2; }
+.sim-steps { display: flex; gap: 6px; flex-wrap: wrap; }
+.sim-steps span { padding: 4px 11px; border-radius: 999px; border: 1.5px solid var(--line); font-size: 13px; color: var(--muted); }
+.sim-steps span.done { color: var(--ink); }
+.sim-steps span.on { background: var(--c); color: var(--c-ink); border-color: transparent; font-weight: 700; }
+.mk-msg.wide { max-width: 100%; }
+.sim-stories { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 8px 0; }
+.sim-stories ul { margin: 4px 0 0; padding-left: 18px; font-size: 14px; }
+.sim-log { max-height: 60vh; }
+.sim-sec { margin: 18px 0; padding: 16px 18px; border-radius: 16px; background: var(--surface); border: 1.5px solid var(--line); }
+.sim-sec h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 4px; font-size: 18px; }
+.sim-sec h3 span { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--c); color: var(--c-ink); font-size: 15px; flex: none; }
+.sim-brief { margin: 6px 0 10px; font-weight: 600; }
+.sim-clar { display: grid; gap: 6px; margin-top: 12px; }
+.sim-qa { display: flex; flex-direction: column; gap: 3px; text-align: left; padding: 9px 12px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: 14px var(--body); cursor: pointer; }
+.sim-qa:hover { border-color: var(--c); }
+.sim-qa span { color: var(--muted); }
+.sim-reveal { margin-top: 10px; }
+.sim-reveal:empty { display: none; }
+.sim-er { margin: 6px 0 10px; }
+.sim-design { margin: 0; padding-left: 20px; font-size: 14.5px; line-height: 1.65; }
+.sim-design li { margin: 4px 0; }
+.sim-qq { display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px; }
+.sim-qq b { font-size: 16px; }
+.sim-note { font-size: 14px; margin: 6px 0; padding: 8px 12px; border-radius: 10px; background: var(--warn-soft); }
+.sim-crit { display: grid; gap: 2px; margin: 6px 0 12px; }
+.sim-crow { display: grid; grid-template-columns: 150px auto minmax(0, 1fr); gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 14.5px; }
+.sim-ref { margin-top: 10px; }
+.sim-ref > summary { cursor: pointer; font-weight: 700; padding: 6px 0; }
+.sim-q { margin: 14px 0; }
+@media (max-width: 760px) {
+  .sim-stories { grid-template-columns: minmax(0, 1fr); }
+  .sim-crow { grid-template-columns: minmax(0, 1fr) auto; }
+  .sim-crow > span:last-child { grid-column: 1 / -1; }
+  .sim-clock { grid-template-columns: minmax(0, 1fr); }
+  .sim-time { grid-row: auto; flex-direction: row; align-items: baseline; gap: 8px; }
+  .sim-hint { grid-column: auto; }
+  .sim-seg em { display: none; }
+}
+
 </style>
 <header class="top" id="top"></header>
 <main id="main"><div class="wrap" style="padding-block:40px">加载中…</div></main>
@@ -9008,22 +9060,106 @@ INSERT INTO appointments VALUES
  (5,10,2,'2026-11-03 14:00','Cardiology follow-up','scheduled',NULL),
  (6,2,2,'2026-10-22 11:00','Cardiology consult','completed',13);
 `;
+/* library: the official mock-interview practice prompt (book lending). "Today" is 2026-11-04 in this data. */
+window.SEEDS.library = `
+CREATE TABLE members (member_id INTEGER PRIMARY KEY, name TEXT NOT NULL, email TEXT, phone TEXT);
+INSERT INTO members VALUES
+ (1,'Mia Wong','mia.wong@example.com','314-555-0201'),
+ (2,'Leo Park','leo.park@example.com','314-555-0202'),
+ (3,'Zoe Adams','zoe.adams@example.com','314-555-0203'),
+ (4,'Omar Haddad','omar.haddad@example.com','314-555-0204'),
+ (5,'Nina Patel','nina.patel@example.com','314-555-0205'),
+ (6,'Sam Lee','sam.lee@example.com','314-555-0206'),
+ (7,'Ruth Kim','ruth.kim@example.com','314-555-0207'),
+ (8,'Tom Baker','tom.baker@example.com','314-555-0208');
+CREATE TABLE books (book_id INTEGER PRIMARY KEY, isbn TEXT UNIQUE, title TEXT NOT NULL, author TEXT, genre TEXT);
+INSERT INTO books VALUES
+ (12341,'978-1-00-000001-0','The Hobbit','J.R.R. Tolkien','Fantasy'),
+ (12342,'978-1-00-000002-0','A Game of Thrones','George R.R. Martin','Fantasy'),
+ (12343,'978-1-00-000003-0','Mistborn','Brandon Sanderson','Fantasy'),
+ (12344,'978-1-00-000004-0','Dune','Frank Herbert','Science Fiction'),
+ (12345,'978-1-00-000005-0','The Martian','Andy Weir','Science Fiction'),
+ (12346,'978-1-00-000006-0','Project Hail Mary','Andy Weir','Science Fiction'),
+ (12347,'978-1-00-000007-0','Gone Girl','Gillian Flynn','Mystery'),
+ (12348,'978-1-00-000008-0','The Da Vinci Code','Dan Brown','Mystery'),
+ (12349,'978-1-00-000009-0','Educated','Tara Westover','Memoir'),
+ (12350,'978-1-00-000010-0','Becoming','Michelle Obama','Memoir'),
+ (12351,'978-1-00-000011-0','Sapiens','Yuval Noah Harari','History'),
+ (12352,'978-1-00-000012-0','Python for Data Analysis','Wes McKinney','Computers');
+CREATE TABLE copies (copy_id INTEGER PRIMARY KEY, book_id INTEGER NOT NULL REFERENCES books(book_id), branch TEXT NOT NULL);
+INSERT INTO copies VALUES (1,12341,'Olin'),(2,12341,'Olin'),(3,12342,'Olin'),(4,12343,'Kranzberg'),(5,12344,'Olin'),(6,12344,'Olin'),(7,12344,'Kranzberg'),(8,12345,'Olin'),(9,12345,'Olin'),(10,12346,'Olin'),(11,12347,'Kranzberg'),(12,12348,'Olin'),(13,12349,'Olin'),(14,12350,'Olin'),(15,12351,'Kranzberg'),(16,12352,'Olin'),(17,12352,'Olin');
+CREATE TABLE loans (
+  loan_id INTEGER PRIMARY KEY,
+  copy_id INTEGER NOT NULL REFERENCES copies(copy_id),
+  member_id INTEGER NOT NULL REFERENCES members(member_id),
+  checkout_date TEXT NOT NULL,
+  due_date TEXT NOT NULL,
+  return_date TEXT
+);
+INSERT INTO loans VALUES
+ (1,12,6,'2024-12-02','2024-12-23','2024-12-18'), (2,15,8,'2025-01-15','2025-02-05','2025-02-03'), (3,1,7,'2025-03-03','2025-03-24','2025-03-20'), (4,11,5,'2025-04-07','2025-04-28','2025-04-25'),
+ (5,12,7,'2025-06-01','2025-06-22','2025-06-19'), (6,5,4,'2025-08-11','2025-09-01','2025-08-30'), (7,2,8,'2025-09-10','2025-10-01','2025-09-29'), (8,15,3,'2025-10-01','2025-10-22','2025-10-20'),
+ (9,9,1,'2025-10-25','2025-11-15','2025-11-12'), (10,1,1,'2025-11-10','2025-12-01','2025-11-28'), (11,5,2,'2025-11-18','2025-12-09','2025-12-04'), (12,2,3,'2025-12-05','2025-12-26','2025-12-20'),
+ (13,11,4,'2025-12-15','2026-01-05','2026-01-10'), (14,4,4,'2026-01-12','2026-02-02','2026-01-30'), (15,8,1,'2026-01-20','2026-02-10','2026-02-08'), (16,1,2,'2026-02-02','2026-02-23','2026-02-20'),
+ (17,6,5,'2026-02-14','2026-03-07','2026-03-01'), (18,15,1,'2026-02-25','2026-03-18','2026-03-14'), (19,3,6,'2026-03-09','2026-03-30','2026-03-28'), (20,12,3,'2026-03-15','2026-04-05','2026-04-01'),
+ (21,4,1,'2026-04-03','2026-04-24','2026-04-20'), (22,14,2,'2026-04-10','2026-05-01','2026-04-28'), (23,9,2,'2026-05-11','2026-06-01','2026-06-05'), (24,11,7,'2026-05-20','2026-06-10','2026-06-08'),
+ (25,13,5,'2026-06-02','2026-06-23','2026-06-20'), (26,1,8,'2026-06-15','2026-07-06','2026-07-10'), (27,7,3,'2026-07-07','2026-07-28','2026-07-25'), (28,2,1,'2026-08-01','2026-08-22','2026-08-18'),
+ (29,14,4,'2026-08-20','2026-09-10','2026-09-08'), (30,10,1,'2026-09-01','2026-09-22','2026-09-19'), (31,16,6,'2026-09-05','2026-09-26','2026-09-22'), (32,13,5,'2026-09-30','2026-10-21',NULL),
+ (33,5,2,'2026-10-01','2026-10-22',NULL), (34,9,3,'2026-10-05','2026-10-26',NULL), (35,3,4,'2026-10-14','2026-11-04',NULL), (36,8,1,'2026-10-20','2026-11-10',NULL),
+ (37,16,6,'2026-10-25','2026-11-15',NULL), (38,10,1,'2026-10-28','2026-11-18',NULL);
+CREATE TABLE holds (
+  hold_id INTEGER PRIMARY KEY,
+  book_id INTEGER NOT NULL REFERENCES books(book_id),
+  member_id INTEGER NOT NULL REFERENCES members(member_id),
+  placed_at TEXT NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('waiting','fulfilled','cancelled'))
+);
+INSERT INTO holds VALUES
+ (1,12345,8,'2026-10-10 12:00','fulfilled'),
+ (2,12345,7,'2026-10-18 15:30','waiting'),
+ (3,12345,4,'2026-10-21 10:00','waiting'),
+ (4,12345,5,'2026-10-25 09:00','waiting'),
+ (5,12349,2,'2026-10-29 11:00','waiting'),
+ (6,12346,3,'2026-10-30 16:45','cancelled');
+`;
+/* the chapter database holds both cases; their table names don't overlap */
+window.SEEDS.exam = window.SEEDS.hospital + window.SEEDS.library;
 window.CHAPTERS = window.CHAPTERS || [];
 window.CHAPTERS.push({
   id: 'c13', no: 13, cls: '口试复习', title: '口试冲刺：数据工程面试', en: 'Oral Exam Sprint',
-  blurb: '面试官看什么、怎么边想边说，官方样题「医院系统」从建表到 SQL 完整走一遍，再加 AI 模拟面试。',
-  hue: 45, db: 'hospital', source: '口试说明 · 评分标准 · hospital_data_model.pptx',
+  blurb: '30 分钟的数据建模面试怎么考、怎么答：官方练习题「图书馆」从需求、建表到 SQL 完整走一遍，再练医院样题和完整的模拟面试。',
+  hue: 45, db: 'exam', source: '口试说明 · 评分标准 · 官方练习题（图书馆） · hospital_data_model.pptx',
   lessons: [
     {
-      id: 'a', title: '这场口试到底考什么', min: 4,
+      id: 'x1', title: '口试怎么考：30 分钟的数据建模面试', min: 5,
       screens: [
-        { t: 'hook', big: '面试官不是在等「标准答案」，而是在看你<b>怎么想</b>。', sub: '口试占总成绩 20%：形式是一场入门级 data engineer 的面试，不能用电脑。', icon: 'user' },
-        { t: 'list', title: '评分看的是整体印象', cols: 2, items: [
-          { icon: 'layers', h: '技术理解', p: '概念对不对，知不知道什么时候用' },
-          { icon: 'puzzle', h: '思考过程', p: '能不能把推理一步步说出来，边说边改进' },
-          { icon: 'user', h: '表达与专业', p: '清楚、有条理、礼貌，敢承认不确定' },
-          { icon: 'check', h: '是否合适', p: '像不像一个能放心交活的新同事' },
+        { t: 'hook', big: '面试官念一段需求，你当场设计一套表，再用 SQL 回答几个问题。', sub: '口试占总成绩 20%，一共 30 分钟。形式是入门级 data engineer 的模拟面试：用英文说，不能用电脑。', icon: 'user' },
+        { t: 'flow', title: '30 分钟怎么过',
+          nodes: [
+            { id: 'read', label: '听题', sub: '背景 + user stories', icon: 'doc' },
+            { id: 'ask', label: '提问', sub: '约 3 分钟', icon: 'search' },
+            { id: 'design', label: '设计', sub: '约 12 分钟', icon: 'table' },
+            { id: 'query', label: '查询', sub: '约 10 分钟', icon: 'code' },
+            { id: 'fb', label: '反馈', sub: '约 3 分钟', icon: 'check' },
+          ],
+          frames: [
+            { text: '面试官先念题：一段业务背景，加两组 <b>user stories</b>：一组是日常操作（operational），一组是分析（analytic）。', on: ['read'] },
+            { text: '念完会问：<i>"Do you have any questions right now?"</i> 这时就该问会改变设计的问题：有几个分馆？一本书有几个副本？规模多大？', on: ['ask'], go: ['read', 'ask'] },
+            { text: '<b>设计阶段</b>：你边想边说，从使用者、业务名词一路讲到表和键。面试官不会把你往「标准答案」上带，只会追问。', on: ['design'], go: ['ask', 'design'] },
+            { text: '<b>查询阶段</b>：面试官一题一题问「这个查询在你的模型里怎么写」。伪代码 SQL 就行，但 JOIN、WHERE、GROUP BY 的逻辑要对。有的查询会让你的模型露馅，这是故意的。', on: ['query'], go: ['design', 'query'] },
+            { text: '最后几分钟，面试官说说对你的印象。时间只是建议，但设计和查询加起来占了 20 多分钟，所以别在开场上耗太久。', on: ['fb'], go: ['query', 'fb'] },
+          ] },
+        { t: 'sort', q: '这些 user story 属于日常操作（operational），还是分析（analytic）？', buckets: ['日常操作', '分析'],
+          items: [['读者想看自己手上借了哪几本书', 0], ['管理员给一位读者办借书', 0], ['管理员想找出某本书最早的那条预约', 0], ['管理员想列出所有过期未还的书', 0], ['想知道过去一年一共借出多少本书', 1], ['想知道过去一年最受欢迎的类型', 1], ['想知道过去 3、6、12 个月各借出多少次', 1]],
+          why: '日常操作要快、要准，每次只碰几行；分析要扫大量历史数据再汇总。你的表要能同时回答这两种问题。' },
+        { t: 'list', title: '面试官评价时问自己的 5 个问题', cols: 2, items: [
+          { icon: 'puzzle', h: '知道从哪下手吗？', p: '拿到题不慌，能马上开始搭模型' },
+          { icon: 'user', h: '说得清楚吗？', p: '把思路说出来，像「意识流」也没关系' },
+          { icon: 'search', h: '先想人和业务吗？', p: '先说使用者和业务名词，再谈表和技术' },
+          { icon: 'shield', h: '被追问时稳吗？', p: '该问就问、该求助就求助，而不是硬撑' },
+          { icon: 'undo', h: '模型坏了肯改吗？', p: '发现模型做不到某个查询，愿意回头修改' },
         ] },
+        { t: 'quiz', q: '查询阶段，面试官问：「怎么列出现在在架上的书？」你发现自己的模型做不到。最好的反应是？', opts: ['硬写一条查询，希望面试官没注意', '坦白说做不到，然后等下一题', '"Good question — my model can\'t answer that yet, because I only store titles, not physical copies. Let me go back and split them…"，然后修改模型', '说「这个需求不重要」'], a: 2, why: '评分标准专门问：模型出问题时，愿不愿意回头修改？先说出<b>为什么</b>做不到，再去改，正好展示了思考过程。' },
         { t: 'rows', title: '分数段是什么意思', cols: ['分数', '面试官的印象'],
           rows: [
             { k: 's', v: ['91–100', 'Strong：几乎没有顾虑'] },
@@ -9033,71 +9169,205 @@ window.CHAPTERS.push({
             { k: 'u', v: ['≤ 60', 'Unacceptable：培养成本太高'] },
           ],
           frames: [
-            { text: '评分不是按题给分，而是看你给面试官留下的<b>整体印象</b>。' },
-            { text: '<b>81–90</b> 就是「正常的新毕业生」：技术或表达有一些弱点，但都在意料之中。', hl: { g: 'focus' } },
-            { text: '想上 <b>91</b>，要让面试官几乎没有犹豫：概念清楚，思路说得出来，还会主动谈质量和取舍。', hl: { s: 'pass' } },
-            { text: '<b>71–80</b> 常见原因：会背定义，但思路说不清，或者只给结论不给理由。', hl: { w: 'warn' } },
+            { text: '不按题给分，而是看你给面试官留下的<b>整体印象</b>。' },
+            { text: '<b>81–90</b> 就是「正常的新毕业生」：技术或表达有些弱点，但都在意料之中。', hl: { g: 'focus' } },
+            { text: '想上 <b>91</b>：开场问对问题，边说边建模，被追问时能发现漏洞并修改，SQL 逻辑清楚。', hl: { s: 'pass' } },
+            { text: '<b>71–80</b> 的常见原因：一上来就写表、不解释为什么，或者模型坏了也不改。', hl: { w: 'warn' } },
           ] },
-        { t: 'quiz', q: '口试不按题给分，看的是整体印象，尤其是你怎么推理。下面哪种表现最加分？', opts: ['第一句话就给出完全正确的最终答案', '一边说思路一边改进：「我先想到 X……但考虑到 Z，我会改成 Y」', '只说结论、不解释，显得很自信', '把相关术语全部说一遍'], a: 1, why: '考试说明原话：第一句是不是最好的答案并不重要，重要的是展示你能推理、能迭代出更好的方案（iterate to better solutions）。' },
-        { t: 'vs', title: '同一道题，两种回答',
-          a: { name: '弱回答', sub: '"How would you store data scraped from a recipe site?"', points: ['"I would use MongoDB."', '没问数据给谁用、有多少', '没说为什么，也没说代价'] },
-          b: { name: '强回答', sub: '同一个问题', points: ['先问：谁用这些数据、多大、多久更新？', "说出假设：<i>\"I'll assume analysts want to compare recipes by ingredient.\"</i>", '给方案和理由：结构固定 → 关系型；食材多对多 → 单独一张表', '最后提数据质量检查和取舍'] },
-          bottom: '两个人最后可能选了同一种技术，但只有第二个人让面试官<b>看见了思考过程</b>。' },
+        { t: 'quiz', q: '查询阶段，面试官对 SQL 的要求是？', opts: ['必须一字不差、能直接运行', '伪代码就行，但连哪几张表、按什么条件过滤和分组，逻辑要对', '只要说出用哪个函数', '不用写，只说思路就行'], a: 1, why: '伪代码 SQL 就够，比如写 <code>WHERE today() &gt; due_date</code>。但「连哪几张表、过滤掉什么、按什么分组」错了，就是真错。' },
         { t: 'sort', q: '这些表现是加分还是减分？', buckets: ['加分', '减分'],
-          items: [['开始前先问清楚需求和规模', 0], ["说出假设：「I'll assume…」", 0], ['沉默思考 30 秒，一句话都不说', 1], ['第一个想法不完美，但自己发现并修正', 0], ['会背定义，但说不出什么时候该用', 1], ['承认不确定，再说出你会怎么推理或验证', 0], ['堆砌术语，不解释为什么', 1], ['最后用两三句话总结方案和取舍', 0]],
-          why: '面试官打分的依据就是这些「看得见」的行为。' },
-        { t: 'idea', title: '每个回答都绕回这句话', icon: 'shield', body: 'Data engineer 的目标是产出<b>高质量、干净、好用、有用</b>的数据集（high quality, cleaned, usable and useful datasets）。不管被问什么，最后都问自己：这样做，数据会更可靠、更好用吗？', terms: [['data quality', '数据质量'], ['usable', '拿来就能用'], ['useful', '能回答业务问题']] },
-        { t: 'quiz', q: '面试官问到你真的不熟的东西（比如 Kafka），最好的回应是？', opts: ['只说 "I don\'t know."，然后等下一题', '编一个听起来对的答案', '坦白说没用过，再说出你知道的相关概念，以及你会怎么推理或去查', '假装没听清，把话题转到熟悉的东西上'], a: 2, why: "<i>\"I haven't used Kafka directly, but my understanding is it's a system for streaming events. If I needed it, I'd start by…\"</i> 诚实加推理，比瞎编或沉默都好。" },
-        { t: 'match', q: '面试官心里的问题，和你要展示的东西：', pairs: [['他懂这些概念吗？', '用自己的话解释，并举一个例子'], ['他遇到新问题会怎么想？', '澄清 → 假设 → 方案 → 取舍'], ['他能和团队沟通吗？', '有结构：先结论，再细节'], ['我敢把数据交给他吗？', '主动谈校验、去重、缺失值']], why: '每一个回答都在同时回答这四个问题。' },
-        { t: 'recap', points: ['评分看整体印象：技术 + 思考过程 + 表达 + 专业', '81–90 是正常新毕业生；91+ 要让面试官几乎没有犹豫', '边说边改进，比一上来给「标准答案」更加分', '所有回答都绕回：数据是不是高质量、干净、好用、有用'] },
+          items: [['念完题先问几个澄清问题', 0], ['先说使用者和业务名词，再画表', 0], ['沉默 30 秒，一句话都不说', 1], ['第一个想法不完美，但自己发现并修正', 0], ['一上来就写 CREATE TABLE', 1], ['卡住时说出卡在哪，请面试官给个方向', 0], ['模型做不到某个查询，假装没看见', 1], ['最后用两三句话总结模型和取舍', 0]],
+          why: '面试官打分的依据，就是这些「看得见」的行为。' },
+        { t: 'quiz', q: '30 分钟里，哪种时间安排最合理？', opts: ['开场问 10 分钟问题，确保完全理解', '提问约 3 分钟，设计约 12 分钟，查询约 10 分钟，留几分钟听反馈', '跳过设计，直接写 SQL', '设计讲 25 分钟，查询随便答'], a: 1, why: '设计和查询是评分的主体。问到关键的几个问题（分馆？副本？规模？）就开始设计；查询阶段至少留 10 分钟。' },
+        { t: 'recap', points: ['30 分钟：听题 → 提问 → 设计 → 查询 → 反馈', '评分看整体印象：会不会下手、说不说得清、先想人和业务、稳不稳、肯不肯改', '伪代码 SQL 就够，但逻辑要对', '模型露馅很正常，关键是发现它并修改'] },
       ],
     },
     {
-      id: 'b', title: '边想边说：设计题 7 步框架', min: 5,
+      id: 'x2', title: '答题框架：从需求到表', min: 6,
       screens: [
-        { t: 'hook', big: '"Design a system to collect X data for our analysts."<br>前 30 秒，你说什么？', sub: '记住一个 7 步框架，任何设计题都不会卡壳。', icon: 'puzzle' },
+        { t: 'hook', big: '"Take a minute to collect your thoughts."<br>这一分钟，你脑子里该过什么？', sub: '记住一个 7 步框架，任何「设计一个数据系统」的题都能用。', icon: 'puzzle' },
         { t: 'flow', title: '设计题 7 步走',
           nodes: [
-            { id: 'c', label: 'Clarify 澄清', sub: '用途 · 用户 · 规模', icon: 'search' },
-            { id: 's', label: 'Sources 数据源', sub: 'API · 爬虫 · 文件', icon: 'globe' },
-            { id: 'm', label: 'Model 建模', sub: '实体 · 键 · 范式', icon: 'table' },
-            { id: 'p', label: 'Pipeline 管道', sub: '采集 → 清洗 → 存储', icon: 'arrow' },
-            { id: 'q', label: 'Quality 质量', sub: '校验 · 去重 · 监控', icon: 'shield' },
-            { id: 't', label: 'Trade-offs 取舍', sub: '成本 · 速度 · 规模', icon: 'split' },
-            { id: 'z', label: 'Summary 总结', sub: '两三句话收尾', icon: 'check' },
+            { id: 'q', label: 'Clarify 提问', sub: '范围 · 规则 · 规模', icon: 'search' },
+            { id: 'p', label: 'People 使用者', sub: 'stakeholders', icon: 'user' },
+            { id: 'n', label: 'Nouns 名词', sub: '名词 → 候选表', icon: 'doc' },
+            { id: 'f', label: 'Facts vs Dims', sub: '事件 vs 描述', icon: 'layers' },
+            { id: 't', label: 'Tables & Keys', sub: '表 · 主键 · 外键', icon: 'key' },
+            { id: 'w', label: 'Walk the stories', sub: '逐条检验', icon: 'check' },
+            { id: 'r', label: 'Revise & Sum up', sub: '修改 · 总结', icon: 'undo' },
           ],
           frames: [
-            { text: "<b>先澄清</b>：<i>\"Who will use this data, and what questions do they want to answer? Roughly how much data, and how often does it change?\"</i>", on: ['c'] },
-            { text: "<b>数据从哪来</b>：<i>\"Is there an API, or would we need to scrape? Are there terms of service I should check?\"</i>", on: ['s'], go: ['c', 's'] },
-            { text: "<b>建模</b>：<i>\"I see three entities: restaurants, menu items and reviews…\"</i> 主键、外键、范式在这一步出现。", on: ['m'], go: ['s', 'm'] },
-            { text: "<b>管道</b>：<i>\"I'd store the raw data first, then clean it in a separate step.\"</i>", on: ['p'], go: ['m', 'p'] },
-            { text: "<b>质量</b>：<i>\"Before loading, I'd validate types, remove duplicates and check null rates.\"</i> 这是 data engineer 最该主动提的一步。", on: ['q'], go: ['p', 'q'] },
-            { text: "<b>取舍</b>：<i>\"SQLite is simplest for a small project; if many people query it, I'd move to PostgreSQL.\"</i>", on: ['t'], go: ['q', 't'] },
-            { text: "<b>收尾</b>：<i>\"So, to summarize…\"</i> 让面试官记住你的方案。", on: ['z'], go: ['t', 'z'] },
+            { text: '<b>Clarify</b>：问几个会改变设计的问题。<i>"Is this one library or several branches? Can the library own more than one copy of a book?"</i>', on: ['q'] },
+            { text: '<b>People</b>：谁会用这个系统？<i>"Members, librarians, and managers who want reports."</i> 使用者决定了你的表要回答哪些问题。', on: ['p'], go: ['q', 'p'] },
+            { text: '<b>Nouns</b>：把题目里的名词圈出来：book、copy、member、loan、hold、due date…… 大多数名词会变成表或列。', on: ['n'], go: ['p', 'n'] },
+            { text: '<b>Facts vs Dimensions</b>：哪些是一直在发生的事件（借书、预约），哪些是描述（读者、书）？事件表又长又窄，维度表又宽又短。', on: ['f'], go: ['n', 'f'] },
+            { text: '<b>Tables &amp; Keys</b>：说出每张表的列、主键、外键，并说出理由：<i>"Copies has book_id as a foreign key, because one book can have many copies."</i>', on: ['t'], go: ['f', 't'] },
+            { text: '<b>Walk the stories</b>：拿 user stories 一条条检验：「这个需求，我的表回答得了吗？」答不了的地方就是要改的地方。', on: ['w'], go: ['t', 'w'] },
+            { text: '<b>Revise &amp; Sum up</b>：发现问题就改，最后两三句话总结：哪些表、为什么这样拆、有什么取舍。', on: ['r'], go: ['w', 'r'] },
           ] },
-        { t: 'order', q: '把 7 步按顺序排好：', parts: ['Clarify：问清用途和规模', 'Sources：数据从哪来', 'Model：实体、表、键', 'Pipeline：采集 → 清洗 → 存储', 'Quality：校验和监控', 'Trade-offs：代价和替代方案', 'Summary：总结'], why: '不必死板照搬，但「先澄清、最后总结、中间一定谈质量和取舍」这几点别漏。' },
-        { t: 'match', q: '英文句子和它在面试里的作用：', pairs: [['"Before I dive in, can I ask a couple of questions?"', '澄清需求'], ['"I\'m going to assume … — let me know if that\'s off."', '说出假设'], ['"My first thought is …, but …"', '展示迭代'], ['"The trade-off here is …"', '讲取舍'], ['"Let me step back for a second."', '自我修正'], ['"So, to summarize …"', '总结']], why: '把这些句子背熟，紧张时也能张口就来。' },
-        { t: 'code', title: '一段高分开场，逐句拆解', lang: 'text',
-          code: "Interviewer: Design a way to collect menu prices from local restaurant websites.\nMe: Sure. Before I dive in, can I ask a couple of questions?\n    Who's going to use this data, and what do they want to learn?\n    (Interviewer: analysts studying price trends, updated weekly.)\n    OK, so a weekly batch job is fine; we don't need real time.\n    I'll assume it's a few hundred restaurants, so the data is small.\n    My first thought is to scrape each site with requests and BeautifulSoup...\n    ...but every site has a different layout, so let me first check\n    whether some of them publish menus through an API or a delivery platform.\n    Either way, I'd keep the raw pages and clean them in a separate step.",
+        { t: 'order', q: '把 7 步按顺序排好：', parts: ['Clarify：问会改变设计的问题', 'People：谁会用这个系统', 'Nouns：圈出业务名词', 'Facts vs Dimensions：分清事件和描述', 'Tables & Keys：表、主键、外键', 'Walk the stories：拿需求逐条检验', 'Revise & Sum up：修改并总结'], why: '不必死板照搬，但「先问、先想人和名词、最后拿需求检验并总结」这几点别漏。' },
+        { t: 'code', title: '一段高分开场（图书馆题），逐句拆解', lang: 'text',
+          code: "Interviewer: …Do you have any questions before you start?\nMe: Yes, a few. Is this one library, or several branches?\n    (Several branches.) And can the library own more than one copy of a book?\n    (Yes.) OK. The people using this are members, librarians,\n    and managers who want reports on borrowing.\n    The nouns I'm hearing are books, members, loans, holds and due dates.\n    My first thought is one Books table with a checked_out flag...\n    ...but since there can be several copies of the same book,\n    I'll split it: Books for the title information, Copies for each physical copy.\n    Loans is the event table: one row each time a copy is checked out.",
           notes: [
-            { line: 1, text: '<b>Sure</b> + 先澄清：礼貌开场，不急着给方案。' },
-            { line: 2, text: '问「谁用、想知道什么」：后面每个技术选择都要靠它来解释。' },
-            { lines: [3, 4], text: '根据回答立刻推出一个结论：每周批处理就够，不需要实时系统。' },
-            { line: 5, text: '信息不全就<b>说出假设</b>，并说它意味着什么（数据量小）。' },
-            { line: 6, text: '给出第一个想法……' },
-            { lines: [7, 8], text: '……然后自己发现问题并改进。这正是考试说明里的 <i>iterate to better solutions</i>。' },
-            { line: 9, text: '主动提保留原始数据、清洗单独一步：典型的 data engineer 思维。' },
+            { line: 1, text: '先问会改变设计的问题：有几个分馆。' },
+            { line: 2, text: '「一本书有几个副本」直接决定要不要拆表，这是这道题最关键的一问。' },
+            { lines: [3, 4], text: '先说使用者：后面每个设计都能追溯到「谁要用」。' },
+            { line: 5, text: '圈出业务名词，它们就是候选表。' },
+            { line: 6, text: '先说第一个想法……' },
+            { lines: [7, 8], text: '……再自己发现问题、给出改进。这正是评分里的「愿意修改」。' },
+            { line: 9, text: '点出事实表：借阅是一直在发生的事件。' },
           ] },
-        { t: 'fill', q: '补全这句「边想边说」：先说第一个想法，再转折，最后提出替代方案。', tpl: '"My first {0} is to use a relational database, {1} if the data is mostly nested JSON, I might {2} a document store."', blanks: [{ a: ['thought', 'instinct', 'idea', 'choice', 'plan', 'approach', 'inclination', 'reaction'] }, { a: ['but', 'though', 'although', 'however', 'yet'] }, { a: ['consider', 'use', 'choose', 'prefer', 'pick', 'try', 'go with', 'switch to', 'recommend', 'suggest', 'look at'] }], lang: 'text', why: '「My first thought is X, but …, I might consider Y」是展示迭代最顺口的句型。' },
-        { t: 'quiz', q: '面试官说："Design a database for a campus food delivery app." 你的第一句话最好是？', opts: ['"I\'d use PostgreSQL with five tables."', '"Let me start writing the CREATE TABLE statements."', '"Before I design it, can I ask what the data is for — running the app itself, or analytics?"', '"That\'s easy, it\'s just orders and users."'], a: 2, why: 'App 自己用（transactional）和做分析（analytic）需要的设计不一样。先问清楚，后面每个选择就都有理由。' },
-        { t: 'sort', q: '哪些是好的澄清问题，哪些是太早钻进细节？', buckets: ['好的澄清问题', '太早钻细节'],
-          items: [['这些数据主要是谁在用？', 0], ['大概有多少数据，每天增长多少？', 0], ['数据要多实时？每天更新一次够吗？', 0], ['主键用 INT 还是 BIGINT？', 1], ['有没有隐私数据（比如手机号）要特别处理？', 0], ['price 列要不要加索引？', 1]],
-          why: '细节问题不是不能问，而是要等方向定了再问。开场先问用途、规模、时效、合规。' },
-        { t: 'recap', points: ['7 步：Clarify → Sources → Model → Pipeline → Quality → Trade-offs → Summary', '开场先澄清，结尾一定总结', '用英文模板句把思考过程说出来', '主动谈数据质量和取舍，这是 data engineer 和一般程序员的区别'] },
+        { t: 'match', q: '英文句子和它在面试里的作用：', pairs: [['"Before I start, can I ask a few questions?"', '开场提问'], ['"The people who\'ll use this are …"', '说使用者'], ['"The nouns I\'m hearing are …"', '圈出业务名词'], ['"My first thought is …, but …"', '展示迭代'], ['"Let me check that against the user stories."', '用需求检验模型'], ['"So, to summarize my model …"', '总结']], why: '把这些句子背熟，紧张时也能张口就来。' },
+        { t: 'sort', q: '图书馆题开场，哪些是好的澄清问题，哪些是太早钻细节？', buckets: ['好的澄清问题', '太早钻细节'],
+          items: [['有几个分馆？', 0], ['同一本书可以有好几个副本吗？', 0], ['借期多长？过期要罚款吗？', 0], ['大概有多少本书、多少读者？', 0], ['主键用 INT 还是 BIGINT？', 1], ['title 列要不要建索引？', 1]],
+          why: '先问会改变表结构的问题（副本、分馆、罚款），技术细节等模型定了再说。' },
+        { t: 'sort', q: '图书馆里的这些表，哪些是事件表（fact），哪些是维度表（dimension）？', buckets: ['Fact 事件表', 'Dimension 维度表'],
+          items: [['loans：每借出一次一行', 0], ['holds：每次预约一行', 0], ['fees：每笔罚款一行', 0], ['members：读者资料', 1], ['books：书名、作者、类型', 1], ['copies：每个实体副本在哪个分馆', 1]],
+          why: 'Star schema：事件表在中间，又长又窄、增长很快；维度表描述「谁、什么、在哪」，很少变。copies 的行数虽然比 books 多，但它描述的是一件东西，不是一次事件，所以是维度表。' },
+        { t: 'quiz', q: '有人把图书馆设计成一张表：<code>books(book_id, title, author, genre, checked_out)</code>，一本书一行。拿下面哪条需求一检验，就会发现问题？', opts: ['列出馆藏的所有书名', '按类型搜索', '同一本书有 3 个副本，借出 1 个后，还要看出另外 2 个在架上', '统计一共有多少种类型'], a: 2, why: '一行只有一个 checked_out，没法表示「3 个副本里借出了 1 个」。拿 user story 逐条检验，就能在面试官追问之前自己发现。' },
+        { t: 'fill', q: '补全这句「边想边说」：先说第一个想法，再转折，最后说出改进。', tpl: '"My first {0} is a single Books table, {1} a book can have several copies, so I\'ll {2} it into Books and Copies."', blanks: [{ a: ['thought', 'idea', 'instinct', 'approach', 'plan'] }, { a: ['but', 'however', 'though'] }, { a: ['split', 'break', 'separate', 'divide', 'normalize'] }], lang: 'text', why: '「My first thought is X, but …, so I\'ll …」是展示迭代最顺口的句型。' },
+        { t: 'quiz', q: '面试官念完题，你还没完全想好。下面哪种做法最好？', opts: ['沉默想 3 分钟，想好了再开口', '"Let me think out loud: the people using this are …"，边说边搭模型', '请面试官直接给出表结构', '先把所有 SQL 写出来'], a: 1, why: '边想边说本身就是评分点：面试官要听到你的思路。沉默太久，面试官没法判断你在想什么。' },
+        { t: 'recap', points: ['7 步：提问 → 使用者 → 业务名词 → 事件 vs 维度 → 表和键 → 拿需求检验 → 修改并总结', '先问会改变表结构的问题（副本？分馆？）', '名词圈出来就是候选表；事件表在中间，维度表在周围', '拿 user story 一条条检验，在面试官之前找出模型的漏洞'] },
       ],
     },
     {
-      id: 'f', title: '官方样题 ①：医院系统怎么建模', min: 6,
+      id: 'l1', title: '官方练习题 ①：图书馆，从需求到表', min: 7,
+      screens: [
+        { t: 'hook', big: '"A library wants a new data system. Walk me through your design, and then I\'ll ask how some queries would work."', sub: '这是课程给的官方练习题，以 Olin Library 为原型：借书、还书、预约，还要分析借阅行为。题目要点都写在下一屏。', icon: 'doc' },
+        { t: 'list', title: '题目给的需求', cols: 2, items: [
+          { icon: 'search', h: '查书', p: '看全部馆藏、看现在在架上的书、按类型或作者搜索' },
+          { icon: 'user', h: '我的借阅', p: '读者看自己借着哪些书，还能给书下预约（hold）' },
+          { icon: 'bag', h: '借出和归还', p: '管理员把书借给某位读者、办理归还' },
+          { icon: 'clock', h: '预约和过期', p: '看一本书有没有预约、谁排第一；列出所有过期未还的书' },
+          { icon: 'chart', h: '分析', p: '过去一年借出多少、最热门的类型和书；过去 3、6、12 个月的借阅量' },
+        ] },
+        { t: 'sort', q: '题目里的这些词：是使用者，会变成表的名词，还是会变成列的名词？', buckets: ['使用者', '会变成表', '会变成列'],
+          items: [['图书管理员', 0], ['管理层和采购', 0], ['数据分析师', 0], ['借阅 loan', 1], ['预约 hold', 1], ['实体副本 copy', 1], ['到期日 due date', 2], ['类型 genre', 2]],
+          why: '读者（member）既是使用者，也会变成 members 表。能「发生很多次」或者有自己一组属性的（借阅、预约、副本）变成表；只是描述某个东西的（到期日、类型）变成列。' },
+        { t: 'split', title: '书和副本混在一张表里',
+          table: { name: 'copies_flat', cols: ['copy_id', 'isbn', 'title', 'author', 'branch'], pk: [0],
+            rows: [[1, '978-1-00-000001-0', 'The Hobbit', 'J.R.R. Tolkien', 'Olin'], [2, '978-1-00-000001-0', 'The Hobbit', 'J.R.R. Tolkien', 'Olin'], [5, '978-1-00-000004-0', 'Dune', 'Frank Herbert', 'Olin'], [6, '978-1-00-000004-0', 'Dune', 'Frank Herbert', 'Olin'], [7, '978-1-00-000004-0', 'Dune', 'Frank Herbert', 'Kranzberg']] },
+          fds: [{ from: [0], to: [1, 4] }, { from: [1], to: [2, 3] }],
+          parts: [{ name: 'copies', cols: [0, 1, 4], pk: [0] }, { name: 'books', cols: [1, 2, 3], pk: [1] }],
+          frames: [
+            { text: '一个实体副本一行：The Hobbit 有 2 个副本，Dune 有 3 个。', stage: 'table' },
+            { text: 'copy_id 决定 isbn 和 branch：每个副本有自己的位置。', stage: 'fd', fd: 0 },
+            { text: 'isbn 决定 title 和 author：同一本书，书名和作者永远一样。这是传递依赖，Dune 的作者被存了 3 遍。', stage: 'fd', fd: 1 },
+            { text: '按依赖给列分组。', stage: 'color' },
+            { text: '拆成 copies 和 books：书名、作者只存一次，每个副本只记它是哪本书、在哪个分馆。实际设计里 books 会用 book_id 当主键。', stage: 'split' },
+          ] },
+        { t: 'quiz', q: '面试官追问：<i>"Can the library have two copies of the same book?"</i> 如果你的模型只有一张 books 表（一本书一行，带 checked_out 列），会出什么问题？', opts: ['没问题，把 checked_out 改成数字就行', '一行只能代表一个实体：记不了「3 个副本借出了 1 个」，也不知道是哪个副本、在哪个分馆、被谁借走', '只会让按书名查询变慢', '只影响分析，不影响日常操作'], a: 1, why: '书目（title）和实体副本（copy）是两种东西：书目有书名和作者，副本有位置和借阅状态。被问到这里，正确的反应是「Good point, let me split it」。' },
+        { t: 'vs', title: '「现在借出去了吗」记在哪？',
+          a: { name: 'copies 上加 status 列', sub: '记状态', points: ['查在架上的副本很简单：<code>WHERE status = \'available\'</code>', '借书、还书都要同时改 loans 和 copies，忘了一边就会不一致', '只知道现在，不知道历史'] },
+          b: { name: '从 loans 推出来', sub: '记事件', points: ['还没还的借阅：<code>return_date IS NULL</code>', '事实只存在一个地方，不会自相矛盾', '历史全在：谁借的、什么时候借、什么时候还、有没有过期'] },
+          bottom: '两种都说得通，这正是面试官想听你讨论的取舍。官方参考答案在 Loans 上放了 Status 列；本站用 return_date，因为它同时记下了「还了没有」和「什么时候还的」。' },
+        { t: 'quiz', q: '预约（hold）应该挂在书目（book）上，还是挂在某个实体副本（copy）上？', opts: ['副本：读者要等某一个特定的副本', '书目：读者要的是这本书，哪个副本先回来都行', '都不挂，直接存在 members 表里', '没有区别'], a: 1, why: '读者在意的是「这本书」。挂在副本上的话，就得等那一个副本回来，哪怕另一个副本先还了也轮不到。所以 holds 存 book_id。' },
+        { t: 'er', title: '推荐的数据模型',
+          ents: [
+            { id: 'm', name: 'members', cols: ['member_id PK', 'name', 'email', 'phone'], x: 0, y: 0 },
+            { id: 'l', name: 'loans', cols: ['loan_id PK', 'copy_id FK', 'member_id FK', 'checkout_date', 'due_date', 'return_date'], x: 1, y: 0 },
+            { id: 'c', name: 'copies', cols: ['copy_id PK', 'book_id FK', 'branch'], x: 2, y: 0 },
+            { id: 'h', name: 'holds', cols: ['hold_id PK', 'book_id FK', 'member_id FK', 'placed_at', 'status'], x: 1, y: 1 },
+            { id: 'b', name: 'books', cols: ['book_id PK', 'isbn', 'title', 'author', 'genre'], x: 2, y: 1 },
+          ],
+          rels: [
+            { a: 'm', b: 'l', card: '1:N', label: '借' }, { a: 'c', b: 'l', card: '1:N', label: '被借' },
+            { a: 'b', b: 'c', card: '1:N', label: '有副本' }, { a: 'm', b: 'h', card: '1:N', label: '预约' }, { a: 'b', b: 'h', card: '1:N' },
+          ],
+          frames: [
+            { text: '先放两个最基本的维度：读者 members 和书目 books。', on: ['m', 'b'] },
+            { text: 'copies：一个实体副本一行，book_id 指向 books。一本书可以有很多个副本。', on: ['c', 'r2'] },
+            { text: 'loans：一次借阅一行，是事实表。它连到具体的副本和读者；<code>return_date</code> 为 NULL 就是还没还。', on: ['l', 'r0', 'r1'] },
+            { text: 'holds：一次预约一行，挂在书目上；status 记 waiting、fulfilled 或 cancelled，历史都留着。', on: ['h', 'r3', 'r4'] },
+          ] },
+        { t: 'match', q: '每条 user story 要用到哪几张表？', pairs: [['看我现在借着哪些书', 'loans + copies + books，只看 return_date 为 NULL 的'], ['找某本书最早的那条预约', 'holds + members'], ['列出过期未还的书', 'loans + members，due_date 早于今天且还没还'], ['过去一年最热门的类型', 'loans + copies + books，按 genre 分组'], ['按作者搜书', '只要 books']], why: '拿 user story 逐条对照表，就是框架里的 Walk the stories。哪条连不起来，模型就要改。' },
+        { t: 'quiz', q: 'loans 表要不要同时放 <code>status</code>（借出 / 已还）和 <code>return_date</code> 两列？', opts: ['要，信息越多越好', '最好不要：两列说的是同一件事，可能互相矛盾（status 是已还，return_date 却是 NULL）。只留 return_date 就能推出状态', '只留 status，日期没用', '两列都不要'], a: 1, why: '同一个事实存两遍，就有可能不一致，这正是 normalization 想避免的。return_date 还多带了「什么时候还的」，分析迟还时用得上。' },
+        { t: 'code', title: '设计阶段收尾：两三句话总结', lang: 'text',
+          code: "So, to summarize my model: Members, Books and Copies are the dimensions.\nBooks holds the title information; Copies has one row per physical copy,\nso the library can own several copies in different branches.\nLoans and Holds are the fact tables: a loan links a copy to a member,\nwith checkout, due and return dates, so \"checked out\" means return_date is null.\nHolds point at the book, not a copy, because any copy will do.\nIf reporting gets heavy, I'd copy Loans into a warehouse every night.",
+          notes: [
+            { line: 0, text: '先点出维度表。' },
+            { lines: [1, 2], text: '说出最关键的决定：书目和副本分开，以及为什么。' },
+            { lines: [3, 4], text: '事实表，以及「借出状态」从哪来。' },
+            { line: 5, text: '预约挂在书目上的理由。' },
+            { line: 6, text: '提一句规模和分析：显得想得远。' },
+          ] },
+        { t: 'recap', points: ['先问：有几个分馆？一本书有几个副本？', '书目（books）和实体副本（copies）分开，这是这道题的核心', '借阅、预约是事件表；读者、书目、副本是维度表', '「现在借出了吗」从 loans 推（return_date IS NULL），或者在 copies 上记 status，说出取舍', '预约挂在书目上，用 status 保留历史'] },
+      ],
+    },
+    {
+      id: 'l2', title: '官方练习题 ②：图书馆，查询阶段', min: 9,
+      screens: [
+        { t: 'hook', big: '"Now let\'s see how some queries would work in your design."', sub: '下面用本站的示例图书馆数据库（members、books、copies、loans、holds），假设今天是 2026-11-04。每题都能直接运行，「表结构」里能看到每张表的列。', icon: 'code' },
+        { t: 'code', title: '三个日常操作', lang: 'sql',
+          code: "-- Check out copy 6 (Dune) to member 3 today; a loan lasts 21 days\nINSERT INTO loans (copy_id, member_id, checkout_date, due_date)\nVALUES (6, 3, '2026-11-04', '2026-11-25');\n-- Check in copy 9 when it comes back today\nUPDATE loans SET return_date = '2026-11-04'\nWHERE copy_id = 9 AND return_date IS NULL;\n-- Member 6 places a hold on book 12345\nINSERT INTO holds (book_id, member_id, placed_at, status)\nVALUES (12345, 6, '2026-11-04 10:00', 'waiting');",
+          notes: [
+            { lines: [0, 2], text: '借书 = loans 加一行。due_date 在借出时就算好写进去，return_date 先空着。' },
+            { lines: [3, 5], text: '还书 = 填上 return_date。WHERE 里一定要有 <code>return_date IS NULL</code>，否则会把这个副本以前的借阅也改掉。' },
+            { lines: [6, 8], text: '预约 = holds 加一行，挂在书目（book_id）上，状态是 waiting。' },
+          ] },
+        { t: 'sql', title: '按类型搜书',
+          task: '列出所有 <code>Science Fiction</code> 类型的书：<code>title, author</code>。',
+          sql: 'SELECT title, author, genre\nFROM books;',
+          check: "SELECT title, author FROM books WHERE genre = 'Science Fiction';",
+          hint: "加 <code>WHERE genre = 'Science Fiction'</code>，并且只留 title 和 author 两列。" },
+        { t: 'sql', title: '现在在架上的副本',
+          task: '列出现在<b>在架上</b>（没被借走）的副本：<code>copy_id, book_id</code>。被借走 = loans 里有这个副本的一条还没还（<code>return_date</code> 是 NULL）的借阅。',
+          sql: 'SELECT copy_id, book_id, branch\nFROM copies;',
+          check: 'SELECT copy_id, book_id FROM copies WHERE copy_id NOT IN (SELECT copy_id FROM loans WHERE return_date IS NULL);',
+          hint: '<code>WHERE copy_id NOT IN (SELECT copy_id FROM loans WHERE return_date IS NULL)</code>。子查询里别漏了 return_date IS NULL，否则借过的副本全被排除了。' },
+        { t: 'quiz', q: '面试官的参考答案想在上一题的结果（叫它 COPIES_IN_LIBRARY，只有 copy_id 和 book_id 两列）上取书名，写成了下面这样。问题在哪？', lang: 'sql',
+          code: 'SELECT c.title\nFROM COPIES_IN_LIBRARY c\nJOIN books b ON c.book_id = b.book_id;',
+          tables: [{ name: 'COPIES_IN_LIBRARY（前几行）', head: ['copy_id', 'book_id'], rows: [[1, 12341], [2, 12341], [4, 12343], [6, 12344]] }, { name: 'books（前几行）', head: ['book_id', 'title'], rows: [[12341, 'The Hobbit'], [12343, 'Mistborn'], [12344, 'Dune']] }],
+          opts: ['没问题，可以直接运行', 'COPIES_IN_LIBRARY 里没有 title 这一列，应该取 b.title；而且 The Hobbit 两个副本都在架上，书名会出现两次，要加 DISTINCT', 'JOIN 条件写反了', '必须用 LEFT JOIN'], a: 1, why: '书名只在 books 里，所以要取 <code>b.title</code>。副本 1 和 2 都是 The Hobbit，JOIN 之后会出现两行，加 DISTINCT 才是「书名」列表。' },
+        { t: 'sql', title: '现在在架上的书名',
+          task: '列出现在<b>至少有一个副本在架上</b>的书名 <code>title</code>，不重复。',
+          sql: 'SELECT copy_id, book_id\nFROM copies\nWHERE copy_id NOT IN (SELECT copy_id FROM loans WHERE return_date IS NULL);',
+          check: 'SELECT DISTINCT b.title FROM copies c JOIN books b ON b.book_id = c.book_id WHERE c.copy_id NOT IN (SELECT copy_id FROM loans WHERE return_date IS NULL);',
+          hint: '在起始代码上 <code>JOIN books b ON b.book_id = c.book_id</code>，SELECT 改成 <code>DISTINCT b.title</code>。' },
+        { t: 'sql', title: 'Mia 借着哪些书',
+          task: '读者 1（Mia Wong）现在借着哪些书？输出 <code>title, due_date</code>。',
+          sql: 'SELECT * FROM loans WHERE member_id = 1;',
+          check: 'SELECT b.title, l.due_date FROM loans l JOIN copies c ON c.copy_id = l.copy_id JOIN books b ON b.book_id = c.book_id WHERE l.member_id = 1 AND l.return_date IS NULL;',
+          hint: 'loans → copies → books 两次 JOIN；「现在借着」= <code>return_date IS NULL</code>。' },
+        { t: 'rows', title: '最早的预约：先过滤，再排序',
+          sql: "SELECT m.name, m.email\nFROM holds h\nJOIN members m ON m.member_id = h.member_id\nWHERE h.book_id = 12345\n  AND h.status = 'waiting'\nORDER BY h.placed_at\nLIMIT 1;",
+          cols: ['hold_id', 'member', 'placed_at', 'status'],
+          rows: [{ k: 'h1', v: [1, 'Tom Baker', '2026-10-10 12:00', 'fulfilled'] }, { k: 'h2', v: [2, 'Ruth Kim', '2026-10-18 15:30', 'waiting'] }, { k: 'h3', v: [3, 'Omar Haddad', '2026-10-21 10:00', 'waiting'] }, { k: 'h4', v: [4, 'Nina Patel', '2026-10-25 09:00', 'waiting'] }],
+          frames: [
+            { text: 'The Martian（book 12345）上有 4 条预约记录。', line: 3 },
+            { text: '按 placed_at 排序，最早的是 Tom 的那条……', line: 5, hl: { h1: 'focus' } },
+            { text: '……但它已经 fulfilled：Tom 上个月就拿到书了。如果不过滤，直接 LIMIT 1 就会通知错人。', line: 4, hl: { h1: 'fail' }, badge: { h1: '已完成' } },
+            { text: 'WHERE 先只留 waiting 的，剩下 3 条。', line: 4, show: ['h2', 'h3', 'h4'] },
+            { text: 'ORDER BY placed_at LIMIT 1：Ruth Kim 排第一，她是下一位。', lines: [5, 6], hl: { h2: 'pass' }, badge: { h2: '下一位' } },
+          ] },
+        { t: 'sql', title: '下一位是谁',
+          task: '书 12345 上最早的那条<b>还在排队（waiting）</b>的预约是谁下的？输出 <code>name, email</code>。',
+          sql: 'SELECT * FROM holds WHERE book_id = 12345;',
+          check: "SELECT m.name, m.email FROM holds h JOIN members m ON m.member_id = h.member_id WHERE h.book_id = 12345 AND h.status = 'waiting' ORDER BY h.placed_at LIMIT 1;",
+          hint: "JOIN members，WHERE 里加 <code>h.status = 'waiting'</code>，再 <code>ORDER BY h.placed_at LIMIT 1</code>。" },
+        { t: 'quiz', q: '今天是 2026-11-04。下面 5 条借阅里，哪几条是真正「过期未还」的？',
+          tables: [{ name: 'loans（节选）', head: ['loan_id', 'member', 'due_date', 'return_date'], rows: [[1, 'Sam Lee', '2024-12-23', '2024-12-18'], [13, 'Omar Haddad', '2026-01-05', '2026-01-10'], [32, 'Nina Patel', '2026-10-21', null], [33, 'Leo Park', '2026-10-22', null], [35, 'Omar Haddad', '2026-11-04', null]] }],
+          opts: ['全部 5 条', '只有 32 和 33', '13、32、33（due_date 都早于今天）', '32、33、35'], a: 1, why: 'loan 1 和 13 早就还了；loan 35 今天才到期，还不算过期。面试官的参考答案只写了 <code>today() &gt; DueDate</code>，没管还没还：在整个示例数据库上会查出 34 条，真正过期的只有 3 条。' },
+        { t: 'sql', title: '过期名单',
+          task: '列出所有<b>过期未还</b>的借阅：<code>name, title, due_date</code>。今天是 <code>\'2026-11-04\'</code>。',
+          sql: 'SELECT loan_id, copy_id, member_id, due_date, return_date\nFROM loans\nWHERE return_date IS NULL;',
+          check: "SELECT m.name, b.title, l.due_date FROM loans l JOIN members m ON m.member_id = l.member_id JOIN copies c ON c.copy_id = l.copy_id JOIN books b ON b.book_id = c.book_id WHERE l.return_date IS NULL AND l.due_date < '2026-11-04';",
+          hint: "两个条件都要：<code>return_date IS NULL</code>（还没还）和 <code>due_date &lt; '2026-11-04'</code>（已过期）。再 JOIN members 和 copies → books 拿名字和书名。" },
+        { t: 'sql', title: '过去一年最热门的类型',
+          task: '过去一年（<code>checkout_date &gt;= \'2025-11-04\'</code>）每种类型被借了多少次？输出 <code>genre, loans</code>，从多到少排。',
+          sql: 'SELECT l.loan_id, l.checkout_date, c.book_id\nFROM loans l\nJOIN copies c ON c.copy_id = l.copy_id;',
+          check: "SELECT b.genre, COUNT(*) AS loans FROM loans l JOIN copies c ON c.copy_id = l.copy_id JOIN books b ON b.book_id = c.book_id WHERE l.checkout_date >= '2025-11-04' GROUP BY b.genre ORDER BY loans DESC;",
+          ordered: true,
+          hint: 'loans 只知道 copy_id，类型在 books 上：loans → copies → books。再 WHERE 过滤日期、GROUP BY b.genre、ORDER BY loans DESC。' },
+        { t: 'predict', title: '过去一年借得最多的书', lang: 'sql', run: true,
+          code: "SELECT b.title, COUNT(*) AS loans\nFROM loans l\nJOIN copies c ON c.copy_id = l.copy_id\nJOIN books b ON b.book_id = c.book_id\nWHERE l.checkout_date >= '2025-11-04'\nGROUP BY b.book_id, b.title\nORDER BY loans DESC, b.title\nLIMIT 3;",
+          q: '结果的前三行是？（数据面板里可以按列排序，自己数一数）',
+          opts: ['The Hobbit 5、Dune 4、The Martian 4', 'The Hobbit 5、The Martian 4、Dune 4', 'Dune 4、The Hobbit 5、The Martian 4', 'The Hobbit 5、Dune 3、The Martian 3'], a: 0, why: '按借阅次数从多到少；Dune 和 The Martian 都是 4 次，再按书名排，D 在 T 前面。按 book_id 分组，同一本书的几个副本才会合起来数。' },
+        { t: 'recap', points: ['借书 = loans 加一行；还书 = 填 return_date，WHERE 里带上 return_date IS NULL', '在架上 = 不在「还没还的借阅」里；要书名就 JOIN books 再 DISTINCT', '最早的预约：先过滤 waiting，再 ORDER BY 时间 LIMIT 1', '过期 = 还没还，并且 due_date 早于今天', '分析题：loans → copies → books，再 GROUP BY'] },
+      ],
+    },
+    {
+      id: 'f', title: '医院样题 ①：从需求到表', min: 6,
       screens: [
         { t: 'hook', big: '官方样题：<br>"Design a data system for a hospital."', sub: '挂号、门诊、住院、出院、转科，外加 8 个报表。这一节把题拆开、把表建好；下一节把每个报表写成能跑的 SQL。', icon: 'layers' },
         { t: 'flow', title: '按题目的 4 个任务来答',
@@ -9163,7 +9433,7 @@ window.CHAPTERS.push({
       ],
     },
     {
-      id: 'g', title: '官方样题 ②：把 8 个报表写成 SQL', min: 9,
+      id: 'g', title: '医院样题 ②：把报表写成 SQL', min: 9,
       screens: [
         { t: 'hook', big: '官方样题的医院系统：每个操作和报表都写成一句能跑的 SQL。', sub: '8 张表：patients、doctors、units、admissions（一次住院一行）、unit_stays（每到一个科室一行）、procedures、procedure_types、appointments。假设「今天」是 2026-10-28；时间都存成 \'YYYY-MM-DD HH:MM\' 文本，可以直接比大小。', icon: 'code' },
         { t: 'code', title: '五个日常操作', lang: 'sql',
@@ -9263,188 +9533,141 @@ WHERE admission_id = 19 AND end_time IS NULL;`,
       ],
     },
     {
-      id: 'c', title: '设计题实战：餐馆价格数据管道', min: 6,
+      id: 'x3', title: '被追问、卡壳和修正模型', min: 6,
       screens: [
-        { t: 'hook', big: '"Our analytics team wants to study menu prices across local restaurants. How would you build the dataset?"', sub: '把一学期学的东西串起来：爬虫 → pandas → 建模 → SQL。', icon: 'globe' },
-        { t: 'quiz', q: '听完题，第一步你该做什么？', opts: ['马上写 requests.get()', '先澄清：分析什么问题、多少家店、多久更新、网站允不允许抓取', '先建一个 MongoDB', '先画仪表盘'], a: 1, why: '用途决定数据要什么字段，规模决定技术选型，频率决定管道怎么跑，合规决定能不能抓。' },
-        { t: 'flow', title: '整条管道',
-          nodes: [
-            { id: 'legal', label: '合规检查', sub: 'robots.txt · ToS', icon: 'shield' },
-            { id: 'ingest', label: '采集', sub: 'requests + BS4', icon: 'globe' },
-            { id: 'raw', label: '原始层', sub: '保存原始 HTML', icon: 'doc' },
-            { id: 'clean', label: '清洗', sub: 'pandas', icon: 'filter' },
-            { id: 'db', label: '数据库', sub: '规范化 + 约束', icon: 'db' },
-            { id: 'serve', label: '使用', sub: '视图 · 仪表盘', icon: 'chart' },
-          ],
-          frames: [
-            { text: '先确认能合法、礼貌地抓：看 robots.txt 和使用条款，请求之间加延时。', on: ['legal'] },
-            { text: '每周跑一次：<code>requests.get</code> 取页面，BeautifulSoup 用 CSS 选择器取菜名和价格。', on: ['ingest'], go: ['legal', 'ingest'] },
-            { text: '原始 HTML 先存一份：解析代码出 bug 时可以重跑，不用再去打扰网站。', on: ['raw'], go: ['ingest', 'raw'] },
-            { text: 'pandas 清洗：「$12.99」→ 12.99，去掉重复抓取的行，记录缺失值。', on: ['clean'], go: ['raw', 'clean'] },
-            { text: '入库：拆成规范化的表，用主键、外键、CHECK 约束挡住坏数据。', on: ['db'], go: ['clean', 'db'] },
-            { text: '给分析师建视图（比如每家店的平均价格），仪表盘直接读视图。', on: ['serve'], go: ['db', 'serve'] },
-          ] },
-        { t: 'split', title: '抓下来的大表，拆开',
-          table: { name: 'scraped', cols: ['restaurant', 'address', 'item', 'price'], pk: [0, 2],
-            rows: [['Pho 99', '12 Delmar Blvd', 'Pho Bo', 12.5], ['Pho 99', '12 Delmar Blvd', 'Spring Rolls', 6], ['Taco Loco', '8 Grand Ave', 'Al Pastor', 3.5], ['Taco Loco', '8 Grand Ave', 'Horchata', 2.75], ['Taco Loco', '8 Grand Ave', 'Nachos', 7]] },
-          fds: [{ from: [0], to: [1] }, { from: [0, 2], to: [3] }],
-          parts: [{ name: 'restaurants', cols: [0, 1], pk: [0] }, { name: 'menu_items', cols: [0, 2, 3], pk: [0, 2] }],
-          frames: [
-            { text: '抓下来是一张大表，键是 (restaurant, item)。', stage: 'table' },
-            { text: 'address 只依赖 restaurant：<b>部分依赖</b>，违反 2NF，地址被存了 5 次。', stage: 'fd', fd: 0 },
-            { text: 'price 依赖整个键 (restaurant, item)，没问题。', stage: 'fd', fd: 1 },
-            { text: '按依赖给列分组。', stage: 'color' },
-            { text: '拆开以后 restaurants 从 5 行变成 2 行，地址只存一次。实际做的时候会给 restaurants 一个 surrogate key（id），因为店名可能重名或改名。', stage: 'split' },
-          ] },
-        { t: 'er', title: '最终的表',
-          ents: [
-            { id: 'r', name: 'restaurants', cols: ['id PK', 'name', 'address'], x: 1, y: 0 },
-            { id: 'm', name: 'menu_items', cols: ['id PK', 'restaurant_id FK', 'item', 'price', 'scraped_at'], x: 0, y: 1 },
-            { id: 'v', name: 'reviews', cols: ['id PK', 'restaurant_id FK', 'rating', 'posted_at'], x: 2, y: 1 },
-          ],
-          rels: [{ a: 'r', b: 'm', card: '1:N', label: '有' }, { a: 'r', b: 'v', card: '1:N', label: '收到' }],
-          frames: [
-            { text: 'restaurants：用 surrogate key <code>id</code>。', on: ['r'] },
-            { text: 'menu_items：每条都带 <code>scraped_at</code>，才能看价格随时间的变化。', on: ['m', 'r0'] },
-            { text: 'reviews：以后要加评价，也是一对多挂在 restaurants 上。', on: ['v', 'r1'] },
-          ] },
-        { t: 'fill', q: '补全（restaurants 的主键叫 <code>id</code>；menu_items 用 <code>restaurant_id</code> 记它属于哪家餐馆）：', tpl: 'menu_items.restaurant_id is a {0} key that references restaurants.{1}.', blanks: [{ a: ['foreign'] }, { a: ['id'] }], lang: 'text', why: '外键把菜单项连到餐馆；加上 FOREIGN KEY 约束，就不会出现指向不存在餐馆的菜。' },
-        { t: 'sort', q: '这些质量检查放在哪一步？', buckets: ['采集时', '清洗时', '入库时（约束）'],
-          items: [['HTTP 状态码不是 200：记日志、稍后重试', 0], ['请求之间等 1–2 秒，不给网站添负担', 0], ['把「$12.99」转成数字 12.99', 1], ['同一条记录被抓了两次：去重', 1], ['price 必须 ≥ 0：CHECK (price >= 0)', 2], ['restaurant_id 必须存在：FOREIGN KEY', 2]],
-          why: '质量不是最后才检查的一步，每一层都有自己的关卡。面试里能说出这种分层，会很加分。' },
-        { t: 'vs', title: '存在哪里？',
-          a: { name: 'PostgreSQL / SQLite', sub: '关系型', points: ['结构固定：店、菜、价格', '要 JOIN、要聚合分析', '约束能挡住坏数据'] },
-          b: { name: 'MongoDB', sub: '文档型', points: ['每个网站字段差别很大时更灵活', '可以先把原始 JSON 存进去', '跨店统计、保证一致性更麻烦'] },
-          bottom: "一个好回答会两个都提，并说清楚为什么：<i>\"Because analysts need joins and aggregations and the structure is stable, I'd go relational. If the sites vary a lot, I might keep the raw data in a document store and load the cleaned version into PostgreSQL.\"</i>" },
-        { t: 'quiz', q: '追问："One restaurant redesigned its website. Your scraper now returns empty prices, but it doesn\'t crash. How would you notice?"', opts: ['等分析师发现报表不对', '每次跑完自动检查每家店的行数和空值比例，超过阈值就报警', '每天手动打开每个网站看一眼', '把空价格填成 0'], a: 1, why: '「静默失败（silent failure）」是数据工程最常见的坑。要自动检查 null rate 和 row count；也绝不能用 0 填价格，那会把错误数据伪装成正确数据。' },
-        { t: 'quiz', q: '分析师想看「价格随时间的变化」。你的表需要什么？', opts: ['每次抓取都覆盖旧价格', '每条价格记录带上抓取时间 scraped_at，保留历史', '只存最新价格就够了', '把价格写进菜名里'], a: 1, why: '覆盖就丢了历史。保留 scraped_at（甚至单独做一张 price_history 表）才能回答趋势问题，这就是「数据要有用」。' },
-        { t: 'code', title: '把整题收成 2 分钟，逐句拆解', lang: 'text',
-          code: "So, to summarize my approach:\nFirst, I'd confirm we're allowed to scrape, and keep the request rate low.\nA weekly job fetches each page with requests and parses it with BeautifulSoup.\nI'd store the raw HTML, then clean it in pandas: convert prices, drop duplicates.\nThe cleaned data goes into three tables: restaurants, menu_items and reviews,\nwith keys and CHECK constraints so bad rows can't get in.\nEach price keeps a scraped_at timestamp, so analysts can see trends.\nAfter every run I'd check row counts and null rates, and alert if they jump.\nIf this grew to thousands of sites, I'd revisit the storage and scheduling choices.",
+        { t: 'hook', big: '"Can the library have two copies of the same book?"<br>你的模型刚好不支持。', sub: '模型露馅是这场面试的设计，不是事故。考的是你怎么接。', icon: 'undo' },
+        { t: 'code', title: '一次漂亮的「回头修改」，逐句拆解', lang: 'text',
+          code: "Interviewer: Can the library have two copies of the same book?\nMe: Good question. Right now my Books table has one row per physical book,\n    so two copies would repeat the title and author, and the checked_out\n    flag can't tell which copy is out. That breaks.\n    Let me step back and split it: Books keeps the title information,\n    and a new Copies table has one row per physical copy, with book_id\n    as a foreign key. Loans then points at copy_id instead of book_id.\n    Holds stay on book_id, since any copy will do.\n    Does that address what you had in mind?",
           notes: [
-            { line: 0, text: '用 <i>So, to summarize</i> 开始收尾，面试官马上知道你在总结。' },
-            { line: 1, text: '合规和礼貌放在第一句：体现职业素养。' },
-            { lines: [2, 3], text: '采集和清洗分开，保留原始数据，出错能重跑。' },
-            { lines: [4, 5], text: '建模加约束：数据质量的第一道墙。' },
-            { line: 6, text: '围绕「数据要有用」：保留历史。' },
-            { line: 7, text: '监控静默失败：主动谈质量。' },
-            { line: 8, text: '最后说出方案的边界和扩展方向，显得成熟。' },
+            { line: 1, text: '<b>Good question</b>：先接住，不慌。' },
+            { lines: [1, 3], text: '说清楚<b>为什么</b>坏了：书名作者重复存储，状态也分不清是哪个副本。' },
+            { lines: [4, 6], text: '<b>Let me step back</b>：给出修改，并说出连带的改动（loans 改指 copy_id）。' },
+            { line: 7, text: '顺手检查别的表要不要跟着改。' },
+            { line: 8, text: '确认方向，把话交回面试官。' },
           ] },
-        { t: 'recap', points: ['先澄清用途、规模、频率和合规，再动手', '原始层 → 清洗 → 规范化入库 → 视图', '质量检查分三层：采集、清洗、约束', '保留时间戳才能看趋势；空值绝不填 0', '结尾总结，并说出方案的边界'] },
-      ],
-    },
-    {
-      id: 'd', title: '技术追问：排错、取舍、常考概念', min: 6,
-      screens: [
-        { t: 'hook', big: '"Revenue on the dashboard doubled overnight, but sales didn\'t change. What happened?"', sub: '排错题考的是：你会不会一步一步缩小范围。', icon: 'search' },
-        { t: 'rows', title: 'JOIN 之后金额变多了', sql: 'SELECT SUM(o.total)\nFROM orders o\nJOIN order_items i ON i.order_id = o.order_id;',
+        { t: 'quiz', q: '答到一半，你发现前面说错了（把 LEFT JOIN 说成了 INNER JOIN）。怎么办？', opts: ['假装没发现，继续往下说', '停一下："Actually, let me correct that — I meant a LEFT JOIN, because we need to keep members with no loans."', '连声道歉，然后整道题从头再来', '等面试官指出来再说'], a: 1, why: '主动修正是加分项：它正好展示了「发现问题、回头修改」。' },
+        { t: 'match', q: '卡壳时的「救场句」和用途：', pairs: [['"Let me think out loud for a moment."', '需要时间：边说边想，别沉默'], ['"Just to make sure I understand — you mean …?"', '没听懂题：复述确认'], ['"I\'m not sure about the exact syntax, so I\'ll write it as pseudocode."', '忘了函数名：先把逻辑写出来'], ['"Can I sketch the tables first?"', '需要结构：先画再说']], why: '背熟这四句，就不会在面试里「卡死」。' },
+        { t: 'sort', q: '该开口问，还是闷头往前冲？', buckets: ['该问 / 该说出来', '不该这样做'],
+          items: [['没听清需求，复述一遍确认', 0], ['卡住 1 分钟了，说出卡在哪，请面试官给个方向', 0], ['不确定某条规则（比如罚款），先说出你的假设', 0], ['不懂题意也不问，按自己猜的一路做下去', 1], ['被指出问题后，坚持原来的设计没问题', 1], ['每一步都问面试官「这样对吗」', 1]],
+          why: '评分会看你「是不是在对的时候提问、求助」。卡很久也不问是减分，每一步都要人确认也是减分。' },
+        { t: 'quiz', q: '查询阶段，你忘了 SQLite 里取「年-月」的函数叫什么。最好的做法？', opts: ['停下来，说「这题我不会」', '用伪代码写 <code>GROUP BY month(checkout_date)</code>，并说一句「这里用数据库的取月份函数，SQLite 里大概是 strftime」', '换一道题', '随便写一个函数名，不解释'], a: 1, why: '伪代码就够：逻辑对（按月分组、计数）比函数名一字不差重要。说出你知道要做什么、只是不确定细节，比卡住强得多。' },
+        { t: 'rows', title: '追问常考：JOIN 之后数字变大了', sql: 'SELECT SUM(o.total)\nFROM orders o\nJOIN order_items i ON i.order_id = o.order_id;',
           cols: ['order_id', 'total'],
           rows: [{ k: 'o1', v: [101, 30] }, { k: 'o2', v: [102, 20] }],
           frames: [
             { text: '两张订单，真实总收入是 30 + 20 = <b>50</b>。', line: 1 },
             { text: 'JOIN order_items：订单 101 有 2 个商品，102 有 1 个。一个商品一行，订单金额也跟着被复制了。', line: 2, cols: ['order_id', 'total', 'item'], rows: [{ k: 'a', v: [101, 30, 'Pho'] }, { k: 'b', v: [101, 30, 'Tea'] }, { k: 'c', v: [102, 20, 'Taco'] }], hl: { a: 'warn', b: 'warn' }, badge: { b: '30 被复制了' } },
             { text: 'SUM(total) = 30 + 30 + 20 = <b>80</b>，多算了 30。这叫 <b>fan-out</b>：一对多的 JOIN 让行数变多，SUM 就重复计算了。', line: 0, hl: { a: 'warn', b: 'del', c: 'pass' }, badge: { a: '+30', b: '+30 重复', c: '+20' } },
-            { text: '修法：订单金额就在 orders 上 SUM，不要先 JOIN 明细表；如果一定要 JOIN，就先在子查询里按订单聚合好再 JOIN。', line: 0 },
+            { text: '修法：订单金额就在 orders 上 SUM，不要先 JOIN 明细表；一定要 JOIN 的话，先在子查询里按订单聚合好再 JOIN。图书馆题里同理：要数「每位读者借了几次」，别同时 JOIN 预约表。', line: 0 },
           ] },
-        { t: 'order', q: '排查「数字突然不对」的思路，按顺序排：', parts: ['确认问题：哪个指标、从哪天开始、差多少', '看数据源：原始数据量有没有突变（行数、重复）', '看管道：那天有没有改过代码或 SQL（比如新加的 JOIN）', '用一个小样本复现：挑一张订单手算对比', '修复，并加一个自动检查，防止再犯'], why: '面试官想听到的是「缩小范围」的过程，而不是一上来就猜原因。' },
-        { t: 'match', q: '技术和最适合它的场景：', pairs: [['SQLite', '单机小项目、原型'], ['PostgreSQL', '多人共用的生产数据库'], ['MongoDB', '结构多变的 JSON 文档'], ['数据仓库（BigQuery / Snowflake）', '大规模分析查询'], ['pandas', '在内存里探索和清洗数据'], ['Spreadsheet', '小数据，给非技术同事看']], why: '面试里说出「为什么选它、什么情况下会换」，比只报名字强得多。' },
-        { t: 'quiz', q: '"Why do we need transactions?" 哪个回答最好？', opts: ['"Because SQL requires them."', '"So a group of changes either all happen or none happen. For example, a bank transfer shouldn\'t take money out of one account without putting it into the other."', '"Transactions make queries faster."', '"They are only needed for NoSQL."'], a: 1, why: '概念 + 一个具体例子，是面试里最好的解释方式（ACID 里的 Atomicity）。' },
-        { t: 'quiz', q: '"Would you always normalize to 3NF?" 哪个回答最好？', opts: ['"Yes, always."', '"Never, joins are slow."', '"Usually for transactional data, to avoid update anomalies. For read-heavy analytics I might denormalize to avoid expensive joins, and accept some redundancy."', '"Only when a table has more than ten columns."'], a: 2, why: '取舍题没有唯一正确答案。好回答说清楚「什么时候」和「代价是什么」。' },
-        { t: 'sort', q: '这些是事实表（fact）还是维度表（dimension）的特征？', buckets: ['Fact 事实表', 'Dimension 维度表'],
-          items: [['记录事件：每一笔订单、每一次点击', 0], ['行数增长很快', 0], ['描述谁、什么、在哪：用户、商品、门店', 1], ['有很多可以 SUM / AVG 的数值列', 0], ['行数相对少、变化慢', 1], ['给分析加上可读的名字和分类', 1]],
-          why: 'Star schema：中间一张 fact table，周围一圈 dimension tables。比如订机票：fact_reservations 每卖一张票加一行；dim_customers、dim_airports 描述乘客和机场，很少变。' },
-        { t: 'vs', title: '把技术讲给不懂技术的经理听',
-          a: { name: '太技术', points: ['"An OLTP system optimized for row-level writes with ACID guarantees…"', '经理听不懂，也不知道和自己有什么关系'] },
-          b: { name: '刚刚好', points: ['"The app\'s database is built to record each sale quickly and safely."', '"The warehouse is built to answer big questions like sales by month, without slowing down the app."', '用对方能懂的话，再加一个例子'] },
-          bottom: '面试官会看你能不能和非技术的同事沟通，这一点很加分。' },
-        { t: 'quiz', q: '"Your dataset includes customer emails and phone numbers. What do you do?"', opts: ['原样给所有分析师', '只给分析需要的字段；敏感字段去掉、脱敏或单独控制权限，并确认符合规定', '删掉整个数据集', '把邮箱放到仪表盘上，方便联系客户'], a: 1, why: '数据责任（PII、最小权限）是课程大纲里的一部分，也最能体现职业素养。' },
-        { t: 'recap', points: ['排错：确认问题 → 查源头 → 查改动 → 小样本复现 → 修复并加检查', 'fan-out：一对多 JOIN 会让 SUM 重复计算', '技术选型说清「为什么」和「什么时候换」', '解释概念 = 一句话定义 + 一个例子；对经理讲人话', '主动保护 PII'] },
-      ],
-    },
-    {
-      id: 'e', title: '临场表现：开场、卡壳与收尾', min: 4,
-      screens: [
-        { t: 'hook', big: '"So, tell me a bit about yourself."', sub: '第一个问题往往不是技术题。准备一个 60 秒的回答。', icon: 'user' },
-        { t: 'order', q: '60 秒自我介绍，按这个结构：', parts: ['现在：我是谁、学什么', '一个相关的课程项目或经历', '我在里面具体做了什么、学到了什么', '为什么对 data engineering 感兴趣', '一句话收尾，把话题交回面试官'], why: '具体胜过空泛：一个真实项目里你亲手做的事，比「I love data」有说服力得多。' },
-        { t: 'code', title: '自我介绍范例（换成你自己的经历）', lang: 'text',
-          code: "Hi, I'm [your name], a student at WashU studying [your major].\nThis semester in CSE 3104 I've been working on a project where we\ncollect data from the web, clean it in Python, and load it into a\nnormalized SQL database so it can be analyzed.\nThe part I enjoyed most was designing the schema and the validation checks,\nbecause that's where messy data turns into something people can use.\nThat's what draws me to data engineering: making data reliable,\nso other people can trust what they build on top of it.\nI'm happy to walk through the project in more detail if that's useful.",
-          notes: [
-            { line: 0, text: '一句话交代身份，不要背简历。' },
-            { lines: [1, 3], text: '用一个具体项目，而不是空泛的「I like data」。换成你真实的 CSE 3104 项目。' },
-            { lines: [4, 5], text: '说你具体做了什么，以及为什么重要。' },
-            { lines: [6, 7], text: '把兴趣和 data engineer 的核心目标连起来：可靠、可信的数据。' },
-            { line: 8, text: '把主动权交回面试官，显得自信又有礼貌。' },
-          ] },
-        { t: 'quiz', q: '答到一半，你发现前面说错了（把 LEFT JOIN 说成了 INNER JOIN）。怎么办？', opts: ['假装没发现，继续往下说', '停一下："Actually, let me correct that — I meant a LEFT JOIN, because we need to keep customers with no orders."', '连声道歉，然后整道题从头再来', '等面试官指出来再说'], a: 1, why: '主动修正是加分项，它正好展示考试说明里说的 <i>iterate to better solutions</i>。' },
-        { t: 'match', q: '卡壳时的「救场句」和用途：', pairs: [['"Let me think out loud for a moment."', '需要时间：边说边想，别沉默'], ['"Just to make sure I understand — you mean …?"', '没听懂题：复述确认'], ['"I haven\'t used that tool, but here\'s how I\'d approach it…"', '不熟悉的技术：诚实 + 推理'], ['"Can I sketch the tables first?"', '需要结构：先画再说']], why: '背熟这四句，就不会在面试里「卡死」。' },
+        { t: 'quiz', q: '"Would you always normalize to 3NF?" 哪个回答最好？', opts: ['"Yes, always."', '"Never, joins are slow."', '"Usually for the operational tables, to avoid update anomalies. For read-heavy reporting I might denormalize, for example copy the genre onto each loan in a warehouse table, and accept some redundancy."', '"Only when a table has more than ten columns."'], a: 2, why: '取舍题没有唯一正确答案。好回答说清楚「什么时候」以及「代价是什么」。' },
+        { t: 'quiz', q: '"Why would you wrap a check-in in a transaction?" 哪个回答最好？', opts: ['"Because SQL requires it."', '"Checking in updates the loan and, if someone is waiting, marks their hold fulfilled. Both should happen or neither, so the shelf and the hold queue never disagree."', '"Transactions make queries faster."', '"Only NoSQL databases need transactions."'], a: 1, why: '概念加一个本题里的具体例子，是面试里最好的解释方式（ACID 里的 Atomicity）。' },
+        { t: 'quiz', q: '"Your members table has names, emails and phone numbers. Can the analysts just use it?"', opts: ['可以，原样给所有分析师', '分析只需要 member_id 和借阅记录；姓名、邮箱、电话去掉或单独控制权限', '把整张表删掉', '把邮箱放到仪表盘上，方便联系读者'], a: 1, why: '最小权限（least privilege）和保护个人信息（PII）最能体现职业素养：分析「谁借得多」用 member_id 就够了。' },
         { t: 'sort', q: '专业表现：加分还是减分？', buckets: ['加分', '减分'],
-          items: [['讲完方案后问："Does that address what you had in mind?"', 0], ['被追问时说「我觉得都可以」', 1], ['主动承认方案的弱点，并提出改进', 0], ['说「这题太简单了」', 1], ['最后问面试官一个关于团队数据工作的问题', 0], ['回答很长但没有结构，想到哪说到哪', 1]],
+          items: [['讲完设计后问："Does that address what you had in mind?"', 0], ['被问到二选一时说「我觉得都可以」', 1], ['主动承认设计的弱点，并提出改进', 0], ['说「这题太简单了」', 1], ['模型改完后，再拿刚才那条 user story 检验一遍', 0], ['回答很长但没有结构，想到哪说到哪', 1]],
           why: '被追问时一定要选一个方案并说出理由，「都可以」等于没回答。' },
-        { t: 'list', title: '最后反问面试官的好问题', cols: 3, items: [
-          { icon: 'search', h: '"What does a typical data pipeline look like on your team?"', p: '你关心实际工作' },
-          { icon: 'shield', h: '"How does the team catch data quality issues?"', p: '呼应 data engineer 的核心目标' },
-          { icon: 'user', h: '"What would success look like in the first few months?"', p: '你想把事情做好' },
-        ] },
-        { t: 'quiz', q: '考前一周，最有效的准备方式是？', opts: ['只背定义', '用英文大声练「设计题 7 步」和口试题，最好让人扮演面试官追问你', '只做 SQL 题', '什么都不准备，临场发挥'], a: 1, why: '口试考的是「说出来」。本站「复习 → 模拟面试」可以让 AI 扮演面试官追问你（在 claude.ai 链接里打开）。' },
-        { t: 'recap', points: ['准备一个 60 秒、带具体项目的自我介绍', '说错了就主动更正，这是加分项', '卡壳时用救场句，绝不沉默', '被追问要选一个方案并说理由；结尾反问面试官', '考前大声练：模拟面试 + 口试演练'] },
+        { t: 'recap', points: ['模型露馅时：先接住，说清为什么坏了，再改，并检查连带的表', '卡壳就用救场句，绝不沉默；忘了语法就写伪代码', '该问就问：不懂题意、卡太久都要开口', '常考追问：fan-out、要不要 3NF、事务、个人信息保护'] },
       ],
     },
   ],
 
   practice: [
-    { id: 'P1', dml: true, title: '挂号：登记新病人', prompt: '新病人 Lily Park 来挂号：<code>patient_id</code> = 11，生日 \'2003-02-14\'，电话 \'314-555-0111\'。把她加进 patients。',
+    { id: 'L1', dml: true, title: '图书馆 · 借书', prompt: '今天（2026-11-04）把副本 7（Dune，在 Kranzberg 分馆）借给读者 8（Tom Baker）。借期 21 天，到期日是 \'2026-11-25\'。',
+      cols: '检查：副本 7 现在那条还没还的借阅',
+      ref: "INSERT INTO loans (copy_id, member_id, checkout_date, due_date) VALUES (7, 8, '2026-11-04', '2026-11-25');",
+      check: 'SELECT copy_id, member_id, checkout_date, due_date, return_date FROM loans WHERE copy_id = 7 AND return_date IS NULL;',
+      hints: ['INSERT INTO loans (copy_id, member_id, checkout_date, due_date) VALUES (…);', 'loan_id 不用写，会自动编号；return_date 不写就是 NULL'] },
+    { id: 'L2', dml: true, title: '图书馆 · 还书，并通知下一位', prompt: '副本 13（Educated，book 12349）今天（2026-11-04）还回来了。记下归还，再把这本书上<b>最早的那条 waiting 预约</b>改成 fulfilled。两步放进一个事务。',
+      cols: '检查：副本 13 还有没有没还的借阅、那条借阅的归还日期、预约状态',
+      ref: "BEGIN;\nUPDATE loans SET return_date = '2026-11-04' WHERE copy_id = 13 AND return_date IS NULL;\nUPDATE holds SET status = 'fulfilled' WHERE hold_id = (SELECT hold_id FROM holds WHERE book_id = 12349 AND status = 'waiting' ORDER BY placed_at LIMIT 1);\nCOMMIT;",
+      check: "SELECT (SELECT COUNT(*) FROM loans WHERE copy_id = 13 AND return_date IS NULL) AS still_out, (SELECT MAX(return_date) FROM loans WHERE copy_id = 13) AS returned, (SELECT group_concat(hold_id || ':' || status) FROM holds WHERE book_id = 12349) AS holds;",
+      hints: ['还书：UPDATE loans SET return_date = … WHERE copy_id = 13 AND return_date IS NULL', "预约：WHERE hold_id = (SELECT hold_id FROM holds WHERE book_id = 12349 AND status = 'waiting' ORDER BY placed_at LIMIT 1)"] },
+    { id: 'L3', title: '图书馆 · 过去一年借出多少次', prompt: '过去一年（<code>checkout_date &gt;= \'2025-11-04\'</code>）一共借出多少次？输出一个数 <code>loans</code>。',
+      cols: 'loans',
+      ref: "SELECT COUNT(*) AS loans FROM loans WHERE checkout_date >= '2025-11-04';",
+      hints: ['COUNT(*) + WHERE 过滤日期', '日期存成 \'YYYY-MM-DD\' 文本，可以直接比大小'] },
+    { id: 'L4', title: '图书馆 · 最常借书的读者', prompt: '过去一年（<code>checkout_date &gt;= \'2025-11-04\'</code>）每位读者借了几次？输出 <code>name, n</code>，按 n 从多到少；n 相同按 name 排。',
+      cols: 'name, n', ordered: true,
+      ref: "SELECT m.name, COUNT(*) AS n FROM loans l JOIN members m ON m.member_id = l.member_id WHERE l.checkout_date >= '2025-11-04' GROUP BY m.member_id, m.name ORDER BY n DESC, m.name;",
+      hints: ['loans JOIN members，GROUP BY 读者', 'ORDER BY n DESC, m.name'] },
+    { id: 'L5', title: '图书馆 · 有人在排队的书', prompt: '哪些书现在有人在排队（至少一条 <code>status = \'waiting\'</code> 的预约）？输出书名 <code>title</code>，不重复。',
+      cols: 'title',
+      ref: "SELECT DISTINCT b.title FROM holds h JOIN books b ON b.book_id = h.book_id WHERE h.status = 'waiting';",
+      hints: ['holds JOIN books（预约挂在书目上）', "WHERE h.status = 'waiting'，SELECT DISTINCT"] },
+    { id: 'L6', title: '图书馆 · 每个分馆的借阅量', prompt: '所有借阅记录里，每个分馆被借出多少次？输出 <code>branch, n</code>。',
+      cols: 'branch, n',
+      ref: 'SELECT c.branch, COUNT(*) AS n FROM loans l JOIN copies c ON c.copy_id = l.copy_id GROUP BY c.branch;',
+      hints: ['分馆记在副本上：loans JOIN copies', 'GROUP BY c.branch'] },
+    { id: 'L7', title: '图书馆 · 迟还记录', prompt: '找出所有<b>已经还了、但还晚了</b>的借阅（归还日期晚于到期日）。输出 <code>name, title, due_date, return_date</code>。',
+      cols: 'name, title, due_date, return_date',
+      ref: 'SELECT m.name, b.title, l.due_date, l.return_date FROM loans l JOIN members m ON m.member_id = l.member_id JOIN copies c ON c.copy_id = l.copy_id JOIN books b ON b.book_id = c.book_id WHERE l.return_date > l.due_date;',
+      hints: ['WHERE l.return_date > l.due_date（还没还的 return_date 是 NULL，比较结果不是真，自动排除）', '名字从 members 来，书名要经过 copies 到 books'] },
+    { id: 'L8', title: '图书馆 · 从没被借过的副本', prompt: '哪些副本<b>一次都没被借过</b>？输出 <code>copy_id, title</code>。',
+      cols: 'copy_id, title',
+      ref: 'SELECT c.copy_id, b.title FROM copies c JOIN books b ON b.book_id = c.book_id LEFT JOIN loans l ON l.copy_id = c.copy_id WHERE l.loan_id IS NULL;',
+      hints: ['从 copies 出发 LEFT JOIN loans', '配不上的那些行 loan_id 是 NULL：WHERE l.loan_id IS NULL'] },
+    { id: 'L9', title: '图书馆 · 每种类型几本书、几个副本', prompt: '每种类型有几本不同的书、一共几个实体副本？输出 <code>genre, titles, copies</code>。',
+      cols: 'genre, titles, copies',
+      ref: 'SELECT b.genre, COUNT(DISTINCT b.book_id) AS titles, COUNT(*) AS copies FROM books b JOIN copies c ON c.book_id = b.book_id GROUP BY b.genre;',
+      hints: ['books JOIN copies，一个副本一行', '书的数量要去重：COUNT(DISTINCT b.book_id)；副本数就是 COUNT(*)'] },
+    { id: 'L10', title: '图书馆 · 3、6、12 个月的借阅量', prompt: '今天是 2026-11-04。一次查出过去 3 个月（≥ \'2026-08-04\'）、6 个月（≥ \'2026-05-04\'）、12 个月（≥ \'2025-11-04\'）各借出多少次：<code>last_3m, last_6m, last_12m</code>。',
+      cols: 'last_3m, last_6m, last_12m',
+      ref: "SELECT SUM(checkout_date >= '2026-08-04') AS last_3m, SUM(checkout_date >= '2026-05-04') AS last_6m, SUM(checkout_date >= '2025-11-04') AS last_12m FROM loans;",
+      hints: ['在 SQLite 里比较的结果是 1 或 0，SUM 起来就是个数', "通用写法：SUM(CASE WHEN checkout_date >= '2026-08-04' THEN 1 ELSE 0 END)"] },
+    { id: 'P1', dml: true, title: '医院 · 挂号：登记新病人', prompt: '新病人 Lily Park 来挂号：<code>patient_id</code> = 11，生日 \'2003-02-14\'，电话 \'314-555-0111\'。把她加进 patients。',
       cols: '检查：SELECT * FROM patients WHERE patient_id = 11;',
       ref: "INSERT INTO patients (patient_id, first_name, last_name, birth_date, phone) VALUES (11, 'Lily', 'Park', '2003-02-14', '314-555-0111');",
       check: 'SELECT * FROM patients WHERE patient_id = 11;',
       hints: ['INSERT INTO patients (列名, …) VALUES (…);', '列名写全，顺序和 VALUES 一一对应'] },
-    { id: 'P2', title: 'Felix 在住院吗？', prompt: 'Felix Ruiz（<code>patient_id</code> = 6）现在在住院吗？输出一个值：在院是 1，不在是 0。',
+    { id: 'P2', title: '医院 · Felix 在住院吗？', prompt: 'Felix Ruiz（<code>patient_id</code> = 6）现在在住院吗？输出一个值：在院是 1，不在是 0。',
       cols: 'admitted',
       ref: 'SELECT COUNT(*) > 0 AS admitted FROM admissions WHERE patient_id = 6 AND discharge_time IS NULL;',
       hints: ['在院 = 有一次住院的 discharge_time IS NULL', '<code>COUNT(*) > 0</code> 在 SQLite 里得到 1 或 0；<code>SELECT EXISTS (SELECT …)</code> 也行'] },
-    { id: 'P3', title: 'ICU 里现在有谁', prompt: '现在在 ICU 的病人，输出 <code>first_name, last_name</code>。',
+    { id: 'P3', title: '医院 · ICU 里现在有谁', prompt: '现在在 ICU 的病人，输出 <code>first_name, last_name</code>。',
       cols: 'first_name, last_name',
       ref: "SELECT p.first_name, p.last_name FROM unit_stays s JOIN units u ON u.unit_id = s.unit_id JOIN admissions a ON a.admission_id = s.admission_id JOIN patients p ON p.patient_id = a.patient_id WHERE u.name = 'ICU' AND s.end_time IS NULL;",
       hints: ['unit_stays → units 拿科室名，→ admissions → patients 拿病人名', '现在 = <code>s.end_time IS NULL</code>'] },
-    { id: 'P4', dml: true, title: '门诊预约', prompt: 'Hank Moore（<code>patient_id</code> 8）约了 Dr. Chen（<code>doctor_id</code> 3）\'2026-11-02 09:00\' 的门诊，原因 \'Hip check\'，状态 \'scheduled\'。不是住院，所以 <code>admission_id</code> 留空。',
+    { id: 'P4', dml: true, title: '医院 · 门诊预约', prompt: 'Hank Moore（<code>patient_id</code> 8）约了 Dr. Chen（<code>doctor_id</code> 3）\'2026-11-02 09:00\' 的门诊，原因 \'Hip check\'，状态 \'scheduled\'。不是住院，所以 <code>admission_id</code> 留空。',
       cols: '检查：SELECT patient_id, doctor_id, scheduled_at, reason, status, admission_id FROM appointments WHERE patient_id = 8;',
       ref: "INSERT INTO appointments (patient_id, doctor_id, scheduled_at, reason, status) VALUES (8, 3, '2026-11-02 09:00', 'Hip check', 'scheduled');",
       check: 'SELECT patient_id, doctor_id, scheduled_at, reason, status, admission_id FROM appointments WHERE patient_id = 8;',
       hints: ['appointment_id 不用写，INTEGER PRIMARY KEY 会自动编号', '没写的列（admission_id）自动是 NULL'] },
-    { id: 'P5', dml: true, title: '入院', prompt: 'Hank Moore（<code>patient_id</code> 8）今天 \'2026-10-28 08:00\' 由 Dr. Adams（<code>doctor_id</code> 1）收治，原因 \'Fall\'，先进 ER（<code>unit_id</code> 1）。写两条 INSERT：admissions 一行（新的 admission_id 会是 19），unit_stays 一行。',
+    { id: 'P5', dml: true, title: '医院 · 入院', prompt: 'Hank Moore（<code>patient_id</code> 8）今天 \'2026-10-28 08:00\' 由 Dr. Adams（<code>doctor_id</code> 1）收治，原因 \'Fall\'，先进 ER（<code>unit_id</code> 1）。写两条 INSERT：admissions 一行（新的 admission_id 会是 19），unit_stays 一行。',
       cols: '检查：Hank 这次住院和它的第一段 stay',
       ref: "INSERT INTO admissions (patient_id, admit_time, admit_doctor_id, reason) VALUES (8, '2026-10-28 08:00', 1, 'Fall');\nINSERT INTO unit_stays (admission_id, unit_id, start_time) VALUES (19, 1, '2026-10-28 08:00');",
       check: 'SELECT a.admission_id, a.patient_id, a.admit_time, a.admit_doctor_id, a.reason, a.discharge_time, s.unit_id, s.start_time, s.end_time FROM admissions a JOIN unit_stays s ON s.admission_id = a.admission_id WHERE a.patient_id = 8 AND a.discharge_time IS NULL;',
       hints: ['discharge_time 和 discharge_doctor_id 不写，留 NULL', '第二条的 admission_id 可以写 19，也可以写 <code>last_insert_rowid()</code>'] },
-    { id: 'P6', dml: true, title: '转科：ER → Floor 3', prompt: 'Chloe Nguyen 的住院（<code>admission_id</code> 15）现在在 ER。\'2026-10-28 09:00\' 转到 Floor 3（<code>unit_id</code> 3）：关掉 ER 那段，再开一段新的。放进一个事务。',
+    { id: 'P6', dml: true, title: '医院 · 转科：ER → Floor 3', prompt: 'Chloe Nguyen 的住院（<code>admission_id</code> 15）现在在 ER。\'2026-10-28 09:00\' 转到 Floor 3（<code>unit_id</code> 3）：关掉 ER 那段，再开一段新的。放进一个事务。',
       cols: '检查：SELECT admission_id, unit_id, start_time, end_time FROM unit_stays WHERE admission_id = 15 ORDER BY start_time;',
       ref: "BEGIN;\nUPDATE unit_stays SET end_time = '2026-10-28 09:00' WHERE admission_id = 15 AND end_time IS NULL;\nINSERT INTO unit_stays (admission_id, unit_id, start_time) VALUES (15, 3, '2026-10-28 09:00');\nCOMMIT;",
       check: 'SELECT admission_id, unit_id, start_time, end_time FROM unit_stays WHERE admission_id = 15 ORDER BY start_time;',
       hints: ['BEGIN; 一条 UPDATE（填 end_time）; 一条 INSERT; COMMIT;', 'UPDATE 的 WHERE 加上 end_time IS NULL，只关「现在这段」'] },
-    { id: 'P7', dml: true, title: '出院', prompt: 'Felix Ruiz 的住院（<code>admission_id</code> 14）：Dr. Diaz（<code>doctor_id</code> 4）在 \'2026-10-28 12:00\' 批准出院。记下出院时间和医生，并关掉他现在那段 unit_stays。',
+    { id: 'P7', dml: true, title: '医院 · 出院', prompt: 'Felix Ruiz 的住院（<code>admission_id</code> 14）：Dr. Diaz（<code>doctor_id</code> 4）在 \'2026-10-28 12:00\' 批准出院。记下出院时间和医生，并关掉他现在那段 unit_stays。',
       cols: '检查：出院时间、出院医生、还开着的 stay 数',
       ref: "BEGIN;\nUPDATE admissions SET discharge_time = '2026-10-28 12:00', discharge_doctor_id = 4 WHERE admission_id = 14;\nUPDATE unit_stays SET end_time = '2026-10-28 12:00' WHERE admission_id = 14 AND end_time IS NULL;\nCOMMIT;",
       check: 'SELECT a.discharge_time, a.discharge_doctor_id, (SELECT COUNT(*) FROM unit_stays WHERE admission_id = 14 AND end_time IS NULL) AS open_stays FROM admissions a WHERE a.admission_id = 14;',
       hints: ['两条 UPDATE：一条改 admissions（两列），一条改 unit_stays', '只改 SET 一个列会漏掉出院医生'] },
-    { id: 'P8', title: '每个科室几个人（含 0）', prompt: '列出<b>所有</b>科室和现在的病人数，没人的科室显示 0。',
+    { id: 'P8', title: '医院 · 每个科室几个人（含 0）', prompt: '列出<b>所有</b>科室和现在的病人数，没人的科室显示 0。',
       cols: 'name, n',
       ref: 'SELECT u.name, COUNT(s.stay_id) AS n FROM units u LEFT JOIN unit_stays s ON s.unit_id = u.unit_id AND s.end_time IS NULL GROUP BY u.unit_id, u.name;',
       hints: ['从 units 出发：<code>units u LEFT JOIN unit_stays s</code>', '<code>end_time IS NULL</code> 要写在 ON 里（写在 WHERE 里会把 Floor 4 过滤掉）；数 <code>COUNT(s.stay_id)</code> 而不是 COUNT(*)'] },
-    { id: 'P9', title: '门诊还是住院做的', prompt: 'procedures 里，门诊（<code>admission_id</code> 为 NULL）和住院期间各做了几次？输出 <code>kind, n</code>，kind 是 \'outpatient\' 或 \'inpatient\'。',
+    { id: 'P9', title: '医院 · 门诊还是住院做的', prompt: 'procedures 里，门诊（<code>admission_id</code> 为 NULL）和住院期间各做了几次？输出 <code>kind, n</code>，kind 是 \'outpatient\' 或 \'inpatient\'。',
       cols: 'kind, n',
       ref: "SELECT CASE WHEN admission_id IS NULL THEN 'outpatient' ELSE 'inpatient' END AS kind, COUNT(*) AS n FROM procedures GROUP BY kind;",
       hints: ['CASE WHEN admission_id IS NULL THEN … ELSE … END AS kind', 'GROUP BY kind'] },
-    { id: 'P10', title: '平均住院天数', prompt: '已经出院的住院，平均住了几天？输出一个数 <code>avg_days</code>（不用四舍五入）。',
+    { id: 'P10', title: '医院 · 平均住院天数', prompt: '已经出院的住院，平均住了几天？输出一个数 <code>avg_days</code>（不用四舍五入）。',
       cols: 'avg_days',
       ref: 'SELECT AVG(julianday(discharge_time) - julianday(admit_time)) AS avg_days FROM admissions WHERE discharge_time IS NOT NULL;',
       hints: ['天数 = julianday(discharge_time) - julianday(admit_time)', '还没出院的要排除：discharge_time IS NOT NULL'] },
-    { id: 'P11', title: '每个医生收治了几次', prompt: '每个医生收治了多少次住院？输出 <code>name, n</code>，按 n 从大到小，n 相同按 name 排。只列收治过的医生。',
+    { id: 'P11', title: '医院 · 每个医生收治了几次', prompt: '每个医生收治了多少次住院？输出 <code>name, n</code>，按 n 从大到小，n 相同按 name 排。只列收治过的医生。',
       cols: 'name, n', ordered: true,
       ref: 'SELECT d.name, COUNT(*) AS n FROM admissions a JOIN doctors d ON d.doctor_id = a.admit_doctor_id GROUP BY d.doctor_id, d.name ORDER BY n DESC, d.name;',
       hints: ['JOIN 用的是 admit_doctor_id，不是 discharge_doctor_id', 'ORDER BY n DESC, d.name'] },
-    { id: 'P12', title: '每个项目的收入', prompt: '每种 procedure 一共收了多少钱（次数 × cost）？输出 <code>name, revenue</code>，只列做过的项目。',
+    { id: 'P12', title: '医院 · 每个项目的收入', prompt: '每种 procedure 一共收了多少钱（次数 × cost）？输出 <code>name, revenue</code>，只列做过的项目。',
       cols: 'name, revenue',
       ref: 'SELECT t.name, SUM(t.cost) AS revenue FROM procedures p JOIN procedure_types t ON t.procedure_type_id = p.procedure_type_id GROUP BY t.procedure_type_id, t.name;',
       hints: ['procedures JOIN procedure_types', '每做一次就加一次 cost：SUM(t.cost)，或者 COUNT(*) * t.cost'] },
-    { id: 'P13', title: '30 天内再入院的病人', prompt: '出院后 30 天内又入院过的病人（不限时间），输出 <code>first_name, last_name</code>，不重复。',
+    { id: 'P13', title: '医院 · 30 天内再入院的病人', prompt: '出院后 30 天内又入院过的病人（不限时间），输出 <code>first_name, last_name</code>，不重复。',
       cols: 'first_name, last_name',
       ref: 'SELECT DISTINCT p.first_name, p.last_name FROM admissions a1 JOIN admissions a2 ON a2.patient_id = a1.patient_id AND a2.admit_time > a1.discharge_time JOIN patients p ON p.patient_id = a1.patient_id WHERE julianday(a2.admit_time) - julianday(a1.discharge_time) <= 30;',
       hints: ['admissions a1 JOIN admissions a2：同一病人，a2 入院在 a1 出院之后', 'julianday 相减 ≤ 30，再 JOIN patients，SELECT DISTINCT'] },
@@ -9473,9 +9696,19 @@ WHERE admission_id = 19 AND end_time IS NULL;`,
     ['PHI', '受保护的健康信息', 'Protected Health Information：病人的健康记录，要控制权限、加密、记录访问日志（美国的 HIPAA 法规）。'],
     ['OLTP vs OLAP', '业务库 vs 分析库', 'OLTP 记录每一笔操作，要快、要准；OLAP 跑大范围的统计报表。分不分开看规模。'],
     ['surrogate key', '代理键', '没有业务含义的自增 id（如 admission_id），被很多表引用时更短、更稳定。'],
+    ['book vs copy', '书目 vs 实体副本', '书目存书名、作者、类型；副本是一本本实体书，有自己的位置和借阅状态。一本书可以有多个副本。'],
+    ['hold / reservation', '预约', '读者排队等一本书。挂在书目上（哪个副本先回来都行），用 status 保留 waiting / fulfilled 历史。'],
+    ['overdue', '过期未还', '还没还（return_date IS NULL）并且 due_date 早于今天。只比日期会把已经还了的也算进去。'],
+    ['user story', '用户故事', '「As a …, I want …, so that …」。面试里拿它一条条检验你的数据模型。'],
+    ['star schema', '星型模式', '事件表（fact）在中间，维度表（dimension）在周围；查询就是事件表 JOIN 维度表再 GROUP BY。'],
+    ['pseudocode SQL', '伪代码 SQL', '口试里 SQL 不必一字不差，但连哪些表、怎么过滤、怎么分组的逻辑要对。'],
   ],
 
   oral: [
+    { id: 'm8', q: "A library wants to lend books to its members, track who has what, let members place holds, and analyze borrowing, such as the most popular genres last year. Walk me through the data model you would design.", zh: '官方练习题：图书馆数据模型',
+      follow: ['Can the library have two copies of the same book?', 'How do you know whether a copy is checked out right now?', 'Is a hold for a specific copy or for the title?', 'How would you find the member with the oldest hold on a book?', 'How would you list all overdue books?', 'Which genres were most popular in the last year? Walk me through the SQL.'],
+      points: ['Asks clarifying questions first (branches, multiple copies, loan period, scale)', 'Names stakeholders and business nouns before drawing tables', 'Separates Books (title information) from Copies (physical items) and explains why', 'Treats Loans and Holds as fact tables, and explains how "checked out" is determined (e.g. return_date is null)', 'Puts holds on the title and checks the design against the user stories with example SQL'],
+      model: "Before I start, is this one library or several branches, and can it own several copies of the same book? Assuming yes to both: the people using this are members, librarians, and managers who want reports. The nouns I hear are books, copies, members, loans and holds. My first thought was a single Books table with a checked-out flag, but because a book can have several copies, I'd split it into Books, with the title, author and genre, and Copies, one row per physical copy with its branch. Members is the third dimension. Loans is the fact table: each loan links a copy to a member with a checkout date, a due date and a return date, so a copy is checked out when it has a loan with no return date. Holds point at the book rather than a copy, because any copy will do, and keep a status so we know who's still waiting. Then overdue books are loans with no return date and a due date before today, and popular genres are loans joined to copies and books, grouped by genre. So, to summarize: three dimensions, two fact tables, and every user story maps to a join over them." },
     { id: 'm0', q: "Let's design a data system for a hospital. It needs to register patients, track outpatient appointments and procedures, admissions and discharges by specific doctors, and transfers between sections like the ER, ICU and regular floors. Administrators also want reports such as the current census and 30-day readmissions. Walk me through your approach.", zh: '官方样题：医院数据系统',
       follow: ['Who are the main users of this system, and what do they need from it?', 'Where would this data live, and why?', 'How do you record a transfer from the ER to the ICU?', 'Write the SQL to find the patients who are currently admitted.', 'How would you find readmissions within 30 days of discharge?', 'What anomalies does your model avoid?', 'Who should be able to see this data, and how would you protect it?'],
       points: ['Identifies stakeholders and business nouns (patients, doctors, admissions, transfers, procedures, units)', 'Flags PHI sensitivity and time-based history (no admission_date column on patients)', 'Justifies the technology by scale: one OLTP database, plus a warehouse if reporting is heavy', 'Proposes tables with keys (admissions, unit_stays, procedures …) and names the anomalies the design avoids', 'Sketches SQL for operations and reports (discharge_time IS NULL, a self-join for readmissions) and discusses trade-offs'],
@@ -9503,6 +9736,563 @@ WHERE admission_id = 19 AND end_time IS NULL;`,
     { id: 'm7', q: 'Tell me about yourself, and a data project you have worked on.', zh: '自我介绍 + 一个项目',
       points: ['Says who they are in one or two sentences', 'Describes one concrete project and their specific contribution', 'Mentions a challenge and how they solved it, or what they would do differently', 'Connects it to data engineering goals: reliable, usable data', 'Concise (about a minute) and hands the conversation back'],
       model: "I'm a student at WashU studying data science. This semester in CSE 3104, my project collects data from the web, cleans it in Python, and loads it into a normalized SQL database for analysis. I designed the schema and wrote the validation checks. One challenge was that the source pages weren't consistent, so some values came in as text with symbols, and I had to make the cleaning step catch and log those instead of silently dropping them. If I did it again, I'd set up the quality checks on day one instead of adding them later. That project is a big part of why I'm interested in data engineering: I like making data reliable so other people can trust it. I'm happy to go deeper on any part of it." },
+  ],
+});
+
+/* Full mock interview: city bike share (original practice scenario).
+   Defines its own `bikeshare` seed. "Today" in the data is 2026-11-04, and "now" is 09:00 that morning. */
+window.SEEDS = window.SEEDS || {};
+window.SEEDS.bikeshare = `
+CREATE TABLE stations (station_id INTEGER PRIMARY KEY, name TEXT NOT NULL, neighborhood TEXT, lat REAL, lon REAL);
+INSERT INTO stations VALUES
+ (1,'Delmar Loop','University City',38.6557,-90.3036),
+ (2,'Danforth Campus','Clayton',38.6488,-90.3108),
+ (3,'Forest Park North','Forest Park',38.6425,-90.2854),
+ (4,'Central West End','Central West End',38.6447,-90.2615),
+ (5,'Union Station','Downtown',38.6295,-90.2079),
+ (6,'Soulard Market','Soulard',38.6113,-90.2097);
+CREATE TABLE docks (
+  dock_id INTEGER PRIMARY KEY,
+  station_id INTEGER NOT NULL REFERENCES stations(station_id),
+  dock_no INTEGER NOT NULL,
+  in_service INTEGER NOT NULL DEFAULT 1,
+  UNIQUE (station_id, dock_no)
+);
+INSERT INTO docks VALUES
+ (1,1,1,1),(2,1,2,1),(3,1,3,1),(4,1,4,1),
+ (5,2,1,1),(6,2,2,1),(7,2,3,1),(8,2,4,0),
+ (9,3,1,1),(10,3,2,1),(11,3,3,1),
+ (12,4,1,1),(13,4,2,1),
+ (14,5,1,1),(15,5,2,1),(16,5,3,1),(17,5,4,1),
+ (18,6,1,1),(19,6,2,0);
+CREATE TABLE bike_models (model_id INTEGER PRIMARY KEY, name TEXT NOT NULL, kind TEXT NOT NULL CHECK (kind IN ('classic','electric')));
+INSERT INTO bike_models VALUES (1,'Cruiser 3','classic'),(2,'Commuter 7','classic'),(3,'Volt E1','electric');
+CREATE TABLE bikes (
+  bike_id INTEGER PRIMARY KEY,
+  model_id INTEGER NOT NULL REFERENCES bike_models(model_id),
+  dock_id INTEGER UNIQUE REFERENCES docks(dock_id),
+  status TEXT NOT NULL CHECK (status IN ('ok','broken','retired'))
+);
+INSERT INTO bikes VALUES
+ (1,1,1,'ok'),(2,3,5,'ok'),(3,1,2,'broken'),(4,3,NULL,'ok'),(5,2,6,'ok'),
+ (6,3,3,'ok'),(7,1,NULL,'ok'),(8,3,12,'ok'),(9,2,14,'ok'),(10,1,18,'ok'),
+ (11,3,NULL,'ok'),(12,2,9,'ok'),(13,3,NULL,'broken'),(14,1,13,'ok'),(15,2,15,'ok');
+CREATE TABLE riders (
+  rider_id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT UNIQUE,
+  pass_type TEXT NOT NULL CHECK (pass_type IN ('member','day_pass')),
+  joined_on TEXT NOT NULL
+);
+INSERT INTO riders VALUES
+ (1,'Ava Lin','ava.lin@example.com','member','2025-03-02'),
+ (2,'Ben Ortiz','ben.ortiz@example.com','member','2025-06-15'),
+ (3,'Chloe Nguyen','chloe.nguyen@example.com','day_pass','2026-03-21'),
+ (4,'Dev Raman','dev.raman@example.com','member','2026-05-30'),
+ (5,'Ella Brooks','ella.brooks@example.com','day_pass','2026-04-18'),
+ (6,'Finn Walsh','finn.walsh@example.com','member','2025-09-01'),
+ (7,'Gia Romano','gia.romano@example.com','day_pass','2026-05-09'),
+ (8,'Hugo Mbeki','hugo.mbeki@example.com','member','2026-04-06');
+CREATE TABLE rides (
+  ride_id INTEGER PRIMARY KEY,
+  bike_id INTEGER NOT NULL REFERENCES bikes(bike_id),
+  rider_id INTEGER NOT NULL REFERENCES riders(rider_id),
+  pass_type TEXT NOT NULL CHECK (pass_type IN ('member','day_pass')),
+  start_station_id INTEGER NOT NULL REFERENCES stations(station_id),
+  start_time TEXT NOT NULL,
+  end_station_id INTEGER REFERENCES stations(station_id),
+  end_time TEXT
+);
+INSERT INTO rides VALUES
+ (1,1,1,'member',1,'2025-10-28 08:05',2,'2025-10-28 08:19'),
+ (2,5,2,'member',1,'2025-11-05 08:10',2,'2025-11-05 08:24'),
+ (3,6,1,'member',2,'2025-11-19 17:30',1,'2025-11-19 17:45'),
+ (4,9,6,'member',4,'2025-12-03 12:00',5,'2025-12-03 12:22'),
+ (5,2,1,'member',1,'2026-02-17 08:00',2,'2026-02-17 08:16'),
+ (6,8,3,'day_pass',3,'2026-03-21 13:00',3,'2026-03-21 13:52'),
+ (7,4,2,'member',2,'2026-03-30 17:40',1,'2026-03-30 17:58'),
+ (8,10,8,'member',4,'2026-04-06 09:00',2,'2026-04-06 09:18'),
+ (9,14,5,'day_pass',5,'2026-04-18 11:10',6,'2026-04-18 11:41'),
+ (10,6,1,'member',1,'2026-04-27 08:05',2,'2026-04-27 08:20'),
+ (11,8,7,'day_pass',3,'2026-05-09 14:00',3,'2026-05-09 14:48'),
+ (12,2,2,'member',1,'2026-05-14 08:15',2,'2026-05-14 08:29'),
+ (13,12,4,'day_pass',3,'2026-05-30 16:00',4,'2026-05-30 16:34'),
+ (14,9,6,'member',4,'2026-06-03 07:50',5,'2026-06-03 08:12'),
+ (15,3,3,'day_pass',3,'2026-06-13 10:30',3,'2026-06-13 11:35'),
+ (16,5,1,'member',2,'2026-06-18 17:35',1,'2026-06-18 17:51'),
+ (17,15,5,'day_pass',6,'2026-06-27 19:00',5,'2026-06-27 19:28'),
+ (18,11,4,'day_pass',3,'2026-07-04 15:00',3,'2026-07-04 15:58'),
+ (19,1,8,'member',1,'2026-07-15 08:20',2,'2026-07-15 08:35'),
+ (20,13,7,'day_pass',5,'2026-07-25 18:30',6,'2026-07-25 18:59'),
+ (21,6,2,'member',2,'2026-08-12 17:20',1,'2026-08-12 17:37'),
+ (22,12,4,'day_pass',4,'2026-08-29 13:10',3,'2026-08-29 13:40'),
+ (23,2,1,'member',1,'2026-09-02 08:00',2,'2026-09-02 08:15'),
+ (24,10,6,'member',4,'2026-09-15 07:55',5,'2026-09-15 08:15'),
+ (25,8,3,'day_pass',3,'2026-09-26 12:00',4,'2026-09-26 12:40'),
+ (26,5,2,'member',1,'2026-10-01 08:10',2,'2026-10-01 08:25'),
+ (27,9,4,'member',4,'2026-10-06 08:00',5,'2026-10-06 08:21'),
+ (28,10,5,'day_pass',4,'2026-10-10 15:00',6,'2026-10-11 16:30'),
+ (29,1,8,'member',1,'2026-10-14 08:30',2,'2026-10-14 08:44'),
+ (30,14,6,'member',5,'2026-10-20 17:45',4,'2026-10-20 18:05'),
+ (31,12,7,'day_pass',3,'2026-10-24 11:00',3,'2026-10-24 11:50'),
+ (32,6,1,'member',2,'2026-10-28 17:30',1,'2026-10-28 17:46'),
+ (33,15,3,'day_pass',4,'2026-10-31 18:20',5,'2026-10-31 18:45'),
+ (34,3,7,'day_pass',2,'2026-11-02 11:55',1,'2026-11-02 12:15'),
+ (35,7,5,'day_pass',1,'2026-11-02 17:15',NULL,NULL),
+ (36,11,6,'member',1,'2026-11-03 10:30',NULL,NULL),
+ (37,4,1,'member',1,'2026-11-04 08:40',NULL,NULL);
+CREATE TABLE repair_reports (
+  report_id INTEGER PRIMARY KEY,
+  bike_id INTEGER NOT NULL REFERENCES bikes(bike_id),
+  rider_id INTEGER REFERENCES riders(rider_id),
+  reported_at TEXT NOT NULL,
+  problem TEXT NOT NULL,
+  resolved_at TEXT
+);
+INSERT INTO repair_reports VALUES
+ (1,9,6,'2026-06-03 08:20','Seat post keeps sliding down','2026-06-05 10:00'),
+ (2,12,4,'2026-08-29 13:45','Brakes squeal','2026-08-31 09:00'),
+ (3,8,3,'2026-09-26 12:45','Bell is missing','2026-09-28 15:00'),
+ (4,13,NULL,'2026-10-29 07:30','Flat rear tire, found on inspection',NULL),
+ (5,3,7,'2026-11-02 12:25','Front brake does not work',NULL),
+ (6,3,2,'2026-11-03 08:05','Brake lever is loose, unsafe to ride',NULL);
+`;
+window.MOCKS = window.MOCKS || [];
+window.MOCKS.push({
+  id: 'bikeshare', order: 3, title: '城市共享单车系统', en: 'City bike share', tag: '原创练习', seed: 'bikeshare', today: '2026-11-04',
+  brief: '城市共享单车：找车、找空桩、借车还车、报修，还要分析热门站点、热门路线和骑行时长。设计出一套表，再回答几个查询。',
+  prompt: [
+    "Our city runs a public bike-share program, and they've asked us to build the data system behind their new app. The old system is being retired, so we can design this one from scratch. Walk me through how you'd design it, down to a database schema, meaning a set of tables and their columns. After that, I'll ask how a few queries would work in your design.",
+    "Picture the bike stations you see around town: a row of docks, each one able to hold a bike. A rider unlocks a bike at one station, rides it, and returns it to a free dock at any station. Some riders are annual members; others buy a day pass. Bikes break, and riders report them. The city also wants to understand how the system is used: which stations are the busiest, which routes are the most popular, how ridership changes month to month, and how long members ride compared with day-pass riders.",
+  ],
+  stories: {
+    ops: [
+      'As a rider, I want to see a map of every station so I know where I can pick up a bike.',
+      'As a rider, I want to see how many bikes are available at each station right now, and how many of them are e-bikes.',
+      'As a rider, I want to find a station with a free dock so I can return my bike.',
+      'As a rider, I want to unlock a bike at a station and start a ride.',
+      'As a rider, I want to end my ride by docking the bike at any station.',
+      'As a rider, I want to see my ride history.',
+      'As a rider, I want to report a broken bike so nobody else gets stuck with it.',
+      'As a mechanic, I want a list of bikes waiting for repair, oldest report first, and where each bike is.',
+      'As an operations manager, I want a list of bikes that have been out for more than 24 hours so we can follow up with the riders.',
+    ],
+    analytic: [
+      'As a city planner, I want to know which stations were busiest last month, counting both pick-ups and drop-offs.',
+      'As a city planner, I want to know the most common routes, from one station to another, over the last year.',
+      'As an analyst, I want to see the number of rides per month, and how long members ride compared with day-pass riders.',
+    ],
+  },
+  closing: "So that's the picture. Design a data model, a set of tables, that supports all of these stories. Take a minute to think it through. Any questions before you start?",
+  clarify: [
+    ['How big is the system?', 'One city. About 300 stations, 4,000 bikes, and up to 15,000 rides on a busy summer day.'],
+    ['Do day-pass riders have an account, or can anyone just walk up and ride?', 'Everyone rides through the app, so we always know who the rider is. Members pay once a year; day-pass riders pay for one day at a time.'],
+    ['Can a day-pass rider become a member later?', 'Yes, that happens all the time.'],
+    ['Do bikes ever move between stations without someone riding them?', 'Yes. Vans move bikes from full stations to empty ones, mostly at night.'],
+    ['Are there different kinds of bikes?', 'Classic bikes and e-bikes, and there are a few models of each.'],
+    ['Does a ride have to end at a dock?', 'Yes. A ride ends when the bike clicks into a free dock, at any station.'],
+    ['Do we handle payments too?', "No, billing is another team's system. Focus on stations, bikes and rides."],
+  ],
+  stakeholders: ['骑车人 riders（年度会员和日票用户）：找车、找空桩、借车还车、看记录、报修', '运营调度 operations：哪里没车、哪里桩满了、哪些车超时没还', '维修技师 mechanics：处理报修，知道坏车在哪', '城市规划和数据分析师：热门站点、热门路线、每月骑行量、骑行时长'],
+  nouns: ['station（站点）', 'dock（车桩：一个站有好几个）', 'bike（一辆实体单车）', 'bike model（车型：classic / electric）', 'rider（骑车人）', 'membership / day pass（年度会员 / 日票）', 'ride / trip（一次骑行：起点、终点、开始和结束时间）', 'repair report（报修）', 'rebalancing（调度车搬车）'],
+  checklist: ['先问了问题：规模、日票用户有没有账号、车会不会被搬走、有几种车', '说出使用者和业务名词', '分清事实表（rides、repair_reports）和维度表（stations、docks、bikes、riders）', '车型和实体单车分成两张表', '说清「正在骑」怎么存：终点和结束时间先是 NULL', '说清「车现在在哪」存在哪里，以及借车、还车时怎么和 rides 保持一致', '会员身份按骑行当时记录，而不是只看现在的身份', '每张表的主键、外键；一个桩最多停一辆车', '用 user story 检验模型，发现问题就改'],
+  model: {
+    ents: [
+      { id: 'p', name: 'riders', cols: ['rider_id PK', 'name', 'email', 'pass_type', 'joined_on'], x: 0, y: 0 },
+      { id: 'r', name: 'rides', cols: ['ride_id PK', 'bike_id FK', 'rider_id FK', 'pass_type', 'start_station_id FK', 'start_time', 'end_station_id FK', 'end_time'], x: 1, y: 0 },
+      { id: 's', name: 'stations', cols: ['station_id PK', 'name', 'neighborhood', 'lat', 'lon'], x: 2, y: 0 },
+      { id: 'q', name: 'repair_reports', cols: ['report_id PK', 'bike_id FK', 'rider_id FK', 'reported_at', 'problem', 'resolved_at'], x: 0, y: 1 },
+      { id: 'b', name: 'bikes', cols: ['bike_id PK', 'model_id FK', 'dock_id FK', 'status'], x: 1, y: 1 },
+      { id: 'd', name: 'docks', cols: ['dock_id PK', 'station_id FK', 'dock_no', 'in_service'], x: 2, y: 1 },
+      { id: 'm', name: 'bike_models', cols: ['model_id PK', 'name', 'kind'], x: 1, y: 2 },
+    ],
+    rels: [
+      { a: 'p', b: 'r', card: '1:N', label: '骑' }, { a: 's', b: 'r', card: '1:N', label: '起点 / 终点' }, { a: 'b', b: 'r', card: '1:N', label: '被骑' },
+      { a: 's', b: 'd', card: '1:N', label: '有桩' }, { a: 'd', b: 'b', card: '1:1', label: '现在停着' }, { a: 'm', b: 'b', card: '1:N', label: '型号' },
+      { a: 'b', b: 'q', card: '1:N', label: '报修' }, { a: 'p', b: 'q', card: '1:N' },
+    ],
+  },
+  design: [
+    '<b>车型和实体单车分开</b>：bike_models 存型号和种类（classic / electric）；bikes 一辆实体车一行。和图书馆的「书目 vs 副本」是同一个套路：同一个型号有几百辆车，型号信息只存一次。',
+    '<b>骑行是事实表</b>：rides 一次骑行一行，旺季一天上万行，只增不减；stations、docks、bikes、riders 是维度表。repair_reports 也是一张事件表。',
+    '<b>正在骑的车</b>：借车时 INSERT 一行，<code>end_station_id</code> 和 <code>end_time</code> 先是 NULL；还车时再 UPDATE 填上。每个报表都要想清楚这几行 NULL 怎么处理。',
+    '<b>「车现在在哪」单独存</b>：<code>bikes.dock_id</code> 记录车现在停在哪个桩（正在骑或在维修站就是 NULL），并设成 UNIQUE，一个桩最多一辆车。不能只靠 rides 推算，因为调度车会搬车：示例数据里 bike 1 最后一次骑行停在 Danforth Campus，现在却在 Delmar Loop。代价是借车、还车要同时改 rides 和 bikes，两条语句放进一个事务。',
+    '<b>站点和车桩分开</b>：docks 一个桩一行，<code>in_service</code> 标出坏掉的桩。站的容量就是桩的个数，不另存一列，免得两边对不上。「可借的车」= 停在桩上且 <code>status = \'ok\'</code>；「空桩」= 在用、而且上面没有车。',
+    '<b>会员身份按骑行当时记</b>：<code>riders.pass_type</code> 是现在的身份，<code>rides.pass_type</code> 是这次骑行时的身份，就像订单里要存成交价。Dev Raman 10 月才升级成会员，他之前 3 次骑行仍然算日票。',
+    '<b>报修是事件，不是一列</b>：repair_reports 一次报修一行，<code>resolved_at</code> 为 NULL 表示还没修好；同时把 <code>bikes.status</code> 改成 broken，车就不会再被借出。同一辆车可以被报修好几次。',
+    '<b>分析需求</b>：热门站点、热门路线、每月骑行量都是 rides 上的 GROUP BY。数据量大了以后，报表可以每晚复制到数据仓库里跑，不和借车、还车抢资源。',
+  ],
+  probes: [
+    'Where is bike 1 right now? Could you figure that out from the rides table alone?',
+    'A ride is still in progress. What does its row look like, and what changes when the rider docks the bike?',
+    'A broken bike is sitting in a dock. Does that dock count as free? Does the bike count as available?',
+    'A rider took a few rides on day passes and then became a member. In your average-ride-length report, which group do those early rides go into?',
+    "Where does a station's capacity come from? What happens when one of its docks breaks?",
+    'Two riders report the same bike. What does your model do with that?',
+    'Could your design ever put two bikes in the same dock? How would you stop that?',
+    'Next year the city adds e-scooters. What would you change?',
+  ],
+  queries: [
+    { q: 'Show me all the stations and where they are.', zh: '列出所有站点和位置', sql: 'SELECT station_id, name, neighborhood, lat, lon\nFROM stations\nORDER BY name;' },
+    { q: 'For each station, how many bikes can a rider take right now, and how many of those are e-bikes?', zh: '每个站现在能借几辆车，其中几辆是电动车', sql: "SELECT s.name AS station, COUNT(*) AS bikes, SUM(m.kind = 'electric') AS ebikes\nFROM bikes b\nJOIN docks d ON d.dock_id = b.dock_id\nJOIN stations s ON s.station_id = d.station_id\nJOIN bike_models m ON m.model_id = b.model_id\nWHERE b.status = 'ok'\nGROUP BY s.station_id, s.name\nORDER BY s.name;", note: "Delmar Loop 停着 3 辆车，但 bike 3 刹车坏了（<code>status = 'broken'</code>），不能借，所以是 2 辆。正在骑的车 <code>dock_id</code> 是 NULL，JOIN docks 时自然就排除了。种类在 bike_models 上，要 JOIN 过去；<code>SUM(m.kind = 'electric')</code> 里比较的结果是 1 或 0，加起来就是电动车的数量。" },
+    { q: 'Which stations have a free dock right now, and how many?', zh: '哪些站现在有空桩、有几个', sql: 'SELECT s.name AS station, COUNT(*) AS free_docks\nFROM docks d\nJOIN stations s ON s.station_id = d.station_id\nLEFT JOIN bikes b ON b.dock_id = d.dock_id\nWHERE b.bike_id IS NULL\n  AND d.in_service = 1\nGROUP BY s.station_id, s.name\nORDER BY free_docks DESC, s.name;', note: '两个坑：① Danforth Campus 的 4 号桩坏了（<code>in_service = 0</code>），上面没车，却不能还车；不加 <code>in_service = 1</code>，这个站就会算成 2 个空桩，Soulard Market 也会错算出 1 个。② 用「桩数 − 可借的车」也不对：Delmar Loop 有 4 个桩、2 辆可借的车，但坏车 bike 3 还占着一个桩，真正的空桩只有 1 个。Central West End 和 Soulard Market 现在没有空桩，所以不在结果里。' },
+    { q: 'Show rider 1 their ride history, newest first.', zh: '骑车人 1 的骑行记录，最新的在前', sql: 'SELECT r.start_time, a.name AS from_station, b.name AS to_station, r.end_time,\n       ROUND((julianday(r.end_time) - julianday(r.start_time)) * 24 * 60) AS minutes\nFROM rides r\nJOIN stations a ON a.station_id = r.start_station_id\nLEFT JOIN stations b ON b.station_id = r.end_station_id\nWHERE r.rider_id = 1\nORDER BY r.start_time DESC;', note: '第一行是 Ava 正在骑的那次（ride 37），终点和结束时间都是 NULL。终点站一定要 LEFT JOIN：用普通 JOIN，这次骑行会从记录里消失，8 行变成 7 行。' },
+    { q: 'Rider 1 just docked bike 4 at Union Station, in dock 16, at 9:05 this morning. Walk me through ending that ride.', zh: '还车：bike 4 停进 Union Station 的 16 号桩', dml: true, sql: "UPDATE rides\nSET end_station_id = 5, end_time = '2026-11-04 09:05'\nWHERE bike_id = 4 AND end_time IS NULL;\nUPDATE bikes\nSET dock_id = 16\nWHERE bike_id = 4;", note: '<code>end_time IS NULL</code> 不能少：bike 4 在 3 月还有一次已经结束的骑行（ride 7），不加就会把那一次的终点和时间也改掉。两条 UPDATE 放在同一个事务里，不能只成功一半。借车正好反过来：INSERT 一行终点为 NULL 的 rides，再把 <code>bikes.dock_id</code> 设成 NULL。' },
+    { q: 'A rider reports that bike 10, parked at Soulard Market, has a slipping chain. How do you record that?', zh: '报修：bike 10 链条打滑', dml: true, sql: "INSERT INTO repair_reports (bike_id, rider_id, reported_at, problem)\nVALUES (10, 3, '2026-11-04 09:10', 'Chain keeps slipping');\nUPDATE bikes\nSET status = 'broken'\nWHERE bike_id = 10;", note: '车还停在 Soulard Market 的桩上，桩照样被占着；只是 status 变成 broken，Soulard Market 可借的车从 1 辆变成 0 辆。<code>rider_id</code> 允许 NULL：技师巡检时发现的问题没有骑车人。' },
+    { q: 'Give the mechanics a list of bikes waiting for repair, oldest report first, and where each bike is.', zh: '待修的车：最早报修的排前面，车在哪', sql: "SELECT rr.bike_id, MIN(rr.reported_at) AS first_report, COUNT(*) AS reports,\n       COALESCE(s.name, 'not docked') AS location\nFROM repair_reports rr\nJOIN bikes b ON b.bike_id = rr.bike_id\nLEFT JOIN docks d ON d.dock_id = b.dock_id\nLEFT JOIN stations s ON s.station_id = d.station_id\nWHERE rr.resolved_at IS NULL\nGROUP BY rr.bike_id, s.name\nORDER BY first_report;", note: '只看 <code>resolved_at IS NULL</code> 的，已经修好的 3 条不算。bike 3 被两个人报修过，按车分组，同一辆车只出现一次。bike 13 已经拖回维修站，<code>dock_id</code> 是 NULL：docks 和 stations 都要 LEFT JOIN，不然它就从清单上消失了。' },
+    { q: 'Which bikes have been out for more than 24 hours? Say it is 9 a.m. today.', zh: '借出超过 24 小时还没还的车', sql: "SELECT r.bike_id, p.name, p.email, r.start_time, s.name AS from_station,\n       ROUND((julianday('2026-11-04 09:00') - julianday(r.start_time)) * 24, 1) AS hours_out\nFROM rides r\nJOIN riders p ON p.rider_id = r.rider_id\nJOIN stations s ON s.station_id = r.start_station_id\nWHERE r.end_time IS NULL\n  AND r.start_time < '2026-11-03 09:00'\nORDER BY r.start_time;", note: "「现在」是 2026-11-04 09:00，24 小时前就是 '2026-11-03 09:00'。三个容易错的地方：① 一定要 <code>end_time IS NULL</code>，不然会返回 35 行，其中 34 次早就还了；② bike 11 是昨天 10:30 借出的，才 22.5 小时，写成「start_time 早于今天」会把它也算进去；③ ride 28 骑了 25.5 小时，但 10 月 11 日已经还了，不算。真实系统写 <code>datetime('now', '-1 day')</code>。" },
+    { q: 'How many rides were there each month, from November 2025 through October 2026?', zh: '2025 年 11 月到 2026 年 10 月，每月骑行次数', sql: "SELECT substr(start_time, 1, 7) AS month, COUNT(*) AS rides\nFROM rides\nWHERE start_time >= '2025-11-01' AND start_time < '2026-11-01'\nGROUP BY month\nORDER BY month;", note: '12 个月却只有 11 行：2026 年 1 月一次骑行都没有，GROUP BY 不会凭空造出一行 0。要显示 0，得先有一张月份表，再 LEFT JOIN 过来。时间存成 \'YYYY-MM-DD HH:MM\' 文本，<code>substr(start_time, 1, 7)</code> 就是月份。' },
+    { q: 'Which stations were busiest in October, counting both pick-ups and drop-offs?', zh: '10 月最繁忙的站（借出 + 还入）', sql: "SELECT s.name AS station, COUNT(*) AS visits\nFROM (\n  SELECT start_station_id AS station_id FROM rides\n  WHERE start_time >= '2026-10-01' AND start_time < '2026-11-01'\n  UNION ALL\n  SELECT end_station_id FROM rides\n  WHERE end_time >= '2026-10-01' AND end_time < '2026-11-01'\n) v\nJOIN stations s ON s.station_id = v.station_id\nGROUP BY s.station_id, s.name\nORDER BY visits DESC, s.name;", note: "① 借出和还入在两列里，用 UNION ALL 叠成一列再分组；写成 UNION 会去重，每个站都只剩 1。② 日期边界：ride 33 是 10 月 31 日 18:20 借出的，写成 <code>BETWEEN '2026-10-01' AND '2026-10-31'</code> 会漏掉它，因为 '2026-10-31 18:20' 比 '2026-10-31' 大。漏掉以后 Central West End 从 4 掉到 3，和另外两个站并列第一。用「&gt;= 10 月 1 日，并且 &lt; 11 月 1 日」最稳。" },
+    { q: 'What were the five most common routes over the last year?', zh: '过去一年最常见的五条路线', sql: "SELECT a.name AS from_station, b.name AS to_station, COUNT(*) AS rides\nFROM rides r\nJOIN stations a ON a.station_id = r.start_station_id\nJOIN stations b ON b.station_id = r.end_station_id\nWHERE r.start_time >= '2025-11-04'\n  AND r.end_station_id IS NOT NULL\nGROUP BY a.station_id, a.name, b.station_id, b.name\nORDER BY rides DESC, from_station, to_station\nLIMIT 5;", note: '正在骑的 3 次骑行没有终点，要排除。这里 JOIN 终点站其实也会把它们去掉，但写明白更稳：只按 id 分组又不过滤的话，会多出一条「Delmar Loop → NULL」，3 次，挤进前五。Forest Park North 绕一圈回到原点也是正常路线，它和 Central West End → Union Station 都是 5 次，要有第二排序。第 5 名其实有两条路线并列（各 2 次），LIMIT 5 只留下一条。' },
+    { q: 'How long is the average ride for members compared with day-pass riders?', zh: '会员和日票用户的平均骑行时长', sql: "SELECT r.pass_type, COUNT(*) AS rides,\n       ROUND(AVG((julianday(r.end_time) - julianday(r.start_time)) * 24 * 60), 1) AS avg_minutes\nFROM rides r\nWHERE r.end_time IS NOT NULL\n  AND r.start_time >= '2025-11-04'\nGROUP BY r.pass_type;", note: '按 <code>rides.pass_type</code> 分组，不是 <code>riders.pass_type</code>：Dev Raman 10 月才升级成会员，用他现在的身份算，之前 3 次日票骑行就被记成了会员。正在骑的 3 次没有结束时间，要排除。还要留意 ride 28：日票用户把车留了一夜，骑了 25.5 小时，这一条就把日票平均从约 39 分钟拉到约 146 分钟。可以另外报中位数，或者把超过 24 小时的骑行单独列出来。' },
+  ],
+});
+
+/* Full mock interview: hospital admissions (the course's earlier example question, rebuilt from its requirements).
+   Runs on the `hospital` seed defined in c13.js; "today" in that data is 2026-10-28. */
+window.MOCKS = window.MOCKS || [];
+window.MOCKS.push({
+  id: 'hospital', order: 2, title: '医院住院系统', en: 'Hospital admissions', tag: '官方样题', seed: 'hospital', today: '2026-10-28',
+  brief: '医院要记录挂号、门诊、住院、出院和转科，还要出在院人数、30 天再入院等报表。',
+  prompt: [
+    "A hospital has asked us to design its data system. Walk me through your design, from who uses it, to where the data lives, to the tables. Then I'll ask how a few operations and reports would work in SQL; pseudocode is fine.",
+    "The hospital registers patients and schedules outpatient appointments and procedures. Patients are also admitted: a specific doctor admits them for a specific reason, and later a specific doctor discharges them. While they're admitted, patients move between sections of the hospital, for example from the ER to the ICU to a regular floor.",
+  ],
+  stories: {
+    ops: [
+      'As a registration clerk, I want to register a new patient.',
+      'As a scheduler, I want to book an outpatient appointment or procedure for a patient.',
+      'As a doctor, I want to admit a patient and record why.',
+      'As a doctor, I want to discharge a patient.',
+      'As a nurse, I want to transfer a patient from one section to another, such as ER to ICU.',
+      'As staff, I want to know whether a patient is admitted right now, and where they are.',
+      "As a doctor, I want to see a patient's full record, newest events first.",
+    ],
+    analytic: [
+      'As an administrator, I want the current census: how many patients are admitted right now, and how many per section.',
+      'As an administrator, I want to know how many patients were readmitted within 30 days of a discharge in the last year.',
+      'As an administrator, I want to know which doctors discharged patients who came back within 30 days.',
+      'As an administrator, I want the number of ER admissions per month for the last five years.',
+    ],
+  },
+  closing: "Please think about the stakeholders and the business nouns, which technologies you'd use and why, your data model and the anomalies it avoids, and then the SQL. Any questions before you start?",
+  clarify: [
+    ['Is this one hospital or a network of hospitals?', 'One hospital for now.'],
+    ['Can a patient be admitted more than once?', 'Of course. Some patients come back many times.'],
+    ['Is every procedure part of an admission?', 'No. Outpatients have procedures too, without being admitted.'],
+    ['How much history do we keep?', 'Everything. Some reports look back five years.'],
+    ['How big is the hospital?', 'Mid-size: a few hundred beds, a few hundred admissions a week.'],
+  ],
+  stakeholders: ['医生、护士：收治、出院、转科、看病历', '挂号和排班人员：登记病人、约门诊', '医院管理层：在院人数、再入院率、月度趋势', '收费、合规人员（病历是受保护的健康信息 PHI）'],
+  nouns: ['patient（病人）', 'doctor（医生）', 'appointment（门诊预约）', 'procedure（手术、检查）', 'admission / discharge（入院、出院）', 'transfer（转科）', 'unit（科室：ER、ICU、病房）'],
+  checklist: ['先问了问题：几家医院、病人会不会多次住院、门诊和住院的区别', '说出使用者和业务名词', '提到 PHI：权限、加密、访问记录', '说清技术选择：一个 PostgreSQL，还是业务库 + 数据仓库', '按事件存历史：不在 patients 里放入院日期', 'admissions 记录入院 / 出院的时间和医生', '转科：一段一段的 unit_stays（或事件表）', '每张表的主键、外键，以及避免了哪些异常'],
+  model: {
+    ents: [
+      { id: 'ap', name: 'appointments', cols: ['appointment_id PK', 'patient_id FK', 'doctor_id FK', 'scheduled_at', 'status'], x: 0, y: 0 },
+      { id: 'p', name: 'patients', cols: ['patient_id PK', 'first_name', 'last_name', 'birth_date'], x: 1, y: 0 },
+      { id: 'd', name: 'doctors', cols: ['doctor_id PK', 'name', 'specialty'], x: 2, y: 0 },
+      { id: 'r', name: 'procedures', cols: ['procedure_id PK', 'patient_id FK', 'admission_id FK', 'procedure_type_id FK', 'doctor_id FK', 'performed_at'], x: 0, y: 1 },
+      { id: 'a', name: 'admissions', cols: ['admission_id PK', 'patient_id FK', 'admit_time', 'admit_doctor_id FK', 'reason', 'discharge_time', 'discharge_doctor_id FK'], x: 1, y: 1 },
+      { id: 't', name: 'procedure_types', cols: ['procedure_type_id PK', 'name', 'cost'], x: 0, y: 2 },
+      { id: 's', name: 'unit_stays', cols: ['stay_id PK', 'admission_id FK', 'unit_id FK', 'start_time', 'end_time'], x: 1, y: 2 },
+      { id: 'u', name: 'units', cols: ['unit_id PK', 'name'], x: 2, y: 2 },
+    ],
+    rels: [
+      { a: 'p', b: 'ap', card: '1:N', label: '预约' }, { a: 'p', b: 'a', card: '1:N', label: '住院' }, { a: 'd', b: 'a', card: '1:N', label: '收治 / 出院' },
+      { a: 'p', b: 'r', card: '1:N' }, { a: 'a', b: 'r', card: '1:N', label: '住院期间' }, { a: 't', b: 'r', card: '1:N' },
+      { a: 'a', b: 's', card: '1:N', label: '经过' }, { a: 'u', b: 's', card: '1:N' },
+    ],
+  },
+  design: [
+    '<b>按事件存历史</b>：同一个病人可能住院很多次，所以入院、出院不能是 patients 的两列。admissions 一次住院一行。',
+    '<b>入院和出院在同一行</b>：admit_time、admit_doctor_id 和 discharge_time、discharge_doctor_id 都在 admissions 上；<code>discharge_time IS NULL</code> 就是还在院。',
+    '<b>转科用 unit_stays</b>：每到一个科室开一段（start_time），离开时填 end_time。<code>end_time IS NULL</code> 那段就是「现在在哪」。转科 = 关一段、开一段，放进一个 transaction。',
+    '<b>procedures 的 admission_id 可以为空</b>：为空就是门诊做的。项目名称和价格只存在 procedure_types 一处，避免更新异常。',
+    '<b>另一种做法</b>：所有入院、转科、出院都存进一张 events 表（event_type 区分）。写入简单，但「现在在院」要找「入院之后没有出院」的人，SQL 很绕。说出这个取舍。',
+    '<b>技术和合规</b>：单家医院先用一个 PostgreSQL；报表很重时再加数据仓库。病历是 PHI：最小权限、加密、访问日志。',
+  ],
+  probes: [
+    'A patient comes back two months later. What happens in your tables?',
+    'How do you know which section a patient is in right now?',
+    'Walk me through what happens in the database when a patient moves from the ER to the ICU.',
+    'Is every procedure part of an admission?',
+    'Who should be able to see this data, and how would you protect it?',
+    'Would you run these reports on the same database the nurses use?',
+  ],
+  queries: [
+    { q: 'Which patients are admitted right now?', zh: '现在在院的病人', sql: 'SELECT p.patient_id, p.first_name, p.last_name\nFROM admissions a\nJOIN patients p ON p.patient_id = a.patient_id\nWHERE a.discharge_time IS NULL;' },
+    { q: "What's the current census?", zh: '在院人数', sql: 'SELECT COUNT(*) AS census FROM admissions WHERE discharge_time IS NULL;' },
+    { q: 'Which section is patient 2 in right now?', zh: '病人 2 现在在哪个科室', sql: 'SELECT u.name\nFROM unit_stays s\nJOIN admissions a ON a.admission_id = s.admission_id\nJOIN units u ON u.unit_id = s.unit_id\nWHERE a.patient_id = 2 AND s.end_time IS NULL;' },
+    { q: 'How many patients are in each section right now?', zh: '每个科室现在几个人', sql: 'SELECT u.name, COUNT(s.stay_id) AS n\nFROM units u\nLEFT JOIN unit_stays s ON s.unit_id = u.unit_id AND s.end_time IS NULL\nGROUP BY u.unit_id, u.name;', note: '想把 0 人的科室也列出来，就从 units 出发 LEFT JOIN，并把 <code>end_time IS NULL</code> 写在 ON 里。' },
+    { q: 'Transfer admission 15 from the ER to Floor 3 at 9 a.m. today.', zh: '把住院 15 从 ER 转到 Floor 3', dml: true, sql: "BEGIN;\nUPDATE unit_stays SET end_time = '2026-10-28 09:00'\nWHERE admission_id = 15 AND end_time IS NULL;\nINSERT INTO unit_stays (admission_id, unit_id, start_time)\nVALUES (15, 3, '2026-10-28 09:00');\nCOMMIT;", note: '关一段、开一段，放进同一个事务：不会出现「同时在两个科」或「哪都不在」。' },
+    { q: "Show patient 1's record, newest events first.", zh: '病人 1 的病历，最新的在上面', sql: "SELECT admit_time AS time, 'Admission: ' || reason AS event FROM admissions WHERE patient_id = 1\nUNION ALL\nSELECT p.performed_at, 'Procedure: ' || t.name\nFROM procedures p JOIN procedure_types t ON t.procedure_type_id = p.procedure_type_id\nWHERE p.patient_id = 1\nORDER BY time DESC;" },
+    { q: 'How many readmissions within 30 days of a discharge happened in the last year?', zh: '过去一年里，出院后 30 天内再入院的次数', sql: "SELECT COUNT(DISTINCT a2.admission_id)\nFROM admissions a1\nJOIN admissions a2\n  ON a2.patient_id = a1.patient_id\n AND a2.admit_time > a1.discharge_time\nWHERE a1.discharge_time >= '2025-10-28'\n  AND julianday(a2.admit_time) - julianday(a1.discharge_time) <= 30;", note: 'admissions 自连接：a1 是上一次，a2 是下一次。示例数据里 Dev 隔了 41 天才回来，不算。' },
+    { q: 'Which doctors discharged patients who came back within 30 days?', zh: '出院后 30 天内病人又回来的出院医生', sql: 'SELECT DISTINCT d.name\nFROM admissions a1\nJOIN admissions a2 ON a2.patient_id = a1.patient_id AND a2.admit_time > a1.discharge_time\nJOIN doctors d ON d.doctor_id = a1.discharge_doctor_id\nWHERE julianday(a2.admit_time) - julianday(a1.discharge_time) <= 30;', note: '要连的是<b>上一次</b>住院（a1）的出院医生。' },
+    { q: 'How many ER admissions per month for the last five years?', zh: '五年来每月的 ER 入院次数', sql: "SELECT strftime('%Y-%m', s.start_time) AS month, COUNT(*) AS n\nFROM unit_stays s\nJOIN units u ON u.unit_id = s.unit_id\nWHERE u.name = 'ER' AND s.start_time >= '2021-10-28'\nGROUP BY month\nORDER BY month;", note: '没人进 ER 的月份不会出现在结果里，画趋势图前要补 0。' },
+  ],
+});
+
+/* Full mock interview: library book lending (the course's official practice prompt, reworded).
+   Runs on the `library` seed defined in c13.js; "today" in that data is 2026-11-04. */
+window.MOCKS = window.MOCKS || [];
+window.MOCKS.push({
+  id: 'library', order: 1, title: '图书馆借书系统', en: 'Library book lending', tag: '官方练习题', seed: 'library', today: '2026-11-04',
+  brief: '一个图书馆要从零建数据系统：借书、还书、预约，还要分析借阅行为。设计出一套表，再回答几个查询。',
+  prompt: [
+    "A library system has asked us to build a new data system. They have nothing in place today, so we can design it from scratch. I'd like you to walk me through how you would design it, up to a database schema, meaning a set of tables and their columns. After that, I'll ask how a few common queries would work in your design.",
+    "Think of a campus library like Olin Library. The library lends books to its members and needs to track who has what. It also wants to understand borrowing behavior: who borrows the most, which books and genres are checked out most often, and how many loans were made in the last 3, 6 and 12 months.",
+  ],
+  stories: {
+    ops: [
+      'As a member, I want to browse the whole collection so I can see what the library owns.',
+      'As a member, I want to see which books are on the shelf right now (not checked out).',
+      'As a member, I want to search by genre, author or other details to find a certain kind of book.',
+      'As a member, I want to see every book I currently have checked out so I know what to return.',
+      'As a member, I want to place a hold on a book so I get it next when it comes back.',
+      'As a librarian, I want to check a book out to a specific member so we know who is responsible for it.',
+      'As a librarian, I want to check a book back in when it is returned.',
+      'As a librarian, I want to see whether a book has holds and, if so, find the oldest one to know who is next in line.',
+      'As a librarian, I want a list of all overdue books so I can contact those members.',
+    ],
+    analytic: [
+      'As a librarian, I want to know how many books were loaned in the last year.',
+      'As a librarian, I want to know which genres were most popular in the last year.',
+      'As a librarian, I want a list of the most-borrowed books in the last year.',
+    ],
+  },
+  closing: "So: build a data model, a set of tables, that covers all of this. Take a minute to collect your thoughts. Do you have any questions before you start?",
+  clarify: [
+    ['Is this one library, or several branches?', 'Assume a few branches. Each physical book sits in one branch.'],
+    ['Can the library own more than one copy of the same book?', 'Yes. Popular books often have several copies.'],
+    ['How long is a loan? Are there late fees?', 'Three weeks. Fees would be nice to have, but they are not required.'],
+    ['Is a hold for one specific copy, or for the title?', 'What would you choose, and why? (The interviewer turns it back to you: there is no single right answer.)'],
+    ['Roughly how big is the library?', 'Tens of thousands of books, a few thousand members, a few hundred loans a day.'],
+    ['Should the reports run on the same database?', 'Your call. Explain the trade-off.'],
+  ],
+  stakeholders: ['读者 members：查书、借书、预约', '图书管理员 librarians：借出、归还、处理预约和过期', '管理层和采购：哪些书该多买几本', '数据分析师：借阅量、热门类型和书目'],
+  nouns: ['book（书目：书名、作者、类型、ISBN）', 'copy（一本实体副本）', 'member（读者）', 'loan / checkout（一次借阅）', 'due date / return（到期、归还）', 'hold / reservation（预约）', 'branch（分馆）', 'overdue / fee（过期、罚款）'],
+  checklist: ['先问了问题：分馆、副本、借期、规模', '说出使用者和业务名词', '分清事件表（借阅、预约）和维度表（读者、书、副本）', '书目和实体副本分成两张表', '说清「现在是否借出」存在哪里', '预约挂在书目还是副本上，并说理由', '每张表的主键、外键', '用 user story 检验模型，发现问题就改'],
+  model: {
+    ents: [
+      { id: 'm', name: 'members', cols: ['member_id PK', 'name', 'email', 'phone'], x: 0, y: 0 },
+      { id: 'l', name: 'loans', cols: ['loan_id PK', 'copy_id FK', 'member_id FK', 'checkout_date', 'due_date', 'return_date'], x: 1, y: 0 },
+      { id: 'c', name: 'copies', cols: ['copy_id PK', 'book_id FK', 'branch'], x: 2, y: 0 },
+      { id: 'h', name: 'holds', cols: ['hold_id PK', 'book_id FK', 'member_id FK', 'placed_at', 'status'], x: 1, y: 1 },
+      { id: 'b', name: 'books', cols: ['book_id PK', 'isbn', 'title', 'author', 'genre'], x: 2, y: 1 },
+    ],
+    rels: [
+      { a: 'm', b: 'l', card: '1:N', label: '借' }, { a: 'c', b: 'l', card: '1:N', label: '被借' },
+      { a: 'b', b: 'c', card: '1:N', label: '有副本' }, { a: 'm', b: 'h', card: '1:N', label: '预约' }, { a: 'b', b: 'h', card: '1:N' },
+    ],
+  },
+  design: [
+    '<b>书目和副本分开</b>：books 存书名、作者、类型、ISBN；copies 一个实体副本一行。合成一张表的话，同一本书有 3 个副本，作者和书名就要重复存 3 遍（更新异常）。',
+    '<b>借阅是事件</b>：loans 一次借阅一行，是又长又窄、一直增长的事实表（fact table）；members、books、copies 是维度表（dimension tables）。',
+    '<b>「现在借出去了吗」从 loans 推出来</b>：<code>return_date IS NULL</code> 就是还没还。也可以在 copies 上加 status 列，查起来更快，但要和 loans 同步，容易不一致。说出这个取舍就加分。',
+    '<b>预约挂在书目上</b>：读者要的是「这本书」，哪个副本先回来都行。holds 用 status（waiting / fulfilled / cancelled）保留历史，不要删行。',
+    '<b>到期日在借出时就写好</b>：due_date 是 loans 的一列，查过期只要和今天比。罚款以后可以加一张 fees 表，挂在 loan 上。',
+    '<b>分析需求</b>：借阅量、热门类型、热门书都是 loans JOIN copies JOIN books 再 GROUP BY。规模不大时在业务库里跑就行；变大了再每晚同步到数据仓库。',
+  ],
+  probes: [
+    'Can the library have two copies of the same book? How does your model handle that?',
+    'How do you know whether a specific copy is checked out right now?',
+    'Is a hold for a specific copy or for the title? Why?',
+    'What happens to a hold once the member gets the book?',
+    'How would you know that a book came back late?',
+    'Where does the due date come from, and where is it stored?',
+    'If the library opens another branch, what changes in your model?',
+  ],
+  queries: [
+    { q: 'Show me a list of all the titles in the library.', zh: '列出馆藏的所有书名', sql: 'SELECT title FROM books;' },
+    { q: 'How would a member search titles by genre, say Fantasy?', zh: '按类型搜索（Fantasy）', sql: "SELECT title FROM books WHERE genre = 'Fantasy';" },
+    { q: 'Show all the copies that are in the library right now, not checked out.', zh: '现在在架上的所有副本', sql: 'SELECT copy_id, book_id FROM copies\nWHERE copy_id NOT IN (SELECT copy_id FROM loans WHERE return_date IS NULL);', note: '只有<b>还没还</b>的借阅才算借出，子查询里别忘了 <code>return_date IS NULL</code>。' },
+    { q: 'Now show the titles that are on the shelf right now.', zh: '现在在架上的书名', sql: 'SELECT DISTINCT b.title\nFROM copies c\nJOIN books b ON b.book_id = c.book_id\nWHERE c.copy_id NOT IN (SELECT copy_id FROM loans WHERE return_date IS NULL);', note: '书名在 books 里，要 JOIN books 再取 <code>b.title</code>。面试官手里的参考答案写成了 <code>c.Title</code>，可副本那张表里根本没有书名这一列。两个副本都在架上时书名会出现两次，所以加 DISTINCT。' },
+    { q: 'Which books does member 1 have checked out right now?', zh: '读者 1 现在借着哪些书', sql: 'SELECT b.title, l.due_date\nFROM loans l\nJOIN copies c ON c.copy_id = l.copy_id\nJOIN books b ON b.book_id = c.book_id\nWHERE l.member_id = 1 AND l.return_date IS NULL;' },
+    { q: 'Show all the holds on book 12345.', zh: '书 12345 上的所有预约', sql: 'SELECT * FROM holds WHERE book_id = 12345;', note: '只想看还在排队的，就加 <code>AND status = \'waiting\'</code>。' },
+    { q: 'Give me the name and email of the member with the oldest hold on book 12345.', zh: '书 12345 最早那条预约的读者姓名和邮箱', sql: "SELECT m.name, m.email\nFROM holds h\nJOIN members m ON m.member_id = h.member_id\nWHERE h.book_id = 12345 AND h.status = 'waiting'\nORDER BY h.placed_at\nLIMIT 1;", note: '一定要只看 waiting：示例数据里最早那条预约（Tom Baker）已经 fulfilled 了，不过滤就会通知错人。' },
+    { q: 'List the members who have overdue books.', zh: '有过期未还书的读者', sql: "SELECT m.name, m.email, b.title, l.due_date\nFROM loans l\nJOIN members m ON m.member_id = l.member_id\nJOIN copies c ON c.copy_id = l.copy_id\nJOIN books b ON b.book_id = c.book_id\nWHERE l.return_date IS NULL\n  AND l.due_date < '2026-11-04';", note: '只写「今天 &gt; due_date」会把已经还了的历史借阅也算进去：示例数据里会冒出 34 条，真正过期的只有 3 条。「今天」在示例数据里是 2026-11-04；真实系统写 <code>date(\'now\')</code>。' },
+    { q: 'Which genres were the most popular in the last year?', zh: '过去一年最受欢迎的类型', sql: "SELECT b.genre, COUNT(*) AS loans\nFROM loans l\nJOIN copies c ON c.copy_id = l.copy_id\nJOIN books b ON b.book_id = c.book_id\nWHERE l.checkout_date >= '2025-11-04'\nGROUP BY b.genre\nORDER BY loans DESC\nLIMIT 10;", note: 'loans 只知道 copy_id，类型在 books 上，所以要经过 copies 才连得到 books。' },
+    { q: 'And the most-borrowed books in the last year?', zh: '过去一年借得最多的书', sql: "SELECT b.title, COUNT(*) AS loans\nFROM loans l\nJOIN copies c ON c.copy_id = l.copy_id\nJOIN books b ON b.book_id = c.book_id\nWHERE l.checkout_date >= '2025-11-04'\nGROUP BY b.book_id, b.title\nORDER BY loans DESC, b.title\nLIMIT 10;", note: '按 book_id 分组，而不是按 copy_id：同一本书的几个副本要合在一起数。' },
+    { q: 'How many loans were made in the last 3, 6 and 12 months?', zh: '过去 3、6、12 个月各借出多少次', sql: "SELECT SUM(checkout_date >= '2026-08-04') AS last_3m,\n       SUM(checkout_date >= '2026-05-04') AS last_6m,\n       SUM(checkout_date >= '2025-11-04') AS last_12m\nFROM loans;", note: 'SQLite 里比较的结果是 1 或 0，SUM 起来就是个数。别的数据库写 <code>SUM(CASE WHEN … THEN 1 ELSE 0 END)</code>。' },
+    { q: 'Walk me through checking in copy 9 when it comes back today.', zh: '副本 9 今天还回来了，怎么记', dml: true, sql: "UPDATE loans\nSET return_date = '2026-11-04'\nWHERE copy_id = 9 AND return_date IS NULL;", note: '只改「还没还」的那一条借阅，不能把这个副本的历史借阅都改掉。如果书上有人预约，接着把最早的 waiting 预约改成 fulfilled。' },
+  ],
+});
+
+/* Full mock interview: concert ticketing (original practice scenario).
+   Defines its own `tickets` seed. "Today" in the data is 2026-11-04 (noon); event 7 is tonight at 20:00. */
+window.SEEDS = window.SEEDS || {};
+window.SEEDS.tickets = `
+CREATE TABLE venues (venue_id INTEGER PRIMARY KEY, name TEXT NOT NULL, city TEXT NOT NULL);
+INSERT INTO venues VALUES (1,'The Lantern Room','St. Louis'),(2,'Riverside Hall','St. Louis'),(3,'Maple Pavilion','Kansas City');
+CREATE TABLE seats (
+  seat_id INTEGER PRIMARY KEY,
+  venue_id INTEGER NOT NULL REFERENCES venues(venue_id),
+  section TEXT NOT NULL,
+  row_label TEXT NOT NULL,
+  seat_no INTEGER NOT NULL,
+  UNIQUE (venue_id, section, row_label, seat_no)
+);
+INSERT INTO seats VALUES
+ (1,1,'Floor','A',1),(2,1,'Floor','A',2),(3,1,'Floor','B',1),(4,1,'Floor','B',2),
+ (5,2,'Orchestra','A',1),(6,2,'Orchestra','A',2),(7,2,'Orchestra','B',1),(8,2,'Orchestra','B',2),(9,2,'Balcony','A',1),(10,2,'Balcony','A',2),
+ (11,3,'Lower','A',1),(12,3,'Lower','A',2),(13,3,'Lower','A',3),(14,3,'Lower','B',1),(15,3,'Lower','B',2),(16,3,'Upper','A',1),(17,3,'Upper','A',2),(18,3,'Upper','A',3);
+CREATE TABLE artists (artist_id INTEGER PRIMARY KEY, name TEXT NOT NULL, genre TEXT);
+INSERT INTO artists VALUES (1,'Juniper Lane','Folk'),(2,'Neon Harbor','Synth-pop'),(3,'Okafor Trio','Jazz'),(4,'Mira Sol','Latin pop'),(5,'Static Bloom','Indie rock');
+CREATE TABLE events (
+  event_id INTEGER PRIMARY KEY,
+  artist_id INTEGER NOT NULL REFERENCES artists(artist_id),
+  venue_id INTEGER NOT NULL REFERENCES venues(venue_id),
+  starts_at TEXT NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('scheduled','cancelled'))
+);
+INSERT INTO events VALUES
+ (1,1,2,'2025-10-25 19:30','scheduled'),
+ (2,2,3,'2026-02-14 20:00','scheduled'),
+ (3,3,1,'2026-04-18 20:00','scheduled'),
+ (4,1,3,'2026-06-20 19:00','scheduled'),
+ (5,4,2,'2026-08-08 20:00','scheduled'),
+ (6,2,2,'2026-10-17 20:00','scheduled'),
+ (7,3,1,'2026-11-04 20:00','scheduled'),
+ (8,4,3,'2026-11-21 19:30','cancelled'),
+ (9,5,2,'2026-12-05 20:00','scheduled'),
+ (10,1,1,'2027-01-16 20:00','scheduled');
+CREATE TABLE customers (customer_id INTEGER PRIMARY KEY, name TEXT NOT NULL, email TEXT UNIQUE);
+INSERT INTO customers VALUES
+ (1,'Aria Chen','aria.chen@example.com'),(2,'Bruno Silva','bruno.silva@example.com'),(3,'Cleo Grant','cleo.grant@example.com'),
+ (4,'Dante Rossi','dante.rossi@example.com'),(5,'Esme Okoro','esme.okoro@example.com'),(6,'Felix Novak','felix.novak@example.com'),
+ (7,'Greta Lund','greta.lund@example.com'),(8,'Hana Sato','hana.sato@example.com'),(9,'Ivan Petrov','ivan.petrov@example.com'),
+ (10,'Jade Morales','jade.morales@example.com');
+CREATE TABLE orders (order_id INTEGER PRIMARY KEY, customer_id INTEGER NOT NULL REFERENCES customers(customer_id), ordered_at TEXT NOT NULL);
+INSERT INTO orders VALUES
+ (1,1,'2025-09-10 12:00'),(2,4,'2025-09-22 18:00'),(3,2,'2025-12-01 10:00'),(4,7,'2025-12-15 21:30'),(5,9,'2026-01-20 08:45'),
+ (6,3,'2026-03-02 19:00'),(7,10,'2026-03-05 12:10'),(8,1,'2026-05-01 09:00'),(9,5,'2026-05-03 14:20'),(10,8,'2026-05-10 20:00'),
+ (11,6,'2026-07-01 11:00'),(12,2,'2026-07-04 16:30'),(13,4,'2026-09-01 10:00'),(14,7,'2026-09-03 13:00'),(15,9,'2026-09-21 19:45'),
+ (16,2,'2026-10-01 12:00'),(17,3,'2026-10-10 18:00'),(18,6,'2026-10-12 09:30'),(19,10,'2026-10-15 22:00'),(20,2,'2026-10-05 10:00'),
+ (21,5,'2026-10-06 15:00'),(22,8,'2026-09-28 10:00'),(23,1,'2026-09-28 10:02'),(24,4,'2026-09-28 10:05'),(25,3,'2026-10-12 11:00');
+CREATE TABLE tickets (
+  ticket_id INTEGER PRIMARY KEY,
+  order_id INTEGER NOT NULL REFERENCES orders(order_id),
+  event_id INTEGER NOT NULL REFERENCES events(event_id),
+  seat_id INTEGER NOT NULL REFERENCES seats(seat_id),
+  price REAL NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('sold','refunded')),
+  refunded_at TEXT
+);
+CREATE UNIQUE INDEX one_live_ticket_per_seat ON tickets(event_id, seat_id) WHERE status = 'sold';
+INSERT INTO tickets VALUES
+ (1,1,1,5,60,'sold',NULL),(2,1,1,6,60,'sold',NULL),(3,2,1,9,35,'sold',NULL),
+ (4,3,2,11,55,'sold',NULL),(5,3,2,12,55,'sold',NULL),(6,4,2,13,55,'sold',NULL),(7,5,2,16,30,'sold',NULL),(8,5,2,17,30,'sold',NULL),
+ (9,6,3,1,40,'sold',NULL),(10,6,3,2,40,'sold',NULL),(11,7,3,3,40,'sold',NULL),(12,7,3,4,40,'sold',NULL),
+ (13,8,4,11,50,'sold',NULL),(14,8,4,12,50,'sold',NULL),(15,9,4,14,50,'refunded','2026-06-01 10:00'),(16,10,4,16,25,'sold',NULL),(17,10,4,17,25,'sold',NULL),(18,10,4,18,25,'sold',NULL),
+ (19,11,5,5,65,'sold',NULL),(20,11,5,6,65,'sold',NULL),(21,12,5,9,35,'sold',NULL),(22,12,5,10,35,'sold',NULL),
+ (23,13,6,7,60,'refunded','2026-09-20 09:00'),(24,14,6,5,60,'sold',NULL),(25,14,6,6,60,'sold',NULL),(26,15,6,7,60,'sold',NULL),(27,16,6,9,35,'sold',NULL),(28,16,6,10,35,'sold',NULL),
+ (29,17,7,1,45,'sold',NULL),(30,17,7,2,45,'sold',NULL),(31,18,7,3,45,'sold',NULL),(32,19,7,4,45,'refunded','2026-11-03 16:00'),
+ (33,20,8,11,60,'refunded','2026-10-30 12:00'),(34,21,8,14,60,'refunded','2026-10-30 12:00'),(35,21,8,15,60,'refunded','2026-10-30 12:00'),
+ (36,22,9,5,70,'sold',NULL),(37,22,9,6,70,'sold',NULL),(38,23,9,7,70,'sold',NULL),(39,23,9,8,70,'refunded','2026-10-12 09:00'),(40,24,9,9,40,'sold',NULL),(41,24,9,10,40,'sold',NULL),(42,25,9,8,70,'sold',NULL);
+CREATE TABLE waitlist (
+  entry_id INTEGER PRIMARY KEY,
+  event_id INTEGER NOT NULL REFERENCES events(event_id),
+  customer_id INTEGER NOT NULL REFERENCES customers(customer_id),
+  joined_at TEXT NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('waiting','fulfilled','cancelled'))
+);
+INSERT INTO waitlist VALUES
+ (1,3,4,'2026-03-06 09:00','cancelled'),
+ (2,9,3,'2026-10-02 10:00','fulfilled'),
+ (3,9,9,'2026-10-04 20:15','cancelled'),
+ (4,7,5,'2026-10-08 19:30','waiting'),
+ (5,9,6,'2026-10-09 09:15','waiting'),
+ (6,9,2,'2026-10-20 21:00','waiting'),
+ (7,9,7,'2026-10-26 13:40','waiting');
+`;
+window.MOCKS = window.MOCKS || [];
+window.MOCKS.push({
+  id: 'tickets', order: 4, title: '演出售票系统', en: 'Concert ticketing', tag: '原创练习', seed: 'tickets', today: '2026-11-04',
+  brief: '一家演出公司要自己的售票系统：看演出、选座、买票、退票、排候补，还要分析票房和售出率。设计出一套表，再回答几个查询。',
+  prompt: [
+    "A regional concert promoter wants its own ticketing system. Right now they sell through spreadsheets and a third-party website, so we get to design everything from scratch. Walk me through how you'd design it, down to a database schema, meaning a set of tables and their columns. Then I'll ask how some common queries would work in your design.",
+    "The promoter books artists into a handful of venues, and every venue has a fixed seating chart. Fans browse upcoming shows, pick their seats and pay. Sometimes they can't make it and ask for a refund. When a show sells out, fans can join a waitlist. The promoter also wants reports: which artists sell the most tickets, how much money each venue brings in each month, and what share of the seats each show manages to sell.",
+  ],
+  stories: {
+    ops: [
+      'As a fan, I want to see all upcoming shows, with the artist, the venue and the date.',
+      'As a fan, I want to see every show by an artist I like.',
+      'As a fan, I want to see which seats are still open for a show so I can pick one.',
+      'As a fan, I want to buy one or more tickets in a single checkout.',
+      'As a fan, I want to see all the tickets I have bought.',
+      "As a fan, I want a refund when I can't make a show, so someone else can have my seat.",
+      'As a fan, I want to join the waitlist when a show is sold out.',
+      'As a box-office agent, when a seat opens up for a sold-out show, I want to find the person who has waited the longest so I can offer it to them.',
+      'As a box-office agent, I want to cancel a show and make sure everyone who bought a ticket is refunded.',
+    ],
+    analytic: [
+      'As a promoter, I want to know which artists sold the most tickets for shows in the last year.',
+      'As a finance analyst, I want to see the revenue for each venue, month by month.',
+      'As a promoter, I want the sell-through rate for every show: the share of its seats that were sold.',
+    ],
+  },
+  closing: "That's the whole brief. Design a set of tables that supports these stories. Take a moment to think, and feel free to ask me questions first.",
+  clarify: [
+    ['Is this one venue or several?', 'A handful of venues in two cities. Each venue has a fixed seating chart.'],
+    ['Is every ticket for a specific seat, or is there general admission?', "Assume every ticket is for a specific seat. If there's time, tell me what you'd change for standing-room shows."],
+    ['Does the price depend on the seat?', 'Yes. It depends on the section, and it can be different for every show.'],
+    ['Can a fan buy several tickets at once?', 'Yes, up to eight in one checkout.'],
+    ['Can a refunded seat be sold again?', 'Yes, it goes back on sale right away. If the show was sold out, the waitlist gets the first chance.'],
+    ['Can a show have more than one artist?', 'Sometimes there is an opening act, but for now we only care about the headliner.'],
+    ['What happens when a show is cancelled?', 'Everyone gets a full refund automatically.'],
+  ],
+  stakeholders: ['观众 fans：看演出、选座、买票、退票、排候补', '售票处 box office：处理退票，把空出来的座位给候补的人，取消演出', '主办方 promoter：哪些艺人卖得好，每场卖出几成', '财务 finance：每个场馆每月的收入', '场馆 venues：座位图、哪天有演出'],
+  nouns: ['venue（场馆）', 'seat（座位：区 section、排 row、号 seat_no）', 'artist（艺人）', 'event / show（一场演出：艺人 + 场馆 + 时间）', 'customer（买票的人）', 'order（一次结账）', 'ticket（某场演出的某个座位）', 'price（成交价）', 'refund（退票）', 'waitlist（候补名单）', 'sold out / sell-through（售罄 / 售出率）'],
+  checklist: ['先问了问题：几个场馆、有没有站票、价格怎么定、退掉的票能不能再卖', '说出使用者和业务名词', '分清事实表（orders、tickets、waitlist）和维度表（venues、seats、artists、events、customers）', '座位（场馆固定）和门票（某场演出的某个座位）分开', '订单和门票分开，成交价存在门票上', '退票不删行；同一场同一座位只能有一张有效票，并说出约束怎么写', '空位怎么算，并说出「预先生成座位库存」这种替代方案', '候补名单用 status 保留历史', '用 user story 检验模型，发现问题就改'],
+  model: {
+    ents: [
+      { id: 'c', name: 'customers', cols: ['customer_id PK', 'name', 'email'], x: 0, y: 0 },
+      { id: 'o', name: 'orders', cols: ['order_id PK', 'customer_id FK', 'ordered_at'], x: 1, y: 0 },
+      { id: 't', name: 'tickets', cols: ['ticket_id PK', 'order_id FK', 'event_id FK', 'seat_id FK', 'price', 'status', 'refunded_at'], x: 2, y: 0 },
+      { id: 'w', name: 'waitlist', cols: ['entry_id PK', 'event_id FK', 'customer_id FK', 'joined_at', 'status'], x: 0, y: 1 },
+      { id: 'e', name: 'events', cols: ['event_id PK', 'artist_id FK', 'venue_id FK', 'starts_at', 'status'], x: 1, y: 1 },
+      { id: 's', name: 'seats', cols: ['seat_id PK', 'venue_id FK', 'section', 'row_label', 'seat_no'], x: 2, y: 1 },
+      { id: 'a', name: 'artists', cols: ['artist_id PK', 'name', 'genre'], x: 1, y: 2 },
+      { id: 'v', name: 'venues', cols: ['venue_id PK', 'name', 'city'], x: 2, y: 2 },
+    ],
+    rels: [
+      { a: 'c', b: 'o', card: '1:N', label: '下单' }, { a: 'o', b: 't', card: '1:N', label: '包含' }, { a: 'e', b: 't', card: '1:N', label: '卖出' },
+      { a: 's', b: 't', card: '1:N', label: '每场一张' }, { a: 'c', b: 'w', card: '1:N', label: '排队' }, { a: 'e', b: 'w', card: '1:N' },
+      { a: 'a', b: 'e', card: '1:N', label: '演出' }, { a: 'v', b: 'e', card: '1:N', label: '举办' }, { a: 'v', b: 's', card: '1:N', label: '座位图' },
+    ],
+  },
+  design: [
+    '<b>座位和门票分开</b>：seats 是场馆里固定的物理座位，每个场馆一套，只存一次；tickets 是「某场演出的某个座位」卖出去的记录。同一个座位，每一场演出都能卖一次，所以 tickets 同时挂在 event 和 seat 上。',
+    '<b>艺人、场馆、演出</b>：events 一行就是一场演出（谁、在哪、哪天），artists 和 venues 是它的维度。艺人不等于演出：同一个艺人巡演会有很多行 events。',
+    '<b>订单和门票分开</b>：orders 是一次结账（谁、什么时候），tickets 一张票一行。一次买 4 张就是 1 个 order 加 4 个 ticket。成交价 price 存在 ticket 上：以后调价，不会改掉已经卖出的历史。',
+    "<b>退票不删行</b>：把 <code>tickets.status</code> 改成 refunded，记下 <code>refunded_at</code>，财务记录还在。退掉的座位可以再卖，所以同一场、同一座位可能有两行票（一张退了、一张有效）。唯一约束只能管有效的票：<code>CREATE UNIQUE INDEX … ON tickets(event_id, seat_id) WHERE status = 'sold'</code>。",
+    "<b>空位是算出来的</b>：场馆的所有座位，减去这场演出 <code>status = 'sold'</code> 的票。另一种做法是开票时给每场演出生成一整套座位库存（event_seats，每行带价格和状态），查空位、锁座位更快，但每场演出要先插入上万行。说出这个取舍就加分。",
+    '<b>候补名单像图书馆的预约</b>：waitlist 一人一行，按 <code>joined_at</code> 排队；status（waiting / fulfilled / cancelled）保留历史，不删行。',
+    '<b>取消演出</b>：把 <code>events.status</code> 改成 cancelled，再把这场所有有效的票改成 refunded。两步放在同一个事务里，不能只做一半。',
+    "<b>分析需求</b>：卖得最好的艺人、每月收入、售出率都是 tickets 上的 GROUP BY，一定只算 <code>status = 'sold'</code>。收入按演出日期算还是按付款日期算，要先和财务确认。",
+  ],
+  probes: [
+    'A seat was refunded and then sold again for the same show. What rows are in your tickets table now, and how do you stop the same seat from being sold twice?',
+    'Where does the price live? If the promoter raises prices next week, what happens to tickets that were already sold?',
+    'How do you find the open seats for a show? What would that cost for a 20,000-seat arena?',
+    'A show gets cancelled. Walk me through every row that changes.',
+    'Someone on the waitlist finally gets a seat. What happens to their waitlist row?',
+    'A fan wants to give their ticket to a friend. What changes in your model?',
+    'What if a show has an opening act, and we want to credit both artists in the sales report?',
+    'A festival sells standing-room tickets with no seat number. Does your model still work?',
+  ],
+  queries: [
+    { q: 'Show me all the upcoming shows, with the artist and the venue.', zh: '所有即将上演的演出，带艺人和场馆', sql: "SELECT e.event_id, e.starts_at, a.name AS artist, v.name AS venue\nFROM events e\nJOIN artists a ON a.artist_id = e.artist_id\nJOIN venues v ON v.venue_id = e.venue_id\nWHERE e.starts_at >= '2026-11-04'\n  AND e.status = 'scheduled'\nORDER BY e.starts_at;", note: "今晚 20:00 那场（event 7）也算即将上演：'2026-11-04 20:00' &gt;= '2026-11-04' 成立。要是写成 <code>date(e.starts_at) &gt; '2026-11-04'</code>，就把它漏掉了。11 月 21 日 Mira Sol 那场已经取消，不加 <code>status = 'scheduled'</code> 它也会出现在列表里。" },
+    { q: 'A fan wants to see every show Juniper Lane has played or will play with us.', zh: '某个艺人（Juniper Lane）的所有演出', sql: "SELECT e.starts_at, v.name AS venue, v.city, e.status\nFROM events e\nJOIN artists a ON a.artist_id = e.artist_id\nJOIN venues v ON v.venue_id = e.venue_id\nWHERE a.name = 'Juniper Lane'\nORDER BY e.starts_at;", note: '艺人的名字在 artists 表里，events 只有 artist_id，所以要 JOIN 过去再按名字筛。' },
+    { q: "Which seats are still open for event 7, tonight's show at the Lantern Room?", zh: '今晚这场（event 7）还有哪些空座', sql: "SELECT s.seat_id, s.section, s.row_label, s.seat_no\nFROM events e\nJOIN seats s ON s.venue_id = e.venue_id\nWHERE e.event_id = 7\n  AND s.seat_id NOT IN (SELECT seat_id FROM tickets\n                        WHERE event_id = 7 AND status = 'sold');", note: "seat 4（Floor B 2）原来卖给了 Jade Morales，昨天退票了，tickets 里还留着那一行（status 是 refunded）。子查询不加 <code>status = 'sold'</code>，就会以为它还被占着，结果一个空座都没有。<code>event_id = 7</code> 也不能少：这 4 个座位在 4 月那场（event 3）全卖出去过。" },
+    { q: 'List every ticket customer 2 has bought, newest show first.', zh: '顾客 2 买过的所有票，最近的演出在前', sql: 'SELECT e.starts_at, a.name AS artist, v.name AS venue,\n       s.section, s.row_label, s.seat_no, t.price, t.status\nFROM orders o\nJOIN tickets t ON t.order_id = o.order_id\nJOIN events e ON e.event_id = t.event_id\nJOIN artists a ON a.artist_id = e.artist_id\nJOIN venues v ON v.venue_id = e.venue_id\nJOIN seats s ON s.seat_id = t.seat_id\nWHERE o.customer_id = 2\nORDER BY e.starts_at DESC, s.seat_id;', note: "顾客在 orders 上，座位和演出在 tickets 上，所以从 orders 出发一路 JOIN。7 张票里第一张是 refunded：11 月 21 日 Mira Sol 那场取消了。列表里带上 status，顾客就知道这张已经退了；只想看有效的票，就加 <code>t.status = 'sold'</code>。" },
+    { q: "Customer 5 wants the open seat for tonight's show, at $45. Walk me through the purchase.", zh: '买票：顾客 5 买今晚这场的 seat 4', dml: true, sql: "INSERT INTO orders (customer_id, ordered_at)\nVALUES (5, '2026-11-04 12:00');\nINSERT INTO tickets (order_id, event_id, seat_id, price, status)\nVALUES (last_insert_rowid(), 7, 4, 45, 'sold');\nUPDATE waitlist SET status = 'fulfilled'\nWHERE entry_id = 4;", note: "一次结账先插 orders，再插 tickets；<code>last_insert_rowid()</code> 取刚生成的 order_id（别的数据库用 RETURNING）。seat 4 已经有一行 refunded 的旧票，部分唯一索引只管 <code>status = 'sold'</code> 的票，所以可以再卖；换成已经卖出的 seat 3，第二条 INSERT 就会被唯一索引拒绝。Esme 原本在今晚这场的候补名单上（entry 4），买到票后把那一行改成 fulfilled。三条语句放在同一个事务里。" },
+    { q: "Customer 3 can't make the Static Bloom show, event 9, and wants a refund for seat 8. How do you record that?", zh: '退票：顾客 3 退 event 9 的 seat 8', dml: true, sql: "UPDATE tickets\nSET status = 'refunded', refunded_at = '2026-11-04 12:00'\nWHERE event_id = 9 AND seat_id = 8 AND status = 'sold';", note: "seat 8 在 event 9 上已经有两行票：Aria Chen 9 月买的那张 10 月 12 日退了，后来卖给了 Cleo Grant。WHERE 里不加 <code>status = 'sold'</code>，会把 Aria 那张旧票的 refunded_at 也改掉。退票后这场就不再售罄，接下来找候补名单上排第一的人（后面两题）。" },
+    { q: 'Show the waitlist for event 9, in order.', zh: 'event 9 的候补名单，按顺序', sql: "SELECT c.name, w.joined_at\nFROM waitlist w\nJOIN customers c ON c.customer_id = w.customer_id\nWHERE w.event_id = 9 AND w.status = 'waiting'\nORDER BY w.joined_at;", note: 'event 9 一共有 5 条候补记录，其中一条 fulfilled（Cleo 已经买到票）、一条 cancelled，还在排队的只有 3 个人。' },
+    { q: 'Give me the name and email of the person who has been waiting longest for event 9.', zh: 'event 9 等得最久的人的姓名和邮箱', sql: "SELECT c.name, c.email\nFROM waitlist w\nJOIN customers c ON c.customer_id = w.customer_id\nWHERE w.event_id = 9 AND w.status = 'waiting'\nORDER BY w.joined_at\nLIMIT 1;", note: "正确答案是 Felix Novak。不加 <code>status = 'waiting'</code> 会找到 Cleo Grant：她 10 月 2 日就排了队，但早就买到票了。不加 <code>event_id = 9</code> 会找到 Esme Okoro：她排的是今晚 event 7 那场。" },
+    { q: 'Which artists sold the most tickets for shows in the last year?', zh: '过去一年卖票最多的艺人', sql: "SELECT a.name, COUNT(*) AS tickets_sold\nFROM tickets t\nJOIN events e ON e.event_id = t.event_id\nJOIN artists a ON a.artist_id = e.artist_id\nWHERE t.status = 'sold'\n  AND e.starts_at >= '2025-11-04'\n  AND e.starts_at < '2026-11-04'\nGROUP BY a.artist_id, a.name\nORDER BY tickets_sold DESC, a.name;", note: "「过去一年的演出」= 演出日期在 2025-11-04 和今天之间。三个条件缺一不可：① 只算 <code>status = 'sold'</code>，不然 Neon Harbor 会把一张退掉的票也算进去（10 变 11）；② 下限：不加的话，Juniper Lane 会多算 2025 年 10 月那场的 3 张，变成 8；③ 上限：不加的话，今晚和 12 月还没开演的票也算进来，Okafor Trio 变成 7、Static Bloom 变成 6，排名全变了。Mira Sol 和 Okafor Trio 都是 4 张，用名字做第二排序。" },
+    { q: 'How much revenue did each venue bring in each month over the last year?', zh: '过去一年每个场馆每月的收入', sql: "SELECT v.name AS venue, substr(e.starts_at, 1, 7) AS month, SUM(t.price) AS revenue\nFROM tickets t\nJOIN events e ON e.event_id = t.event_id\nJOIN venues v ON v.venue_id = e.venue_id\nWHERE t.status = 'sold'\n  AND e.starts_at >= '2025-11-04'\n  AND e.starts_at < '2026-11-04'\nGROUP BY v.venue_id, v.name, month\nORDER BY v.name, month;", note: "这里按演出月份算收入。只算 <code>status = 'sold'</code>：不过滤的话，Maple Pavilion 6 月会多出一张退掉的 $50（175 变 225），Riverside Hall 10 月会多出 $60（250 变 310）。没有演出的月份不会出现在结果里。收入按演出日期还是付款日期算，要先问财务。" },
+    { q: 'What is the sell-through rate for each show, meaning the share of its seats that were sold?', zh: '每场演出的售出率（卖出的座位 ÷ 总座位）', sql: "WITH cap AS (\n  SELECT venue_id, COUNT(*) AS seats FROM seats GROUP BY venue_id\n), sold AS (\n  SELECT event_id, COUNT(*) AS sold FROM tickets\n  WHERE status = 'sold' GROUP BY event_id\n)\nSELECT e.event_id, a.name AS artist, e.starts_at,\n       COALESCE(s.sold, 0) AS sold, c.seats,\n       ROUND(100.0 * COALESCE(s.sold, 0) / c.seats, 1) AS pct_sold\nFROM events e\nJOIN artists a ON a.artist_id = e.artist_id\nJOIN cap c ON c.venue_id = e.venue_id\nLEFT JOIN sold s ON s.event_id = e.event_id\nWHERE e.status = 'scheduled'\nORDER BY pct_sold DESC, e.starts_at;", note: "先分别算「每个场馆几个座位」和「每场卖出几张」，再 JOIN 到 events 上；把 seats 和 tickets 直接一起 JOIN 进来，两边的行会互相相乘：event 6 有 6 个座位、5 张票，一 JOIN 就变成 30 行。只数 <code>status = 'sold'</code>：不过滤的话，event 9 有 7 行票、只有 6 个座位，算出 116.7%。<code>100.0 *</code> 不能省：SQLite 里 5 / 8 是整数除法，结果是 0。event 10 一张还没卖，要 LEFT JOIN 加 COALESCE 才会显示 0%。" },
   ],
 });
 
@@ -11494,7 +12284,7 @@ function renderChapter(main) {
   const fresh = M.cardsNew(ch.id);
   box('cards', '闪卡', `${ch.cards.length} 张${due ? ` · ${due} 张到期` : ''}${fresh ? ` · ${fresh} 张新` : ''}`, () => go('review', { rtab: 'cards', rch: ch.id }));
   if ((ch.oral || []).length) box('mic', '口试演练', `${ch.oral.length} 题 · 用英文说出来`, () => go('review', { rtab: 'oral', rch: ch.id, oral: ch.oral[0].id }));
-  if (ch.id === 'c13') box('user', '模拟面试', '面试官追问 · 按 0–100 评分', () => go('review', { rtab: 'mock', rch: ch.id, mock: ch.id + ':' + ch.oral[0].id }));
+  if (ch.id === 'c13') box('user', '完整模拟面试', '按考试流程走一遍 · 30 分钟', () => go('review', { rtab: 'mock', rch: ch.id, mock: 'sim:library' }));
   body.append(side);
   main.append(body);
 }
@@ -12152,18 +12942,26 @@ How to behave:
 - If the candidate asks a clarifying question, answer it briefly with reasonable concrete details (users, data size, freshness), as a real interviewer would.
 - If the candidate says they are stuck, give a small nudge in the form of a question.${last ? '\n- This is your final turn: thank the candidate, say that is all the time you have, and do not ask another question.' : ''}`;
 }
+const simList = () => (window.MOCKS || []).slice().sort((a, b) => (a.order || 99) - (b.order || 99));
 function reviewMock(body) {
-  const items = chList().flatMap((c) => (c.oral || []).map((o) => ({ c, o, key: c.id + ':' + o.id })))
+  const sims = simList().map((m) => ({ kind: 'sim', m, key: 'sim:' + m.id, hue: 45 }));
+  const qs = chList().flatMap((c) => (c.oral || []).map((o) => ({ kind: 'q', c, o, key: c.id + ':' + o.id, hue: c.hue })))
     .sort((a, b) => (b.c.id === 'c13') - (a.c.id === 'c13'));
+  const items = [...sims, ...qs];
   if (!items.length) { body.append(el('div', 'empty-card', '<b>这一章没有面试题。</b>')); return; }
   const mode = AI.ok && ui.mmode !== 'self' ? 'ai' : 'self';
   const live = Mock && !Mock.result && items.find((x) => x.key === Mock.key);
   const cur = live || items.find((x) => x.key === ui.mock) || items[0];
-  setHue(cur.c.hue);
+  setHue(cur.hue);
+  const sim = cur.kind === 'sim';
   const top = el('div', 'mk-top');
-  top.innerHTML = `<div><h2>模拟面试</h2><p class="muted">${mode === 'ai'
-    ? '面试官（AI）用英文提问，每次只追问一个问题；结束后按口试的评分段（0–100）打分。每一轮先<b>大声说</b>，再把说的打出来。'
-    : '自助版：计时，对着清单大声说；再逐条回答面试官的追问，最后看参考答案、自评分数段。' + (AI.ok ? '' : '<br>AI 面试官只在 claude.ai 的链接里可用。')}</p></div>`;
+  top.innerHTML = `<div><h2>模拟面试</h2><p class="muted">${sim
+    ? (mode === 'ai'
+      ? '按真实口试的流程走一遍，30 分钟：面试官（AI）先用英文念题，你提问、设计数据模型、回答查询；结束后按官方的 5 条评价标准和分数段打分。每一轮先<b>大声说</b>，再把说的打出来。'
+      : '按真实口试的流程走一遍，30 分钟：读题 → 提问 → 大声设计 → 回答查询 → 对照参考模型自评。')
+    : (mode === 'ai'
+      ? '单题追问：面试官（AI）用英文提问，每次只追问一个问题；结束后按分数段（0–100）打分。'
+      : '单题追问（自助版）：计时，对着清单大声说；再逐条回答追问，最后看参考答案、自评分数段。')}${AI.ok ? '' : '<br>AI 面试官只在 claude.ai 的链接里可用。'}</p></div>`;
   if (AI.ok) {
     const seg = el('div', 'seg-ctl', `<button type="button" data-m="ai" class="${mode === 'ai' ? 'on' : ''}">AI 面试官</button><button type="button" data-m="self" class="${mode === 'self' ? 'on' : ''}">自助练习</button>`);
     seg.setAttribute('role', 'group');
@@ -12175,20 +12973,23 @@ function reviewMock(body) {
   const sel = el('select', 'rv-ch');
   sel.id = 'mk-q';
   sel.setAttribute('aria-label', '选择面试题');
-  sel.innerHTML = items.map((x) => `<option value="${x.key}" ${x === cur ? 'selected' : ''}>第 ${x.c.no} 章 · ${esc(x.o.zh)}</option>`).join('');
+  const opt = (x, label) => `<option value="${x.key}" ${x === cur ? 'selected' : ''}>${esc(label)}</option>`;
+  sel.innerHTML = (sims.length ? `<optgroup label="完整模拟（按考试流程，30 分钟）">${sims.map((x) => opt(x, `${x.m.tag} · ${x.m.title}`)).join('')}</optgroup>` : '') +
+    (qs.length ? `<optgroup label="单题追问">${qs.map((x) => opt(x, `第 ${x.c.no} 章 · ${x.o.zh}`)).join('')}</optgroup>` : '');
   sel.onchange = () => { ui.mock = sel.value; Mock = null; go('review', { rtab: 'mock' }); };
-  const rnd = btn('btn sm', `${icon('bolt')}随机一题`, () => { ui.mock = items[Math.floor(Math.random() * items.length)].key; Mock = null; go('review', { rtab: 'mock' }); });
+  const pool = sim ? sims : qs;
+  const rnd = btn('btn sm', `${icon('bolt')}随机一题`, () => { ui.mock = pool[Math.floor(Math.random() * pool.length)].key; Mock = null; go('review', { rtab: 'mock' }); });
   rnd.id = 'mk-rnd';
   pick.append(sel, rnd);
   const stage = el('div', 'mk-stage');
   body.append(top, pick, stage);
-  (mode === 'ai' ? mockAI : mockSelf)(stage, cur);
+  (sim ? (mode === 'ai' ? simAI : simSelf) : (mode === 'ai' ? mockAI : mockSelf))(stage, cur);
   const hist = S.mock || [];
   if (hist.length) {
     const h = el('div', 'mk-hist');
     h.innerHTML = '<div class="mini-h">最近的模拟面试</div>' + hist.slice(-6).reverse().map((r) => {
       const b = r.score != null ? bandOf(r.score) : bandByName(r.band);
-      return `<div class="mk-hrow"><span class="mk-chip b-${b[3]}">${r.score != null ? r.score : b[1]}</span><span>${esc(r.zh)}</span><span class="muted small">${r.self ? '自评' : 'AI 评分'} · ${new Date(r.at).toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })}</span></div>`;
+      return `<div class="mk-hrow"><span class="mk-chip b-${b[3]}">${r.score != null ? r.score : b[1]}</span><span>${r.sim ? '完整模拟 · ' : ''}${esc(r.zh)}</span><span class="muted small">${r.self ? '自评' : 'AI 评分'} · ${new Date(r.at).toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' })}</span></div>`;
     }).join('');
     body.append(h);
   }
@@ -12305,12 +13106,17 @@ Reply with only a JSON object: {"score": integer 0-100, "band": "Strong" | "Good
     }
   }
 }
+const liHTML = (xs) => (Array.isArray(xs) ? xs : []).map((x) => `<li>${esc(String(x))}</li>`).join('');
+/* the big score card plus the five bands, the current one highlighted */
+function scoreHTML(score) {
+  const b = bandOf(score);
+  return `<div class="mk-score b-${b[3]}"><b>${score}</b><span><strong>${b[1]}</strong>${b[2]}</span></div>
+    <div class="mk-scale">${BANDS.slice().reverse().map((x, i, a) => `<span class="b-${x[3]}${x === b ? ' on' : ''}">${i ? x[0] + '–' + (a[i + 1] ? a[i + 1][0] - 1 : 100) : '≤ 60'}<i>${x[1]}</i></span>`).join('')}</div>`;
+}
 function mockResult(r, o) {
-  const b = bandOf(r.score);
-  const li = (xs) => (Array.isArray(xs) ? xs : []).map((x) => `<li>${esc(String(x))}</li>`).join('');
+  const li = liHTML;
   const box = el('div', 'mk-res');
-  box.innerHTML = `<div class="mk-score b-${b[3]}"><b>${r.score}</b><span><strong>${b[1]}</strong>${b[2]}</span></div>
-    <div class="mk-scale">${BANDS.slice().reverse().map((x, i, a) => `<span class="b-${x[3]}${x === b ? ' on' : ''}">${i ? x[0] + '–' + (a[i + 1] ? a[i + 1][0] - 1 : 100) : '≤ 60'}<i>${x[1]}</i></span>`).join('')}</div>
+  box.innerHTML = `${scoreHTML(r.score)}
     <p class="mk-sum">${esc(r.summary || '')}</p>
     <div class="mk-cols"><div><h4>做得好的</h4><ul>${li(r.strengths)}</ul></div><div><h4>下次改进</h4><ul>${li(r.improve)}</ul></div></div>
     <h4>更好的回答</h4><blockquote class="model">${esc(r.better || '')}</blockquote>
@@ -12357,6 +13163,324 @@ function mockSelf(stage, cur) {
   });
   row.append(bF, bM);
   stage.append(el('div', 'mini-h', '说完开场，再一条一条回答追问（也要说出来）'), fl, row, res);
+}
+
+/* ───────── full simulation: the exam's own flow, 30 minutes ───────── */
+const SIM_MIN = 30;
+const SIM_PHASES = [['clarify', '提问', 3], ['design', '设计', 12], ['query', '查询', 10], ['wrap', '反馈', 5]];
+const SIM_EVAL = [
+  ['start', '知道从哪下手', 'Did the candidate have a good idea of how to get started with the data model?'],
+  ['clear', '说清思路', 'Did they speak clearly and explain their thought process ("stream of consciousness" is fine)?'],
+  ['people', '先想人和业务名词', 'Did they consider stakeholders and business nouns before jumping into the technical problems?'],
+  ['stress', '被追问时的表现', 'How did they handle stress or challenge? Did they ask questions or seek help at the right times, or charge ahead and hope nobody noticed?'],
+  ['revise', '模型坏了肯改', 'Was there a time when their data model broke or did not work? Were they ready and willing to go back and revise?'],
+];
+const SIM_LEVELS = { strong: ['做得好', 'b-s'], ok: ['还行', 'b-w'], weak: ['要加强', 'b-u'] };
+const SIM_TURNS = 20;
+const PH_TAG = /^\s*\[(CLARIFY|DESIGN|QUERY|WRAP)\b[^\]]*\]\s*/i;
+const splitTag = (t) => { const m = String(t || '').match(PH_TAG); return { phase: m ? m[1].toLowerCase() : null, text: m ? String(t).slice(m[0].length) : String(t || '') }; };
+const mmss = (sec) => `${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).padStart(2, '0')}`;
+const stripTags = (h) => String(h).replace(/<[^>]+>/g, '').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&amp;/g, '&');
+
+function simPromptHTML(m) {
+  return m.prompt.map((p) => `<p>${esc(p)}</p>`).join('') +
+    `<div class="sim-stories"><div><b>Operational user stories</b><ul>${liHTML(m.stories.ops)}</ul></div><div><b>Analytic user stories</b><ul>${liHTML(m.stories.analytic)}</ul></div></div><p>${esc(m.closing)}</p>`;
+}
+function simPromptText(m) {
+  return `${m.prompt.join('\n\n')}\n\nOperational user stories:\n${m.stories.ops.map((x) => '- ' + x).join('\n')}\n\nAnalytic user stories:\n${m.stories.analytic.map((x) => '- ' + x).join('\n')}\n\n${m.closing}`;
+}
+/* 30-minute countdown with the suggested time for each phase */
+function simClock(getStart, getEnd = () => null) {
+  const box = el('div', 'sim-clock');
+  const total = SIM_MIN * 60;
+  box.innerHTML = `<div class="sim-time"><b>30:00</b><span class="muted small">剩余时间</span></div><div class="sim-bar">${SIM_PHASES.map(([k, t, min]) => `<span class="sim-seg" data-k="${k}" style="flex:${min}"><i>${t}</i><em>${min} 分钟</em></span>`).join('')}<span class="sim-now"></span></div><div class="sim-hint muted small"></div>`;
+  const tick = () => {
+    if (!box.isConnected && timer) { clearInterval(timer); return; }
+    const st = getStart();
+    const sec = st ? ((getEnd() || Date.now()) - st) / 1000 : 0;
+    const left = total - sec;
+    $('.sim-time b', box).textContent = left >= 0 ? mmss(left) : '+' + mmss(-left);
+    box.classList.toggle('over', left < 0);
+    $('.sim-now', box).style.left = Math.min(100, (sec / total) * 100) + '%';
+    let acc = 0;
+    let now = SIM_PHASES[SIM_PHASES.length - 1];
+    for (const p of SIM_PHASES) { if (sec / 60 < acc + p[2]) { now = p; break; } acc += p[2]; }
+    $$('.sim-seg', box).forEach((s) => s.classList.toggle('on', !!st && s.dataset.k === now[0]));
+    $('.sim-hint', box).textContent = !st ? '开始后倒计时 30 分钟；每一段的时间是建议值。' : getEnd() ? `用时 ${mmss(sec)}。` : left < 0 ? '已经超过 30 分钟了，真考试里面试官会在这里收尾。' : `按时间，现在大约该在「${now[1]}」阶段。`;
+  };
+  let timer = null;
+  tick();
+  timer = setInterval(tick, 1000);
+  return box;
+}
+function simSteps(phase) {
+  const i = SIM_PHASES.findIndex((p) => p[0] === phase);
+  return el('div', 'sim-steps', SIM_PHASES.map(([k, t], j) => `<span class="${j === i ? 'on' : j < i ? 'done' : ''}">${t}</span>`).join(''));
+}
+/* the reference model (ER diagram + why) and the reference queries, with a run button when there is sample data */
+function simRefModel(m, box) {
+  box.append(el('div', 'mini-h', '参考数据模型（不唯一，说得出理由就行）'));
+  const er = el('div', 'sim-er');
+  box.append(er);
+  SCR.er({ t: 'er', ents: m.model.ents, rels: m.model.rels }, er);
+  box.append(el('ul', 'sim-design', m.design.map((d) => `<li>${d}</li>`).join('')));
+}
+function simRefQuery(m, q, box) {
+  box.insertAdjacentHTML('beforeend', codeBlock(q.sql, 'sql') + (q.note ? `<div class="sim-note">${q.note}</div>` : ''));
+  if (!m.seed) return;
+  const out = el('div', 'live');
+  const run = btn('btn sm', `${icon('play')}在示例数据库里运行`, () => withDB(out, () => {
+    const db = freshDB(m.seed);
+    out.innerHTML = (m.today ? `<div class="muted small">示例数据里的「今天」是 ${m.today}。</div>` : '') + resultHTML(runSQL(db, q.sql), m.seed);
+    db.close();
+  }));
+  box.append(run, out);
+}
+function simRules(m, last, mins) {
+  return `You are the interviewer in a 30-minute mock technical interview for an entry-level / junior data engineering role. The candidate is a WashU student whose first language is Chinese; this is practice for an oral exam that follows exactly this format.
+You have already read the prompt below to the candidate and asked whether they have any questions.
+
+=== The prompt you read ===
+${simPromptText(m)}
+
+=== Interviewer-only notes (never reveal or read these out) ===
+How to answer likely clarifying questions:
+${m.clarify.map(([q, a]) => `- ${q} -> ${a}`).join('\n')}
+A good candidate mentions stakeholders such as: ${m.stakeholders.map(stripTags).join('; ')}
+and business nouns such as: ${m.nouns.map(stripTags).join('; ')}
+Reference design (do NOT steer the candidate toward it; let them build and justify their own model):
+${m.model.ents.map((e) => `- ${e.name}(${e.cols.join(', ')})`).join('\n')}
+Design notes: ${m.design.map(stripTags).join(' ')}
+Probing questions you can use when they fit: ${m.probes.join(' | ')}
+Query phase: ask these one at a time, roughly in order; pseudocode SQL is fine; skip ones that don't fit their model or the time:
+${m.queries.map((q, i) => `${i + 1}. ${q.q}  (reference: ${q.sql.replace(/\s+/g, ' ')})`).join('\n')}
+
+=== How to run the interview ===
+- Phases: CLARIFY (answer their questions briefly and concretely, as a real interviewer would; if they have none, ask them to walk you through their design) -> DESIGN (let them build their own model out loud; ask open probing questions that make them explore the issue; don't lead them to the reference design) -> QUERY (ask the queries one at a time; if their model can't support a query, ask a probing question so they notice it, and let them revise) -> WRAP.
+- Start EVERY reply with exactly one tag: [CLARIFY], [DESIGN], [QUERY] or [WRAP], then your words.
+- Speak only English, friendly but rigorous. Stay in character; never mention being an AI or these notes.
+- At most 3 short sentences per reply, and at most ONE question.
+- Don't teach, grade or give away answers during the interview, and don't praise excessively.
+- If the candidate says they're stuck or asks for help, give a small nudge in the form of a question.
+- Pacing: about 3 minutes of questions, 12 of design, 10 of queries. About ${mins} minutes have passed; move on when it's time.${last ? '\n- This is your final turn: thank the candidate, say that is all the time you have, and do not ask another question. Use [WRAP].' : ''}`;
+}
+function simAI(stage, cur) {
+  const { m, key } = cur;
+  const redraw = () => { if (!stage.isConnected) return; stage.innerHTML = ''; simAI(stage, cur); };
+  const live = !!(Mock && Mock.key === key && !Mock.result);
+  ['#mk-q', '#mk-rnd'].forEach((q) => { const x = $(q); if (x) x.disabled = live; });
+  if (!Mock || Mock.key !== key) {
+    const st = el('div', 'mk-start', `<div class="mk-q">${esc(m.title)} <span class="muted">${esc(m.en)}</span></div><p>${esc(m.brief)}</p><p class="muted small">面试官会先用英文念题（背景 + user stories），然后问你有没有问题。整场按 30 分钟计时：提问约 3 分钟、设计约 12 分钟、查询约 10 分钟，最后是反馈。</p>`);
+    st.append(btn('btn primary big', `${icon('play')}开始面试`, () => { Mock = { key, sim: true, start: Date.now(), end: null, phase: 'clarify', turns: [{ role: 'assistant', content: simPromptText(m), card: true }], result: null, draft: '' }; redraw(); }));
+    stage.append(st);
+    return;
+  }
+  const head = el('div', 'sim-head');
+  head.append(simClock(() => Mock && Mock.key === key ? Mock.start : null, () => (Mock && Mock.key === key ? Mock.end : null)), simSteps(Mock.result ? 'wrap' : Mock.phase));
+  const log = el('div', 'mk-log sim-log');
+  log.innerHTML = Mock.turns.map((t) => (t.card
+    ? `<div class="mk-msg iv wide"><span class="mk-who">Interviewer · 念题</span>${simPromptHTML(m)}</div>`
+    : `<div class="mk-msg ${t.role === 'user' ? 'me' : 'iv'}"><span class="mk-who">${t.role === 'user' ? 'You' : 'Interviewer'}</span>${t.role === 'user' ? esc(t.content).replace(/\n/g, '<br>') : md(splitTag(t.content).text)}</div>`)).join('');
+  stage.append(head, log);
+  if (Mock.result) {
+    stage.append(simResult(Mock.result, m));
+    stage.append(el('div', 'btnrow'));
+    $('.btnrow:last-child', stage).append(btn('btn primary', `${icon('undo')}再来一次`, () => { Mock = null; redraw(); }));
+    return;
+  }
+  const n = Mock.turns.filter((t) => t.role === 'user').length;
+  const mins = Math.round((Date.now() - Mock.start) / 60000);
+  const over = n >= SIM_TURNS || Mock.phase === 'wrap';
+  const ta = el('textarea', 'oral-ta');
+  ta.id = 'mk-ta';
+  ta.rows = 5;
+  ta.placeholder = n ? 'Say it out loud first, then type what you said…（Enter 发送，Shift + Enter 换行）' : '先问问题，或者直接开始讲你的设计…（Enter 发送，Shift + Enter 换行）';
+  ta.value = Mock.draft || '';
+  ta.addEventListener('input', () => (Mock.draft = ta.value));
+  ta.addEventListener('keydown', (e) => { e.stopPropagation(); if (enterSends(e)) { e.preventDefault(); send(); } });
+  const row = el('div', 'btnrow');
+  const bSend = btn('btn primary', `${icon('next')}回答`, () => send());
+  const bHelp = btn('btn', '卡住了？', () => { help.hidden = !help.hidden; });
+  const bEnd = btn('btn' + (over ? ' primary' : ''), `${icon('check')}结束并评分`, () => grade());
+  bEnd.disabled = n === 0;
+  row.append(bSend, bHelp, bEnd, el('span', 'muted small', n ? `已回答 ${n} 轮${over ? '：面试结束了，点「结束并评分」' : ''}` : ''));
+  const help = el('div', 'mk-help');
+  help.hidden = true;
+  help.innerHTML = `<div><div class="mini-h">7 步框架</div><ol><li>提问：范围、规则、规模</li><li>使用者</li><li>业务名词 → 候选表</li><li>事件表 vs 维度表</li><li>表、主键、外键（说理由）</li><li>拿 user story 逐条检验</li><li>修改并总结</li></ol></div><div><div class="mini-h">救场句</div><ul>${MOCK_RESCUE.map((s) => `<li><i>${esc(s)}</i></li>`).join('')}<li><i>Could you give me a hint about where my model falls short?</i></li></ul></div>`;
+  const out = el('div', 'mk-out');
+  if (over) { ta.hidden = true; bSend.hidden = true; bHelp.hidden = true; }
+  stage.append(ta, row, help, out);
+  requestAnimationFrame(() => { log.scrollTop = log.scrollHeight; });
+  const busy = (b) => { Mock.busy = b; bSend.disabled = b; bEnd.disabled = b || n === 0; ta.readOnly = b; };
+  async function send() {
+    const v = ta.value.trim();
+    if (!v || Mock.busy || over) return;
+    Mock.turns.push({ role: 'user', content: v.slice(0, 4000) });
+    log.insertAdjacentHTML('beforeend', `<div class="mk-msg me"><span class="mk-who">You</span>${esc(v).replace(/\n/g, '<br>')}</div>`);
+    const bub = el('div', 'mk-msg iv', '<span class="mk-who">Interviewer</span><span class="spin"></span>');
+    log.append(bub);
+    log.scrollTop = log.scrollHeight;
+    busy(true);
+    const last = n + 1 >= SIM_TURNS || (Date.now() - Mock.start) / 60000 >= SIM_MIN;
+    try {
+      const { text } = await AI.fn([{ role: 'user', content: simRules(m, last, mins) }, ...Mock.turns.map((t) => ({ role: t.role, content: t.content }))], {
+        cache: false,
+        onText: ({ text: t }) => { bub.innerHTML = '<span class="mk-who">Interviewer</span>' + md(splitTag(t).text); log.scrollTop = log.scrollHeight; },
+      });
+      const { phase } = splitTag(text);
+      if (phase) Mock.phase = phase;
+      if (last) Mock.phase = 'wrap';
+      Mock.turns.push({ role: 'assistant', content: text });
+      Mock.draft = '';
+    } catch (e) {
+      Mock.turns.pop(); // keep user/assistant turns alternating
+      Mock.draft = v;
+      Mock.err = AI.errText(e) || '已停止。';
+    } finally { Mock.busy = false; }
+    redraw();
+    if (Mock.err) { $('.mk-out', stage).innerHTML = `<div class="sqlerr">${esc(Mock.err)}</div>`; Mock.err = null; }
+    const nt = $('#mk-ta', stage);
+    if (nt && !nt.hidden) nt.focus();
+  }
+  async function grade() {
+    if (Mock.busy) return;
+    busy(true);
+    out.innerHTML = '<div class="muted"><span class="spin"></span> 面试官正在写评价…</div>';
+    const spent = Math.round((Date.now() - Mock.start) / 60000);
+    const transcript = Mock.turns.map((t) => `${t.role === 'user' ? 'Candidate' : 'Interviewer'}: ${t.card ? '(reads the prompt)' : splitTag(t.content).text}`).join('\n\n');
+    const prompt = `You are grading a mock oral exam for WashU CSE 3104 (Data Manipulation and Management). It is a 30-minute technical interview for an entry-level data engineering role: the candidate designs a data model for the prompt below, then explains how queries would work (pseudocode SQL is fine). The student's first language is Chinese and they typed what they said, so judge content and reasoning; don't penalize grammar that doesn't hurt understanding. A very short interview (a few brief answers) cannot earn a high score. The interview took about ${spent} minutes.
+Prompt: ${m.prompt.join(' ')} User stories: ${[...m.stories.ops, ...m.stories.analytic].join(' ')}
+Reference design (one good answer, not the only one): ${m.model.ents.map((e) => `${e.name}(${e.cols.join(', ')})`).join('; ')}. Notes: ${m.design.map(stripTags).join(' ')}
+The official evaluation questions:
+${SIM_EVAL.map(([k, , q], i) => `${i + 1}. [${k}] ${q}`).join('\n')}
+Grade the overall impression on this scale:
+91–100 Strong: almost no concerns; would hire.
+81–90 Good: a typical new grad; some weaknesses in communication or technical understanding, but expected for this level.
+71–80 Weaker: understands the concepts but would need significant mentoring.
+61–70 Weak: would only hire in a tight market.
+60 or below: Unacceptable.
+Transcript:
+"""${transcript.slice(0, 16000)}"""
+
+Reply with only a JSON object: {"score": integer 0-100, "band": "Strong" | "Good" | "Weaker" | "Weak" | "Unacceptable", "summary": "2–3 句中文：整体印象，以及最影响分数的一点", "criteria": [{"key": "start" | "clear" | "people" | "stress" | "revise", "level": "strong" | "ok" | "weak", "note": "一句中文，具体到学生说过的话"} (all five, in order)], "strengths": ["2–3 条中文"], "improve": ["2–4 条中文，具体、可操作"], "model_feedback": "2–4 句中文：这个数据模型本身哪里好、缺了什么、哪个查询会出问题", "better": "an English outline of a strong answer for this prompt, 6–10 spoken-style sentences, building on what the student said", "phrases": ["2–4 short English phrases the student could use next time"]}`;
+    try {
+      const r = await AI.fn.json(prompt);
+      r.score = Math.max(0, Math.min(100, Math.round(Number(r.score) || 0)));
+      Mock.result = r;
+      Mock.end = Date.now();
+      (S.mock ||= []).push({ at: Date.now(), key, zh: m.title, score: r.score, sim: true, n });
+      S.mock = S.mock.slice(-30);
+      save();
+      if (r.score >= 81) confetti(cur.hue);
+      if (!stage.isConnected) return;
+      go('review', { rtab: 'mock' });
+      setTimeout(() => { const res = $('.mk-res'); if (res) window.scrollTo({ top: res.getBoundingClientRect().top + window.scrollY - 80 }); }, 50);
+    } catch (e) {
+      out.innerHTML = `<div class="sqlerr">${esc(AI.errText(e) || '已停止。')}</div>`;
+      busy(false);
+    }
+  }
+}
+function simResult(r, m) {
+  const box = el('div', 'mk-res');
+  const crit = Array.isArray(r.criteria) ? r.criteria : [];
+  box.innerHTML = `${scoreHTML(r.score)}<p class="mk-sum">${esc(r.summary || '')}</p>
+    <h4>官方的 5 条评价标准</h4><div class="sim-crit">${SIM_EVAL.map(([k, zh], i) => {
+      const c = crit.find((x) => x && x.key === k) || crit[i] || {};
+      const lv = SIM_LEVELS[c.level] || SIM_LEVELS.ok;
+      return `<div class="sim-crow"><b>${zh}</b><span class="mk-chip ${lv[1]}">${lv[0]}</span><span>${esc(c.note || '')}</span></div>`;
+    }).join('')}</div>
+    <div class="mk-cols"><div><h4>做得好的</h4><ul>${liHTML(r.strengths)}</ul></div><div><h4>下次改进</h4><ul>${liHTML(r.improve)}</ul></div></div>
+    ${r.model_feedback ? `<h4>关于你的数据模型</h4><p>${esc(r.model_feedback)}</p>` : ''}
+    <h4>更好的回答（提纲）</h4><blockquote class="model">${esc(r.better || '')}</blockquote>
+    ${(r.phrases || []).length ? `<h4>下次可以直接用的句子</h4><ul class="mk-phr">${liHTML(r.phrases)}</ul>` : ''}`;
+  const dm = el('details', 'sim-ref', '<summary>参考数据模型</summary>');
+  dm.addEventListener('toggle', () => { if (dm.open && !dm.dataset.done) { dm.dataset.done = '1'; simRefModel(m, dm); } });
+  const dq = el('details', 'sim-ref', '<summary>参考查询</summary>');
+  dq.addEventListener('toggle', () => {
+    if (!dq.open || dq.dataset.done) return;
+    dq.dataset.done = '1';
+    m.queries.forEach((q, i) => { const it = el('div', 'sim-q', `<div class="sim-qq"><b>${i + 1}. ${esc(q.q)}</b><span class="muted">${esc(q.zh)}</span></div>`); simRefQuery(m, q, it); dq.append(it); });
+  });
+  box.append(dm, dq);
+  return box;
+}
+function simSelf(stage, cur) {
+  const { m, key } = cur;
+  let start = null;
+  const head = el('div', 'sim-head');
+  const bStart = btn('btn primary', `${icon('play')}开始 30 分钟计时`, () => { start = Date.now(); bStart.disabled = true; bStart.innerHTML = `${icon('clock')}计时中`; });
+  head.append(simClock(() => start), bStart);
+  const sec = (n, title, sub) => { const s = el('section', 'sim-sec', `<h3><span>${n}</span>${title}</h3>${sub ? `<p class="muted small">${sub}</p>` : ''}`); stage.append(s); return s; };
+  stage.append(head);
+  // ① the prompt
+  const s1 = sec('①', '听题、提问', '真考试里面试官会把下面这段念给你听，然后问你有没有问题。先读一遍，想想你会问什么。');
+  s1.append(el('div', 'sim-brief', esc(m.brief)), el('div', 'mk-msg iv wide', `<span class="mk-who">Interviewer · 念题</span>${simPromptHTML(m)}`));
+  const cl = el('div', 'sim-clar', '<div class="mini-h">开场可以问的问题（点一下看面试官可能怎么答）</div>');
+  m.clarify.forEach(([q, a]) => { const b = btn('sim-qa', `<b>${esc(q)}</b><span hidden>${esc(a)}</span>`, () => { $('span', b).hidden = !$('span', b).hidden; }); cl.append(b); });
+  s1.append(cl);
+  // ② design
+  const s2 = sec('②', '设计数据模型（约 12 分钟）', '大声说出你的设计：从使用者、业务名词讲到表和键。说到了就勾上。');
+  s2.append(el('div', 'mk-check', m.checklist.map((c, i) => `<label class="pt"><input type="checkbox" id="sim-c${i}"> ${esc(c)}</label>`).join('')));
+  const probes = el('div', 'mk-log mk-follow');
+  let pi = 0;
+  const r2 = el('div', 'btnrow');
+  const bP = btn('btn', `${icon('user')}面试官追问`, () => {
+    if (pi >= m.probes.length) return;
+    probes.insertAdjacentHTML('beforeend', `<div class="mk-msg iv"><span class="mk-who">Interviewer · 追问 ${pi + 1}/${m.probes.length}</span>${esc(m.probes[pi])}</div>`);
+    pi++;
+    if (pi >= m.probes.length) bP.disabled = true;
+  });
+  const ref2 = el('div', 'sim-reveal');
+  const bN = btn('btn', '看参考：使用者和业务名词', () => {
+    bN.disabled = true;
+    ref2.insertAdjacentHTML('beforeend', `<div class="mk-cols"><div><h4>使用者</h4><ul>${m.stakeholders.map((x) => `<li>${x}</li>`).join('')}</ul></div><div><h4>业务名词</h4><ul>${m.nouns.map((x) => `<li>${x}</li>`).join('')}</ul></div></div>`);
+  });
+  const bM = btn('btn', '看参考数据模型', () => { bM.disabled = true; simRefModel(m, ref2); });
+  r2.append(bP, bN, bM);
+  s2.append(probes, r2, ref2);
+  // ③ queries
+  const s3 = sec('③', '查询阶段（约 10 分钟）', '面试官一题一题问。先在纸上或下面写伪代码 SQL（不打分），再看参考答案。');
+  let qi = 0;
+  const qbox = el('div', 'sim-qbox');
+  const drawQ = () => {
+    const q = m.queries[qi];
+    qbox.innerHTML = `<div class="sim-qq"><span class="muted small">第 ${qi + 1} / ${m.queries.length} 题</span><b>${esc(q.q)}</b><span class="muted">${esc(q.zh)}</span></div>`;
+    const ta = el('textarea', 'oral-ta');
+    ta.rows = 4;
+    ta.placeholder = 'SELECT …（伪代码就行）';
+    ta.addEventListener('keydown', (e) => e.stopPropagation());
+    const ref = el('div', 'sim-reveal');
+    const row = el('div', 'btnrow');
+    const bRef = btn('btn', '看参考 SQL', () => { bRef.disabled = true; simRefQuery(m, q, ref); });
+    row.append(bRef);
+    if (qi > 0) row.append(btn('btn ghost', `${icon('back')}上一题`, () => { qi--; drawQ(); }));
+    if (qi < m.queries.length - 1) row.append(btn('btn primary', `下一题${icon('next')}`, () => { qi++; drawQ(); }));
+    qbox.append(ta, row, ref);
+  };
+  drawQ();
+  s3.append(qbox);
+  // ④ self-evaluation
+  const s4 = sec('④', '自评', '照官方的 5 条评价标准，诚实地给自己打分。');
+  const lv = {};
+  const crit = el('div', 'sim-crit');
+  SIM_EVAL.forEach(([k, zh]) => {
+    const row = el('div', 'sim-crow', `<b>${zh}</b>`);
+    const seg = el('div', 'seg-ctl');
+    Object.entries(SIM_LEVELS).forEach(([lk, [lt]]) => seg.append(btn(lk === lv[k] ? 'on' : '', lt, () => { lv[k] = lk; $$('button', seg).forEach((x) => x.classList.toggle('on', x.textContent === lt)); })));
+    row.append(seg);
+    crit.append(row);
+  });
+  s4.append(crit, el('div', 'mini-h', '整体印象：选一个分数段'));
+  const rate = el('div', 'mk-rate', BANDS.map((x) => `<button type="button" class="mk-chip b-${x[3]}" data-b="${x[1]}"><b>${x[1]}</b><span>${x[2]}</span></button>`).join(''));
+  $$('[data-b]', rate).forEach((x) => (x.onclick = () => {
+    (S.mock ||= []).push({ at: Date.now(), key, zh: m.title, band: x.dataset.b, self: true, sim: true, crit: { ...lv } });
+    S.mock = S.mock.slice(-30);
+    save();
+    toast('已记录', 'ok');
+    go('review', { rtab: 'mock' });
+  }));
+  s4.append(rate);
 }
 
 /* ───────── AI tutor drawer ───────── */
