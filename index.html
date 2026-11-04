@@ -9123,12 +9123,98 @@ INSERT INTO holds VALUES
  (6,12346,3,'2026-10-30 16:45','cancelled');
 `;
 /* the chapter database holds both cases; their table names don't overlap */
-window.SEEDS.exam = window.SEEDS.hospital + window.SEEDS.library;
+/* cinema: the second official mock-interview practice prompt (movie theater ticketing). "Today" is 2026-11-04 in this data. */
+window.SEEDS.cinema = `
+CREATE TABLE locations (location_id INTEGER PRIMARY KEY, name TEXT NOT NULL, address TEXT);
+INSERT INTO locations VALUES (1,'Loop Cinema','12 Loop Ave, University City'),(2,'Galleria 6','400 Galleria Way, Richmond Heights');
+CREATE TABLE screens (screen_id INTEGER PRIMARY KEY, location_id INTEGER NOT NULL REFERENCES locations(location_id), screen_no INTEGER NOT NULL, UNIQUE (location_id, screen_no));
+INSERT INTO screens VALUES (1,1,1),(2,1,2),(3,2,1),(4,2,2);
+CREATE TABLE seats (seat_id INTEGER PRIMARY KEY, screen_id INTEGER NOT NULL REFERENCES screens(screen_id), row_label TEXT NOT NULL, seat_no INTEGER NOT NULL, UNIQUE (screen_id, row_label, seat_no));
+INSERT INTO seats VALUES
+ (1,1,'A',1),(2,1,'A',2),(3,1,'A',3),(4,1,'A',4),(5,1,'A',5),(6,1,'B',1),
+ (7,1,'B',2),(8,1,'B',3),(9,1,'B',4),(10,1,'B',5),(11,2,'A',1),(12,2,'A',2),
+ (13,2,'A',3),(14,2,'A',4),(15,2,'B',1),(16,2,'B',2),(17,2,'B',3),(18,2,'B',4),
+ (19,3,'A',1),(20,3,'A',2),(21,3,'A',3),(22,3,'A',4),(23,3,'A',5),(24,3,'A',6),
+ (25,3,'B',1),(26,3,'B',2),(27,3,'B',3),(28,3,'B',4),(29,3,'B',5),(30,3,'B',6),
+ (31,4,'A',1),(32,4,'A',2),(33,4,'A',3),(34,4,'B',1),(35,4,'B',2),(36,4,'B',3);
+CREATE TABLE movies (movie_id INTEGER PRIMARY KEY, title TEXT NOT NULL, genre TEXT, rating TEXT, length_min INTEGER);
+INSERT INTO movies VALUES
+ (1,'Superman','Superhero','PG-13',129),
+ (2,'The Hobbit','Fantasy','PG-13',169),
+ (3,'Inside Out 2','Animation','PG',96),
+ (4,'Twisters','Action','PG-13',122),
+ (5,'Deadpool & Wolverine','Superhero','R',128),
+ (6,'Wicked','Musical','PG',160),
+ (7,'Nosferatu','Horror','R',132),
+ (8,'Mickey 17','Sci-Fi','R',137);
+CREATE TABLE showtimes (show_id INTEGER PRIMARY KEY, movie_id INTEGER NOT NULL REFERENCES movies(movie_id), screen_id INTEGER NOT NULL REFERENCES screens(screen_id), starts_at TEXT NOT NULL);
+INSERT INTO showtimes VALUES
+ (12341,2,1,'2025-04-30 18:00'),(12342,3,2,'2025-06-14 13:00'),(12343,1,3,'2025-07-12 19:00'),
+ (12344,5,1,'2025-07-26 21:00'),(12345,4,3,'2025-07-31 20:30'),(12346,3,4,'2025-08-01 14:00'),
+ (12347,6,3,'2025-12-20 19:00'),(12348,7,2,'2026-01-09 21:30'),(12349,1,1,'2026-03-14 19:00'),
+ (12350,2,3,'2026-05-02 18:00'),(12351,4,4,'2026-06-20 20:00'),(12352,6,1,'2026-10-31 19:30'),
+ (12353,1,3,'2026-10-31 19:30'),(12354,1,4,'2026-10-31 19:30'),(12355,1,3,'2026-11-04 21:00'),
+ (12356,2,1,'2026-11-06 19:00'),(12357,6,4,'2026-11-06 19:00'),(12358,5,2,'2026-11-07 21:00');
+CREATE TABLE customers (customer_id INTEGER PRIMARY KEY, name TEXT NOT NULL, email TEXT, phone TEXT);
+INSERT INTO customers VALUES
+ (1,'Ava Brooks','ava.brooks@example.com','314-555-0301'),
+ (2,'Ben Ortiz','ben.ortiz@example.com','314-555-0302'),
+ (3,'Chen Li','chen.li@example.com','314-555-0303'),
+ (4,'Dana Kim','dana.kim@example.com','314-555-0304'),
+ (5,'Eli Novak','eli.novak@example.com','314-555-0305'),
+ (6,'Fay Moreno','fay.moreno@example.com','314-555-0306'),
+ (7,'Gus Patel','gus.patel@example.com','314-555-0307'),
+ (8,'Hana Sato','hana.sato@example.com','314-555-0308');
+CREATE TABLE transactions (transaction_id INTEGER PRIMARY KEY, customer_id INTEGER NOT NULL REFERENCES customers(customer_id), purchased_at TEXT NOT NULL);
+INSERT INTO transactions VALUES
+ (1,1,'2025-04-28 12:00'),(2,2,'2025-04-30 17:30'),(3,4,'2025-06-10 09:00'),(4,8,'2025-06-14 12:40'),
+ (5,5,'2025-07-01 20:00'),(6,6,'2025-07-11 08:15'),(7,1,'2025-07-12 18:30'),(8,2,'2025-07-20 11:00'),
+ (9,3,'2025-07-25 14:00'),(10,7,'2025-07-26 20:10'),(11,6,'2025-07-29 10:00'),(12,8,'2025-07-30 16:00'),
+ (13,4,'2025-07-31 19:50'),(14,5,'2025-12-01 09:30'),(15,2,'2025-12-18 21:00'),(16,7,'2026-01-08 22:00'),
+ (17,1,'2026-01-09 21:00'),(18,4,'2026-03-10 18:00'),(19,6,'2026-03-13 12:00'),(20,8,'2026-04-30 15:00'),
+ (21,3,'2026-05-01 19:00'),(22,2,'2026-06-15 13:00'),(23,5,'2026-06-19 17:00'),(24,4,'2026-10-20 08:00'),
+ (25,1,'2026-10-25 10:00'),(26,5,'2026-10-28 20:00'),(27,3,'2026-10-30 10:00'),(28,7,'2026-10-31 18:45'),
+ (29,8,'2026-10-31 19:00'),(30,6,'2026-11-02 11:00'),(31,2,'2026-11-04 09:30');
+CREATE TABLE tickets (
+  ticket_id INTEGER PRIMARY KEY,
+  transaction_id INTEGER NOT NULL REFERENCES transactions(transaction_id),
+  show_id INTEGER NOT NULL REFERENCES showtimes(show_id),
+  seat_id INTEGER NOT NULL REFERENCES seats(seat_id),
+  ticket_type TEXT NOT NULL CHECK (ticket_type IN ('adult','child','senior')),
+  price REAL NOT NULL CHECK (price >= 0),
+  UNIQUE (show_id, seat_id)
+);
+INSERT INTO tickets VALUES
+ (1,1,12341,1,'adult',14),(2,1,12341,2,'adult',14),(3,2,12341,3,'adult',14),(4,2,12341,4,'senior',10),
+ (5,3,12342,11,'adult',14),(6,3,12342,12,'adult',14),(7,3,12342,13,'child',9),(8,3,12342,14,'child',9),
+ (9,3,12342,15,'child',9),(10,4,12342,16,'senior',10),(11,5,12343,19,'adult',14),(12,5,12343,20,'adult',14),
+ (13,5,12343,21,'adult',14),(14,5,12343,22,'adult',14),(15,6,12343,23,'adult',14),(16,6,12343,24,'child',9),
+ (17,6,12343,25,'child',9),(18,7,12343,26,'adult',14),(19,7,12343,27,'adult',14),(20,8,12344,1,'adult',14),
+ (21,8,12344,2,'adult',14),(22,8,12344,3,'adult',14),(23,9,12345,19,'adult',14),(24,9,12345,20,'adult',14),
+ (25,10,12344,4,'adult',14),(26,10,12344,5,'adult',14),(27,11,12346,31,'adult',14),(28,11,12346,32,'child',9),
+ (29,11,12346,33,'child',9),(30,11,12346,34,'child',9),(31,12,12345,21,'senior',10),(32,12,12345,22,'senior',10),
+ (33,13,12345,23,'adult',14),(34,13,12345,24,'child',9),(35,13,12345,25,'child',9),(36,14,12347,19,'adult',14),
+ (37,14,12347,20,'adult',14),(38,14,12347,21,'adult',14),(39,14,12347,22,'adult',14),(40,15,12347,23,'adult',14),
+ (41,15,12347,24,'adult',14),(42,15,12347,25,'senior',10),(43,15,12347,26,'senior',10),(44,16,12348,11,'adult',14),
+ (45,16,12348,12,'adult',14),(46,17,12348,13,'adult',14),(47,18,12349,1,'adult',14),(48,18,12349,2,'child',9),
+ (49,18,12349,3,'child',9),(50,19,12349,4,'adult',14),(51,19,12349,5,'adult',14),(52,19,12349,6,'senior',10),
+ (53,20,12350,19,'senior',10),(54,20,12350,20,'senior',10),(55,21,12350,21,'adult',14),(56,21,12350,22,'adult',14),
+ (57,21,12350,23,'child',9),(58,22,12351,31,'adult',14),(59,22,12351,32,'adult',14),(60,22,12351,33,'adult',14),
+ (61,23,12351,34,'adult',14),(62,23,12351,35,'adult',14),(63,23,12351,36,'adult',14),(64,24,12353,19,'adult',14),
+ (65,24,12353,20,'adult',14),(66,24,12353,21,'child',9),(67,24,12353,22,'child',9),(68,24,12353,23,'child',9),
+ (69,25,12352,1,'adult',14),(70,25,12352,2,'adult',14),(71,25,12352,3,'adult',14),(72,26,12353,24,'adult',14),
+ (73,26,12353,25,'adult',14),(74,26,12353,26,'adult',14),(75,26,12353,27,'adult',14),(76,26,12353,28,'adult',14),
+ (77,27,12352,4,'adult',14),(78,27,12352,5,'adult',14),(79,27,12354,31,'adult',14),(80,27,12354,32,'adult',14),
+ (81,28,12352,6,'senior',10),(82,28,12352,7,'senior',10),(83,29,12354,33,'senior',10),(84,29,12354,34,'senior',10),
+ (85,30,12356,1,'adult',14),(86,30,12356,2,'adult',14),(87,30,12356,3,'child',9),(88,31,12355,19,'adult',14),
+ (89,31,12355,20,'adult',14);
+`;
+window.SEEDS.exam = window.SEEDS.hospital + window.SEEDS.library + window.SEEDS.cinema;
 window.CHAPTERS = window.CHAPTERS || [];
 window.CHAPTERS.push({
   id: 'c13', no: 13, cls: '口试复习', title: '口试冲刺：数据工程面试', en: 'Oral Exam Sprint',
-  blurb: '30 分钟的数据建模面试怎么考、怎么答：官方练习题「图书馆」从需求、建表到 SQL 完整走一遍，再练医院样题和完整的模拟面试。',
-  hue: 45, db: 'exam', source: '口试说明 · 评分标准 · 官方练习题（图书馆） · hospital_data_model.pptx',
+  blurb: '30 分钟的数据建模面试怎么考、怎么答：两道官方练习题「图书馆」「电影院」从需求、建表到 SQL 完整走一遍，再练医院样题和完整的模拟面试。',
+  hue: 45, db: 'exam', source: '口试说明 · 评分标准 · 官方练习题（图书馆、电影院） · hospital_data_model.pptx',
   lessons: [
     {
       id: 'x1', title: '口试怎么考：30 分钟的数据建模面试', min: 5,
@@ -9364,6 +9450,145 @@ window.CHAPTERS.push({
           q: '结果的前三行是？（数据面板里可以按列排序，自己数一数）',
           opts: ['The Hobbit 5、Dune 4、The Martian 4', 'The Hobbit 5、The Martian 4、Dune 4', 'Dune 4、The Hobbit 5、The Martian 4', 'The Hobbit 5、Dune 3、The Martian 3'], a: 0, why: '按借阅次数从多到少；Dune 和 The Martian 都是 4 次，再按书名排，D 在 T 前面。按 book_id 分组，同一本书的几个副本才会合起来数。' },
         { t: 'recap', points: ['借书 = loans 加一行；还书 = 填 return_date，WHERE 里带上 return_date IS NULL', '在架上 = 不在「还没还的借阅」里；要书名就 JOIN books 再 DISTINCT', '最早的预约：先过滤 waiting，再 ORDER BY 时间 LIMIT 1', '过期 = 还没还，并且 due_date 早于今天', '分析题：loans → copies → books，再 GROUP BY'] },
+      ],
+    },
+    {
+      id: 'v1', title: '官方练习题 ③：电影院，从需求到表', min: 7,
+      screens: [
+        { t: 'hook', big: '"A theater chain sells tickets to showings of movies. Walk me through your design."', sub: '这是课程的第二道官方练习题，题目要点在下一屏。和图书馆题比，这题的坑在「电影 vs 场次」「影院 vs 影厅」，以及「同一个座位不能卖两次」。', icon: 'doc' },
+        { t: 'list', title: '题目给的需求', cols: 2, items: [
+          { icon: 'search', h: '找电影和场次', p: '看在放哪些电影、某个时间在放什么；按片名、类型、日期、时间搜索' },
+          { icon: 'grid', h: '选座和买票', p: '看某一场还有哪些空座；买票并锁定座位，一次可以买好几张' },
+          { icon: 'lock', h: '一条硬规则', p: '每张票对应一个座位、一个场次、一部电影；同一场的同一个座位不能卖两次' },
+          { icon: 'table', h: '影厅', p: '数一数某个影厅一共有几个座位' },
+          { icon: 'chart', h: '分析', p: '某一场卖了几张、卖了百分之几；某部电影卖了几张；去年 5 月 1 日到 8 月 1 日最受欢迎的类型；过去一年最受欢迎的电影' },
+        ] },
+        { t: 'sort', q: '题目里的名词：会变成一张表，还是某张表的一列？', buckets: ['会变成表', '会变成列'],
+          items: [['电影 movie', 0], ['放映场次 showing', 0], ['影厅 screen', 0], ['座位 seat', 0], ['一次购买 transaction', 0], ['类型 genre', 1], ['分级 rating', 1], ['票种（成人、儿童）ticket type', 1]],
+          why: '有自己一组属性、会被很多行引用的（电影、场次、影厅、座位、交易）变成表；只是描述某个东西的（类型、分级、票种）变成列。以后如果票种要带一张价目表，再升级成表。' },
+        { t: 'quiz', q: '面试官问：<i>"A movie is shown many times. Where do you store the showtime?"</i> 哪种设计最好？', opts: ['movies 表加一列 showtime', 'movies 表加 showtime1、showtime2、showtime3 三列', '单独一张 showtimes 表：一场一行，记 movie_id、影厅和开始时间', '不用存场次，把时间写在每张票上就够了'], a: 2, why: '一部电影要放很多场。放在 movies 上，要么只能存一个时间，要么列不够用（还违反 1NF）。场次是独立的东西：有自己的时间和影厅，还被很多张票引用。' },
+        { t: 'split', title: '一张 theaters 表：影院和影厅混在一起',
+          table: { name: 'theaters', cols: ['theater_id', 'name', 'address', 'screen_no'], pk: [0],
+            rows: [[1, 'Loop Cinema', '12 Loop Ave', 1], [2, 'Loop Cinema', '12 Loop Ave', 2], [3, 'Galleria 6', '400 Galleria Way', 1], [4, 'Galleria 6', '400 Galleria Way', 2]] },
+          fds: [{ from: [0], to: [1, 3] }, { from: [1], to: [2] }],
+          parts: [{ name: 'screens', cols: [0, 1, 3], pk: [0] }, { name: 'locations', cols: [1, 2], pk: [1] }],
+          frames: [
+            { text: '参考答案的 Theaters 表：「Theater」既指整栋影院，又指里面的一个厅，一个厅一行。', stage: 'table' },
+            { text: 'theater_id 决定它属于哪家影院、是几号厅。', stage: 'fd', fd: 0 },
+            { text: '影院名决定地址：同一栋楼有几个厅，地址就存几遍。老师在设计说明里也指出了这一点。', stage: 'fd', fd: 1 },
+            { text: '按依赖分组。', stage: 'color' },
+            { text: '拆成 screens 和 locations，地址只存一次。实际设计里 locations 用 location_id 当主键，screens 里存 location_id。', stage: 'split' },
+          ] },
+        { t: 'quiz', q: '题目说：「同一场的同一个座位，不能卖两张票」。怎样让数据库自己挡住重复售票？', opts: ['卖之前在程序里查一下，没人买过再卖', '在 tickets 上加约束 <code>UNIQUE (show_id, seat_id)</code>', 'seats 表加一列 sold', '每张票都存一份座位的完整信息'], a: 1, why: '两个人同时点「购买」时，程序里的检查可能都会通过；UNIQUE 约束保证第二张一定被拒绝。前提是票上要有 show_id。' },
+        { t: 'predict', title: '重复卖同一个座位', lang: 'sql', run: true, errors: true,
+          code: "INSERT INTO tickets (transaction_id, show_id, seat_id, ticket_type, price)\nVALUES (1, 12356, 1, 'adult', 14);",
+          q: '场次 12356 的 1 号座位（Loop Cinema 1 号厅 A1）已经卖出去了，tickets 上有 <code>UNIQUE (show_id, seat_id)</code>。运行结果是？',
+          opts: ['插入成功，多了一张票', '报错：UNIQUE constraint failed', '自动换到下一个空座', '覆盖掉原来那张票'], a: 1, why: '约束直接拒绝这条 INSERT。程序收到报错，就告诉顾客「这个座位刚被别人买走了」。（数据面板里把 tickets 按 show_id 排序，能看到 12356 已卖的 1、2、3 号座。）' },
+        { t: 'vs', title: 'show_id 放在哪？',
+          a: { name: '放在 transactions 上', sub: '参考答案的做法', points: ['一笔交易只能买一场的票', '票上没有场次：写不出 UNIQUE (场次, 座位)，只能靠程序检查', '数某一场卖了几张，要先 JOIN 交易表'] },
+          b: { name: '放在 tickets 上', sub: '本站的做法', points: ['一笔交易可以买不同场次', '<code>UNIQUE (show_id, seat_id)</code> 一句话搞定', '数某一场的票：<code>WHERE show_id = …</code>，不用 JOIN'] },
+          bottom: '参考答案在设计说明里自己写明：「在这个设计里，顾客不能在一次交易里买多场的票」。两种都说得通，面试时讲出这个取舍就加分。' },
+        { t: 'er', title: '推荐的数据模型',
+          ents: [
+            { id: 'cu', name: 'customers', cols: ['customer_id PK', 'name', 'email', 'phone'], x: 0, y: 0 },
+            { id: 'tx', name: 'transactions', cols: ['transaction_id PK', 'customer_id FK', 'purchased_at'], x: 1, y: 0 },
+            { id: 'tk', name: 'tickets', cols: ['ticket_id PK', 'transaction_id FK', 'show_id FK', 'seat_id FK', 'ticket_type', 'price'], x: 2, y: 0 },
+            { id: 'mv', name: 'movies', cols: ['movie_id PK', 'title', 'genre', 'rating', 'length_min'], x: 0, y: 1 },
+            { id: 'sh', name: 'showtimes', cols: ['show_id PK', 'movie_id FK', 'screen_id FK', 'starts_at'], x: 1, y: 1 },
+            { id: 'se', name: 'seats', cols: ['seat_id PK', 'screen_id FK', 'row_label', 'seat_no'], x: 2, y: 1 },
+            { id: 'lo', name: 'locations', cols: ['location_id PK', 'name', 'address'], x: 0, y: 2 },
+            { id: 'sc', name: 'screens', cols: ['screen_id PK', 'location_id FK', 'screen_no'], x: 1, y: 2 },
+          ],
+          rels: [
+            { a: 'cu', b: 'tx', card: '1:N', label: '下单' }, { a: 'tx', b: 'tk', card: '1:N', label: '包含' },
+            { a: 'sh', b: 'tk', card: '1:N', label: '卖出' }, { a: 'se', b: 'tk', card: '1:N' },
+            { a: 'mv', b: 'sh', card: '1:N', label: '放映' }, { a: 'sc', b: 'sh', card: '1:N' },
+            { a: 'sc', b: 'se', card: '1:N', label: '有座位' }, { a: 'lo', b: 'sc', card: '1:N', label: '有影厅' },
+          ],
+          frames: [
+            { text: 'movies 和 showtimes：一部电影，很多场放映。', on: ['mv', 'sh', 'r4'] },
+            { text: 'locations → screens → seats：一家影院有几个厅，每个厅有固定的座位。', on: ['lo', 'sc', 'se', 'r6', 'r7'] },
+            { text: 'showtimes 指向 screen：每一场在哪个厅放。同一部电影可以同时在两个厅放。', on: ['sh', 'sc', 'r5'] },
+            { text: 'transactions 一次付款一行，tickets 一张票一行。票连到场次和座位，并且 <code>UNIQUE (show_id, seat_id)</code>。', on: ['tx', 'tk', 'r1', 'r2', 'r3'] },
+            { text: 'customers：谁买的。', on: ['cu', 'r0'] },
+          ] },
+        { t: 'sort', q: '这些表是事件表（fact）还是维度表（dimension）？', buckets: ['Fact 事件表', 'Dimension 维度表'],
+          items: [['tickets：每卖出一张票一行', 0], ['transactions：每次付款一行', 0], ['movies：片名、类型、分级', 1], ['seats：影厅里固定的座位', 1], ['screens 和 locations：影厅和影院', 1], ['customers：顾客资料', 1]],
+          why: 'showtimes 有点特别：它是排片计划，会不断新增，但每一场本身是被票引用的「维度」。参考答案把它当维度表。能说出这种两面性就更好。' },
+        { t: 'match', q: '每条 user story 要用到哪几张表？', pairs: [['某一场还有哪些空座', 'seats + tickets（只看这一场的票）'], ['某个时间在放什么', 'showtimes + movies'], ['某个厅一共几个座位', '只要 seats'], ['某部电影卖了几张票', 'tickets + showtimes + movies'], ['去年夏天最受欢迎的类型', 'tickets + showtimes + movies，按 genre 分组']], why: '拿 user story 逐条对照，哪条连不起来，模型就要改。' },
+        { t: 'quiz', q: 'transactions 表要不要存 total_price（这笔交易的总价）？', opts: ['必须存，查询方便', '可以从这笔交易的票价加出来；存了就要保证两边一致。只有手续费、折扣这类票价以外的金额才值得单独存', '一个价格都不用存', '只存总价，不存每张票的价格'], a: 1, why: '同一个事实存两份就可能不一致。分析时按电影、类型算收入，要的是每张票的价格，总价帮不上忙。' },
+        { t: 'recap', points: ['电影（movies）和场次（showtimes）分开：一部电影放很多场', '影院（locations）和影厅（screens）分开：地址只存一次', '一张票 = 一个座位 + 一场放映；<code>UNIQUE (show_id, seat_id)</code> 防止重复售票', '一次购买（transactions）和票（tickets）分开；show_id 放在票上，一单能买不同场次', '票价存在票上；空座、上座率都是算出来的'] },
+      ],
+    },
+    {
+      id: 'v2', title: '官方练习题 ④：电影院，查询阶段', min: 9,
+      screens: [
+        { t: 'hook', big: '"Now let\'s see how some queries would work in your design."', sub: '下面用本站的示例影院数据库（locations、screens、seats、movies、showtimes、customers、transactions、tickets），假设今天是 2026-11-04。每题都能直接运行，「表结构」里能看到每张表的列。', icon: 'code' },
+        { t: 'code', title: '买票：一笔交易，几张票', lang: 'sql',
+          code: "-- Customer 1 buys seats A4 (adult) and A5 (child) for showing 12356 in one purchase\nBEGIN;\nINSERT INTO transactions (customer_id, purchased_at)\nVALUES (1, '2026-11-04 10:00');            -- gets transaction_id 32\nINSERT INTO tickets (transaction_id, show_id, seat_id, ticket_type, price)\nVALUES (32, 12356, 4, 'adult', 14),\n       (32, 12356, 5, 'child', 9);\nCOMMIT;",
+          notes: [
+            { lines: [2, 3], text: '一笔交易一行：谁、什么时候买的。示例数据里已经有 31 笔交易，所以这一笔是 32 号。' },
+            { lines: [4, 6], text: '每张票一行：哪一场、哪个座位、什么票种、多少钱。A4、A5 是 Loop Cinema 1 号厅的 4、5 号座位。' },
+            { lines: [1, 7], text: '放进一个事务：如果其中一个座位刚被别人买走，UNIQUE 约束报错，整笔交易都不生效，不会只卖出一半。' },
+          ] },
+        { t: 'sql', title: '按类型找电影',
+          task: '列出所有 <code>Superhero</code> 类型的电影：<code>title</code>。',
+          sql: 'SELECT title, genre FROM movies;',
+          check: "SELECT title FROM movies WHERE genre = 'Superhero';",
+          hint: "<code>WHERE genre = 'Superhero'</code>。字符串用单引号：参考答案里的双引号 \"Superhero\" 在 PostgreSQL 里会被当成列名。" },
+        { t: 'sql', title: 'The Hobbit 的所有场次',
+          task: '列出 The Hobbit 的所有场次：<code>starts_at, location, screen_no</code>（location 是影院名），按时间排序。',
+          sql: 'SELECT * FROM showtimes;',
+          check: "SELECT s.starts_at, l.name AS location, sc.screen_no FROM showtimes s JOIN movies m ON m.movie_id = s.movie_id JOIN screens sc ON sc.screen_id = s.screen_id JOIN locations l ON l.location_id = sc.location_id WHERE m.title = 'The Hobbit' ORDER BY s.starts_at;",
+          ordered: true,
+          hint: 'showtimes JOIN movies（按片名过滤），再 JOIN screens 和 locations 拿影院名和厅号，最后 ORDER BY s.starts_at。' },
+        { t: 'sql', title: '这一场还有哪些空座',
+          task: '场次 12356 还剩哪些座位？输出 <code>row_label, seat_no</code>。',
+          sql: 'SELECT show_id, screen_id, starts_at FROM showtimes WHERE show_id = 12356;',
+          check: 'SELECT se.row_label, se.seat_no FROM showtimes s JOIN seats se ON se.screen_id = s.screen_id WHERE s.show_id = 12356 AND se.seat_id NOT IN (SELECT seat_id FROM tickets WHERE show_id = 12356);',
+          hint: '先找这一场所在影厅的座位：<code>JOIN seats se ON se.screen_id = s.screen_id</code>；再排除这一场已卖的：<code>se.seat_id NOT IN (SELECT seat_id FROM tickets WHERE show_id = 12356)</code>。' },
+        { t: 'quiz', q: '场次 12356 在 Loop Cinema 1 号厅（10 个座位），目前卖了 3 张。有人这样查空座，却只得到 3 行。哪里错了？', lang: 'sql',
+          code: 'SELECT se.row_label, se.seat_no\nFROM showtimes s\nJOIN seats se ON se.screen_id = s.screen_id\nWHERE s.show_id = 12356\n  AND se.seat_id NOT IN (SELECT seat_id FROM tickets);',
+          opts: ['NOT IN 应该换成 IN', '子查询没有限定 show_id = 12356：1 号厅其他场次卖掉的座位也被排除了', 'JOIN 条件写反了', '应该用 COUNT(DISTINCT)'], a: 1, why: '1 号厅放过好几场，很多座位在别的场次被卖过。子查询只看 seat_id、不看场次，就把它们全排除了。正确答案是 7 个空座。' },
+        { t: 'sql', title: '一个厅有几个座位',
+          task: '3 号影厅（<code>screen_id = 3</code>）一共有多少个座位？输出一个数 <code>seats</code>。',
+          sql: 'SELECT * FROM seats WHERE screen_id = 3;',
+          check: 'SELECT COUNT(*) AS seats FROM seats WHERE screen_id = 3;',
+          hint: '<code>SELECT COUNT(*) AS seats … WHERE screen_id = 3</code>。座位数是数出来的，不需要单独存一列容量。' },
+        { t: 'sql', title: '这一场卖了百分之几',
+          task: '场次 12353 卖出的票数，占这个厅座位数的百分之几？保留 1 位小数，输出 <code>pct</code>。',
+          sql: 'SELECT COUNT(*) FROM tickets WHERE show_id = 12353;',
+          check: 'SELECT ROUND(100.0 * (SELECT COUNT(*) FROM tickets WHERE show_id = 12353) / (SELECT COUNT(*) FROM seats se JOIN showtimes s ON s.screen_id = se.screen_id WHERE s.show_id = 12353), 1) AS pct;',
+          hint: '卖出数 ÷ 座位数 × 100；一定要写 <code>100.0 * …</code>，否则整数除法 10 / 12 会得到 0。座位数 = 这一场所在影厅的 seats 行数。' },
+        { t: 'rows', title: '存了总价的坑：fan-out',
+          sql: 'SELECT SUM(t.TotalPrice)\nFROM Transactions t\nJOIN Tickets tk ON tk.TransactionID = t.TransactionID;',
+          cols: ['TransactionID', 'TotalPrice'],
+          rows: [{ k: 't1', v: [501, 28] }, { k: 't2', v: [502, 37] }],
+          frames: [
+            { text: '参考答案的设计：Transactions 上存了总价。两笔交易，真实收入 28 + 37 = <b>65</b>。', line: 1 },
+            { text: 'JOIN Tickets：交易 501 有 2 张票，502 有 3 张。一张票一行，总价也跟着被复制了。', line: 2, cols: ['TransactionID', 'TotalPrice', 'Seat'], rows: [{ k: 'a', v: [501, 28, 'A1'] }, { k: 'b', v: [501, 28, 'A2'] }, { k: 'c', v: [502, 37, 'B1'] }, { k: 'd', v: [502, 37, 'B2'] }, { k: 'e', v: [502, 37, 'B3'] }], hl: { b: 'warn', d: 'warn', e: 'warn' }, badge: { b: '28 被复制', e: '37 被复制' } },
+            { text: 'SUM(TotalPrice) = 28 × 2 + 37 × 3 = <b>167</b>，是真实收入的两倍多。这就是 fan-out。', line: 0, hl: { a: 'pass', b: 'del', c: 'pass', d: 'del', e: 'del' } },
+            { text: '修法：要么只在 Transactions 上 SUM、不 JOIN 票；要么像本站这样，把价格存在每张票上，SUM(tickets.price)。', line: 0 },
+          ] },
+        { t: 'sql', title: 'Superman 的收入',
+          task: '电影 Superman 一共卖了多少钱？输出 <code>revenue</code>，也就是它每张票的 price 加起来。',
+          sql: "SELECT * FROM movies WHERE title = 'Superman';",
+          check: "SELECT SUM(t.price) AS revenue FROM tickets t JOIN showtimes s ON s.show_id = t.show_id JOIN movies m ON m.movie_id = s.movie_id WHERE m.title = 'Superman';",
+          hint: 'tickets → showtimes → movies，WHERE m.title = \'Superman\'，SUM(t.price)。' },
+        { t: 'quiz', q: '题目要「去年 5 月 1 日到 8 月 1 日」最受欢迎的类型，场次时间存成 \'YYYY-MM-DD HH:MM\' 文本。下面哪种写法会<b>漏掉</b> 8 月 1 日下午那一场？',
+          tables: [{ name: 'showtimes（节选）', head: ['show_id', 'movie', 'starts_at'], rows: [[12345, 'Twisters', '2025-07-31 20:30'], [12346, 'Inside Out 2', '2025-08-01 14:00']] }],
+          opts: ["starts_at >= '2025-05-01' AND starts_at < '2025-08-02'", "starts_at BETWEEN '2025-05-01' AND '2025-08-01'", "date(starts_at) BETWEEN '2025-05-01' AND '2025-08-01'", "date(starts_at) >= '2025-05-01' AND date(starts_at) <= '2025-08-01'"], a: 1, why: "文本是一个字一个字比的：'2025-08-01 14:00' 比 '2025-08-01' 长，所以更「大」，被 BETWEEN 的上限挡在外面。先问清楚 8 月 1 日算不算，再用「&lt; 下一天」或者 date() 来写。" },
+        { t: 'sql', title: '去年夏天最受欢迎的类型',
+          task: '2025-05-01 到 2025-08-01（<b>含 8 月 1 日当天</b>）开始的场次里，每种类型卖了几张票？输出 <code>genre, tickets</code>，从多到少。',
+          sql: 'SELECT t.ticket_id, s.starts_at, s.movie_id\nFROM tickets t\nJOIN showtimes s ON s.show_id = t.show_id;',
+          check: "SELECT m.genre, COUNT(*) AS tickets FROM tickets t JOIN showtimes s ON s.show_id = t.show_id JOIN movies m ON m.movie_id = s.movie_id WHERE s.starts_at >= '2025-05-01' AND s.starts_at < '2025-08-02' GROUP BY m.genre ORDER BY tickets DESC;",
+          ordered: true,
+          hint: "再 JOIN movies 拿类型；日期写 <code>s.starts_at &gt;= '2025-05-01' AND s.starts_at &lt; '2025-08-02'</code>；GROUP BY m.genre，ORDER BY tickets DESC。" },
+        { t: 'predict', title: '过去一年最受欢迎的电影', lang: 'sql', run: true,
+          code: "SELECT m.title, COUNT(*) AS tickets\nFROM tickets t\nJOIN showtimes s ON s.show_id = t.show_id\nJOIN movies m ON m.movie_id = s.movie_id\nWHERE s.starts_at >= '2025-11-04'\n  AND s.starts_at < '2026-11-04'\nGROUP BY m.movie_id, m.title\nORDER BY tickets DESC, m.title\nLIMIT 3;",
+          q: '结果的前三行是？（可以在数据面板里按 show_id 和 starts_at 排序，自己数一数）',
+          opts: ['Superman 20、Wicked 15、Twisters 6', 'Superman 22、Wicked 15、The Hobbit 8', 'Superman 31、Wicked 15、Twisters 13', 'Wicked 15、Superman 20、Twisters 6'], a: 0, why: '「过去一年」两头都要卡住。只写 >= \'2025-11-04\' 的话，今晚和下周已经预售的场次也会算进去：Superman 变成 22，The Hobbit 从 5 变成 8、排到 Twisters 前面（选项 B）。' },
+        { t: 'recap', points: ['买票 = 一笔交易 + 几张票，放进一个事务；UNIQUE (show_id, seat_id) 挡住重复售票', '空座 = 这个厅的座位里，不在<b>这一场</b>已售座位中的', '上座率要写 100.0 *，否则整数除法得 0', '收入在票上 SUM(price)；在交易总价上 SUM 又 JOIN 了票，就会 fan-out', '日期范围：先问清是否包含端点；带时间的文本别用 BETWEEN 卡上限；「过去一年」两头都卡'] },
       ],
     },
     {
@@ -9614,6 +9839,47 @@ WHERE admission_id = 19 AND end_time IS NULL;`,
       cols: 'last_3m, last_6m, last_12m',
       ref: "SELECT SUM(checkout_date >= '2026-08-04') AS last_3m, SUM(checkout_date >= '2026-05-04') AS last_6m, SUM(checkout_date >= '2025-11-04') AS last_12m FROM loans;",
       hints: ['在 SQLite 里比较的结果是 1 或 0，SUM 起来就是个数', "通用写法：SUM(CASE WHEN checkout_date >= '2026-08-04' THEN 1 ELSE 0 END)"] },
+    { id: 'C1', dml: true, title: '电影院 · 一笔买两张票', prompt: '顾客 7（Gus Patel）在 \'2026-11-04 12:00\' 一次买了场次 12356 的两张成人票（每张 14），座位是 B1 和 B2（seat_id 6 和 7）。写一笔交易和两张票，放进一个事务。',
+      cols: '检查：场次 12356 的票，以及每张票是谁买的',
+      ref: "BEGIN;\nINSERT INTO transactions (customer_id, purchased_at) VALUES (7, '2026-11-04 12:00');\nINSERT INTO tickets (transaction_id, show_id, seat_id, ticket_type, price) VALUES (last_insert_rowid(), 12356, 6, 'adult', 14);\nINSERT INTO tickets (transaction_id, show_id, seat_id, ticket_type, price) VALUES ((SELECT MAX(transaction_id) FROM transactions), 12356, 7, 'adult', 14);\nCOMMIT;",
+      check: 'SELECT t.seat_id, t.ticket_type, t.price, x.customer_id FROM tickets t JOIN transactions x ON x.transaction_id = t.transaction_id WHERE t.show_id = 12356 ORDER BY t.seat_id;',
+      hints: ['先 INSERT INTO transactions，新交易的编号是 32（也可以用 last_insert_rowid()）', '两张票都用这个 transaction_id；ticket_id 不用写'] },
+    { id: 'C2', title: '电影院 · 现在在放的电影', prompt: '今天是 2026-11-04。哪些电影今天或以后还有场次？输出 <code>title</code>，不重复。',
+      cols: 'title',
+      ref: "SELECT DISTINCT m.title FROM movies m JOIN showtimes s ON s.movie_id = m.movie_id WHERE s.starts_at >= '2026-11-04';",
+      hints: ['movies JOIN showtimes', "WHERE s.starts_at >= '2026-11-04'，SELECT DISTINCT"] },
+    { id: 'C3', title: '电影院 · 接下来几场卖了几张', prompt: '今天及以后的每一场（<code>starts_at &gt;= \'2026-11-04\'</code>）各卖了几张票？输出 <code>show_id, sold</code>，一张没卖的显示 0。',
+      cols: 'show_id, sold',
+      ref: "SELECT s.show_id, COUNT(t.ticket_id) AS sold FROM showtimes s LEFT JOIN tickets t ON t.show_id = s.show_id WHERE s.starts_at >= '2026-11-04' GROUP BY s.show_id;",
+      hints: ['从 showtimes 出发 LEFT JOIN tickets', 'COUNT(t.ticket_id) 而不是 COUNT(*)，没卖的场次才会是 0'] },
+    { id: 'C4', title: '电影院 · 每部电影卖了几张', prompt: '每部电影一共卖了几张票（含一张没卖的电影）？输出 <code>title, tickets</code>，按 tickets 从多到少；相同按 title 排。',
+      cols: 'title, tickets', ordered: true,
+      ref: 'SELECT m.title, COUNT(t.ticket_id) AS tickets FROM movies m LEFT JOIN showtimes s ON s.movie_id = m.movie_id LEFT JOIN tickets t ON t.show_id = s.show_id GROUP BY m.movie_id, m.title ORDER BY tickets DESC, m.title;',
+      hints: ['movies LEFT JOIN showtimes LEFT JOIN tickets', 'ORDER BY tickets DESC, m.title'] },
+    { id: 'C5', title: '电影院 · 卖光的场次', prompt: '哪些场次的票卖光了（卖出的票数 = 所在影厅的座位数）？输出 <code>show_id, title</code>。',
+      cols: 'show_id, title',
+      ref: 'SELECT s.show_id, m.title FROM showtimes s JOIN movies m ON m.movie_id = s.movie_id WHERE (SELECT COUNT(*) FROM tickets t WHERE t.show_id = s.show_id) = (SELECT COUNT(*) FROM seats se WHERE se.screen_id = s.screen_id);',
+      hints: ['两个相关子查询：这一场卖了几张、这一场所在的厅有几个座位', '两个数相等就是卖光了'] },
+    { id: 'C6', title: '电影院 · 过去一年最受欢迎的电影', prompt: '过去一年（场次开始时间 ≥ \'2025-11-04\' 且 &lt; \'2026-11-04\'）每部电影卖了几张票？输出 <code>title, tickets</code>，从多到少；相同按 title 排。',
+      cols: 'title, tickets', ordered: true,
+      ref: "SELECT m.title, COUNT(*) AS tickets FROM tickets t JOIN showtimes s ON s.show_id = t.show_id JOIN movies m ON m.movie_id = s.movie_id WHERE s.starts_at >= '2025-11-04' AND s.starts_at < '2026-11-04' GROUP BY m.movie_id, m.title ORDER BY tickets DESC, m.title;",
+      hints: ['tickets → showtimes → movies', '日期两头都卡住，否则会算进还没放映的预售票'] },
+    { id: 'C7', title: '电影院 · 过去一年各类型收入', prompt: '过去一年（场次开始时间 ≥ \'2025-11-04\' 且 &lt; \'2026-11-04\'）每种类型的票房收入是多少？输出 <code>genre, revenue</code>，从多到少。',
+      cols: 'genre, revenue', ordered: true,
+      ref: "SELECT m.genre, SUM(t.price) AS revenue FROM tickets t JOIN showtimes s ON s.show_id = t.show_id JOIN movies m ON m.movie_id = s.movie_id WHERE s.starts_at >= '2025-11-04' AND s.starts_at < '2026-11-04' GROUP BY m.genre ORDER BY revenue DESC;",
+      hints: ['收入 = SUM(t.price)', 'GROUP BY m.genre ORDER BY revenue DESC'] },
+    { id: 'C8', title: '电影院 · 过去一年各影院收入', prompt: '过去一年（场次开始时间 ≥ \'2025-11-04\' 且 &lt; \'2026-11-04\'）每家影院的票房收入：<code>name, revenue</code>。',
+      cols: 'name, revenue',
+      ref: "SELECT l.name, SUM(t.price) AS revenue FROM tickets t JOIN showtimes s ON s.show_id = t.show_id JOIN screens sc ON sc.screen_id = s.screen_id JOIN locations l ON l.location_id = sc.location_id WHERE s.starts_at >= '2025-11-04' AND s.starts_at < '2026-11-04' GROUP BY l.location_id, l.name;",
+      hints: ['场次 → 影厅 → 影院：showtimes JOIN screens JOIN locations', 'GROUP BY 影院'] },
+    { id: 'C9', title: '电影院 · 一笔买了不同场次', prompt: '有没有哪笔交易买了<b>不止一场</b>的票？输出 <code>transaction_id, name, shows</code>（shows 是这笔交易涉及几场）。',
+      cols: 'transaction_id, name, shows',
+      ref: 'SELECT x.transaction_id, c.name, COUNT(DISTINCT t.show_id) AS shows FROM transactions x JOIN customers c ON c.customer_id = x.customer_id JOIN tickets t ON t.transaction_id = x.transaction_id GROUP BY x.transaction_id, c.name HAVING COUNT(DISTINCT t.show_id) > 1;',
+      hints: ['按交易分组，数 COUNT(DISTINCT t.show_id)', 'HAVING … > 1。参考答案的模型（ShowID 在交易上）根本存不下这种交易'] },
+    { id: 'C10', title: '电影院 · 过去一年买票最多的顾客', prompt: '过去一年（场次开始时间 ≥ \'2025-11-04\' 且 &lt; \'2026-11-04\'）每位顾客买了几张票？输出 <code>name, tickets</code>，从多到少；相同按 name 排。',
+      cols: 'name, tickets', ordered: true,
+      ref: "SELECT c.name, COUNT(*) AS tickets FROM tickets t JOIN transactions x ON x.transaction_id = t.transaction_id JOIN customers c ON c.customer_id = x.customer_id JOIN showtimes s ON s.show_id = t.show_id WHERE s.starts_at >= '2025-11-04' AND s.starts_at < '2026-11-04' GROUP BY c.customer_id, c.name ORDER BY tickets DESC, c.name;",
+      hints: ['顾客在交易上：tickets → transactions → customers；日期在场次上：再 JOIN showtimes', 'ORDER BY tickets DESC, c.name'] },
     { id: 'P1', dml: true, title: '医院 · 挂号：登记新病人', prompt: '新病人 Lily Park 来挂号：<code>patient_id</code> = 11，生日 \'2003-02-14\'，电话 \'314-555-0111\'。把她加进 patients。',
       cols: '检查：SELECT * FROM patients WHERE patient_id = 11;',
       ref: "INSERT INTO patients (patient_id, first_name, last_name, birth_date, phone) VALUES (11, 'Lily', 'Park', '2003-02-14', '314-555-0111');",
@@ -9702,9 +9968,16 @@ WHERE admission_id = 19 AND end_time IS NULL;`,
     ['user story', '用户故事', '「As a …, I want …, so that …」。面试里拿它一条条检验你的数据模型。'],
     ['star schema', '星型模式', '事件表（fact）在中间，维度表（dimension）在周围；查询就是事件表 JOIN 维度表再 GROUP BY。'],
     ['pseudocode SQL', '伪代码 SQL', '口试里 SQL 不必一字不差，但连哪些表、怎么过滤、怎么分组的逻辑要对。'],
+    ['movie vs showing', '电影 vs 场次', '电影存片名、类型、分级；场次是某部电影在某个厅、某个时间的一次放映。一部电影放很多场。'],
+    ['UNIQUE (show_id, seat_id)', '同场同座只卖一次', '加在 tickets 上：同一场的同一个座位第二次插入就会报错。前提是票上要有 show_id。'],
+    ['BETWEEN with timestamps', 'BETWEEN 和带时间的日期', "'2025-08-01 14:00' 比 '2025-08-01' 大，BETWEEN 的上限会漏掉当天的场次；用「< 下一天」。"],
   ],
 
   oral: [
+    { id: 'm9', q: 'A movie theater chain wants to sell tickets to showings, let customers pick seats, and never sell the same seat twice for a showing. They also want to know which movies and genres are most popular. Walk me through your data model.', zh: '官方练习题：电影院数据模型',
+      follow: ['A movie plays many times a week. How does your model handle that?', 'How do you make sure the same seat is never sold twice for the same showing?', 'Can a customer buy tickets for two different showings in one purchase?', 'Which seats are still open for one showing? Walk me through the SQL.', 'What percentage of a showing was sold?', 'Which genres were most popular between May 1 and August 1 last year?'],
+      points: ['Asks clarifying questions (locations and screens, multi-showing purchases, ticket types)', 'Separates movies from showtimes, and theater buildings from screens', 'Models seats per screen and a ticket as a seat plus a showtime, and prevents double sales with a unique constraint on (show_id, seat_id)', 'Separates transactions (purchases) from tickets and explains where show_id and price live', 'Explains queries such as open seats for a showing and popular genres, including date-range edge cases'],
+      model: "First, a few questions: are there several locations with several screens each, and can one purchase include different showings? Assuming yes, the people using this are customers, clerks, theater managers and analysts. The nouns are movies, showings, locations, screens, seats, tickets and purchases. A movie plays many times, so Movies holds the title, genre and rating, and Showtimes has one row per showing with the movie, the screen and the start time. I'd split Locations from Screens so the address isn't repeated for every screen, and Seats belong to a screen. A purchase goes in Transactions with the customer and the time, and each ticket is a row in Tickets with the transaction, the showtime, the seat, the ticket type and the price. To make sure a seat is never sold twice, I'd put a unique constraint on show ID and seat ID in Tickets. Then open seats are the screen's seats that aren't in that showing's tickets, and popular genres are tickets joined to showtimes and movies, grouped by genre. So, to summarize: dimensions for movies, showtimes, locations, screens, seats and customers, and facts for transactions and tickets." },
     { id: 'm8', q: "A library wants to lend books to its members, track who has what, let members place holds, and analyze borrowing, such as the most popular genres last year. Walk me through the data model you would design.", zh: '官方练习题：图书馆数据模型',
       follow: ['Can the library have two copies of the same book?', 'How do you know whether a copy is checked out right now?', 'Is a hold for a specific copy or for the title?', 'How would you find the member with the oldest hold on a book?', 'How would you list all overdue books?', 'Which genres were most popular in the last year? Walk me through the SQL.'],
       points: ['Asks clarifying questions first (branches, multiple copies, loan period, scale)', 'Names stakeholders and business nouns before drawing tables', 'Separates Books (title information) from Copies (physical items) and explains why', 'Treats Loans and Holds as fact tables, and explains how "checked out" is determined (e.g. return_date is null)', 'Puts holds on the title and checks the design against the user stories with example SQL'],
@@ -9859,7 +10132,7 @@ INSERT INTO repair_reports VALUES
 `;
 window.MOCKS = window.MOCKS || [];
 window.MOCKS.push({
-  id: 'bikeshare', order: 3, title: '城市共享单车系统', en: 'City bike share', tag: '原创练习', seed: 'bikeshare', today: '2026-11-04',
+  id: 'bikeshare', order: 4, title: '城市共享单车系统', en: 'City bike share', tag: '原创练习', seed: 'bikeshare', today: '2026-11-04',
   brief: '城市共享单车：找车、找空桩、借车还车、报修，还要分析热门站点、热门路线和骑行时长。设计出一套表，再回答几个查询。',
   prompt: [
     "Our city runs a public bike-share program, and they've asked us to build the data system behind their new app. The old system is being retired, so we can design this one from scratch. Walk me through how you'd design it, down to a database schema, meaning a set of tables and their columns. After that, I'll ask how a few queries would work in your design.",
@@ -9948,11 +10221,105 @@ window.MOCKS.push({
   ],
 });
 
+/* Full mock interview: movie theater ticketing (the course's second official practice prompt, reworded).
+   Runs on the `cinema` seed defined in c13.js; "today" in that data is 2026-11-04. */
+window.MOCKS = window.MOCKS || [];
+window.MOCKS.push({
+  id: 'cinema', order: 2, title: '电影院售票系统', en: 'Movie theater ticketing', tag: '官方练习题', seed: 'cinema', today: '2026-11-04',
+  brief: '一家连锁影院要从零建数据系统：卖票、选座位，还要分析哪些电影和类型最受欢迎。',
+  prompt: [
+    "A movie theater chain has asked us to build a new data system. They have nothing in place today, so we can design it from scratch. I'd like you to walk me through how you would design it, up to a database schema, meaning a set of tables and their columns. After that, I'll ask how a few common queries would work in your design.",
+    'The chain sells tickets to showings of movies. A customer can buy several tickets at once in a single purchase. Each ticket is for one specific seat at one specific showtime of one movie, and the theater must never sell two tickets for the same seat at the same showtime.',
+  ],
+  stories: {
+    ops: [
+      'As a customer, I want to see which movies the theater is showing.',
+      'As a customer, I want to see which movies are playing at a particular time.',
+      'As a customer, I want to search showings by title, genre, date or time.',
+      'As a customer, I want to see every seat that is still open for a particular showing.',
+      'As a customer, I want to buy a ticket and reserve a seat for a showing.',
+      'As a theater, I want to count how many seats a particular screen has.',
+    ],
+    analytic: [
+      'As a theater, I want to know how many seats were sold for a particular showing.',
+      'As a theater, I want to know what percentage of a showing was sold.',
+      'As a theater, I want to know how many tickets were sold for a particular movie.',
+      'As a theater, I want to know which genres were most popular between May 1 and August 1 last year.',
+      'As a theater, I want a list of the most popular movies over the last year.',
+    ],
+  },
+  closing: "So: build a data model, a set of tables, that covers all of this. Take a minute to collect your thoughts. Do you have any questions before you start?",
+  clarify: [
+    ['Is this one building, or several locations with several screens each?', 'Several locations, and each location has several screens.'],
+    ['Can one purchase include tickets for different showings?', 'What would you choose, and what does that change in your tables? (The interviewer turns it back to you.)'],
+    ['Do prices differ, for example for children or seniors?', 'Yes: there are adult, child and senior tickets.'],
+    ['Can the same movie play on two screens at the same time?', 'Yes. Big releases often do.'],
+    ['Do we know who bought each ticket?', 'Assume every purchase is made by a known customer.'],
+    ['For "May 1 to August 1", is August 1 included?', 'Good catch. Tell me what you assume.'],
+  ],
+  stakeholders: ['观众 customers：查电影和场次、选座、买票', '售票员 sales clerks：现场卖票', '影院经理：排片、上座率', '高管和数据分析师：哪些电影、哪些类型最受欢迎、最赚钱'],
+  nouns: ['movie（电影：片名、类型、分级、片长）', 'showing / showtime（一场放映）', 'location（影院）', 'screen（影厅）', 'seat（座位：排、号）', 'ticket（票：一个座位 + 一场放映）', 'transaction（一次购买，可以有多张票）', 'genre / rating（类型、分级）'],
+  checklist: ['先问了问题：几家影院、每家几个厅、一次能不能买不同场次', '说出使用者和业务名词', '电影（movies）和放映场次（showtimes）分开', '影院（locations）和影厅（screens）分开，地址不重复存', '座位属于影厅；一张票 = 一个座位 + 一场放映', '用 UNIQUE (show_id, seat_id) 保证同一场同一座位只卖一次', '一次购买（transactions）和票（tickets）分开：一单多张票', '分清事件表（交易、票）和维度表（电影、场次、影厅、座位、顾客）'],
+  model: {
+    ents: [
+      { id: 'cu', name: 'customers', cols: ['customer_id PK', 'name', 'email', 'phone'], x: 0, y: 0 },
+      { id: 'tx', name: 'transactions', cols: ['transaction_id PK', 'customer_id FK', 'purchased_at'], x: 1, y: 0 },
+      { id: 'tk', name: 'tickets', cols: ['ticket_id PK', 'transaction_id FK', 'show_id FK', 'seat_id FK', 'ticket_type', 'price'], x: 2, y: 0 },
+      { id: 'mv', name: 'movies', cols: ['movie_id PK', 'title', 'genre', 'rating', 'length_min'], x: 0, y: 1 },
+      { id: 'sh', name: 'showtimes', cols: ['show_id PK', 'movie_id FK', 'screen_id FK', 'starts_at'], x: 1, y: 1 },
+      { id: 'se', name: 'seats', cols: ['seat_id PK', 'screen_id FK', 'row_label', 'seat_no'], x: 2, y: 1 },
+      { id: 'lo', name: 'locations', cols: ['location_id PK', 'name', 'address'], x: 0, y: 2 },
+      { id: 'sc', name: 'screens', cols: ['screen_id PK', 'location_id FK', 'screen_no'], x: 1, y: 2 },
+    ],
+    rels: [
+      { a: 'cu', b: 'tx', card: '1:N', label: '下单' }, { a: 'tx', b: 'tk', card: '1:N', label: '包含' },
+      { a: 'sh', b: 'tk', card: '1:N', label: '卖出' }, { a: 'se', b: 'tk', card: '1:N' },
+      { a: 'mv', b: 'sh', card: '1:N', label: '放映' }, { a: 'sc', b: 'sh', card: '1:N' },
+      { a: 'sc', b: 'se', card: '1:N', label: '有座位' }, { a: 'lo', b: 'sc', card: '1:N', label: '有影厅' },
+    ],
+  },
+  design: [
+    '<b>电影和场次分开</b>：同一部电影要放很多场。movies 存片名、类型、分级；showtimes 一场一行，记哪部电影、哪个厅、几点开始。',
+    '<b>影院和影厅分开</b>：参考答案用一张 Theaters 表同时代表整栋影院和里面的厅，地址会在每个厅重复一遍（老师在设计说明里自己也指出了）。拆成 locations 和 screens，地址只存一次。',
+    '<b>座位属于影厅，一张票 = 一个座位 + 一场放映</b>：seats 是厅里固定的物理座位；tickets 把某个座位卖给某一场。',
+    '<b>「同一场同一座位只卖一次」交给数据库</b>：tickets 上加 <code>UNIQUE (show_id, seat_id)</code>。参考答案把 ShowID 放在 Transactions 上，票上没有场次，这条规则就没法用一个简单的约束挡住。',
+    '<b>一次购买和票分开</b>：transactions 一次付款一行，tickets 一张票一行（一单多张）。show_id 放在票上，一单还能买不同场次；放在交易上就只能买一场，这是参考答案自己写明的取舍。',
+    '<b>票价存在票上</b>：成人、儿童、长者价格不同，以后还会调价，所以每张票记下卖出时的价格。总价可以从票价加出来，不必再存一份（存两份就可能不一致）。',
+    '<b>剩余座位、上座率都是算出来的</b>：厅的座位数 = COUNT(seats)；卖出数 = COUNT(tickets)；空座 = 这个厅的座位里，不在这一场已售座位中的。不需要另存 available 列。',
+    '<b>还有一个小漏洞</b>：数据库挡不住「把 2 号厅的座位卖给 1 号厅的场次」。可以在程序里检查，或者在 tickets 上也存 screen_id 并加组合外键。能主动说出来会很加分。',
+  ],
+  probes: [
+    'A movie plays many times a week. How does your model handle that?',
+    'Your theaters table has an address on every row. What happens when one building has eight screens?',
+    'How do you make sure the same seat is never sold twice for the same showing?',
+    'Can a customer buy tickets for two different showings in one purchase?',
+    'Can the same movie play on two screens at the same time? Does your model allow that?',
+    'Where does the ticket price live, and what happens when prices change?',
+    'How would you find the seats that are still open for one showing?',
+  ],
+  queries: [
+    { q: 'Show me a list of all the movies.', zh: '列出所有电影', sql: 'SELECT title FROM movies;', note: '「影院在放的电影」也可以理解成「今天以后还有场次的电影」：JOIN showtimes，再加 <code>WHERE starts_at &gt;= \'2026-11-04\'</code>，结果是 4 部（Mickey 17 还没排片）。说出你的理解。' },
+    { q: 'How would a customer search movies by genre, say Superhero?', zh: '按类型搜索（Superhero）', sql: "SELECT title FROM movies WHERE genre = 'Superhero';", note: '字符串用单引号。参考答案写的 <code>"Superhero"</code>（双引号）在 PostgreSQL 里会被当成列名，直接报错。' },
+    { q: 'Show all the showtimes for The Hobbit.', zh: 'The Hobbit 的所有场次', sql: "SELECT s.starts_at, l.name AS location, sc.screen_no\nFROM showtimes s\nJOIN movies m ON m.movie_id = s.movie_id\nJOIN screens sc ON sc.screen_id = s.screen_id\nJOIN locations l ON l.location_id = sc.location_id\nWHERE m.title = 'The Hobbit'\nORDER BY s.starts_at;" },
+    { q: "What's playing at 7:30 p.m. on October 31?", zh: '10 月 31 日 19:30 在放什么', sql: "SELECT m.title, l.name AS location, sc.screen_no\nFROM showtimes s\nJOIN movies m ON m.movie_id = s.movie_id\nJOIN screens sc ON sc.screen_id = s.screen_id\nJOIN locations l ON l.location_id = sc.location_id\nWHERE s.starts_at = '2026-10-31 19:30';", note: 'Superman 同一时间在 Galleria 6 的两个厅放映，所以模型要允许同一部电影同时在不同厅放。' },
+    { q: 'Which seats are still open for showing 12356?', zh: '场次 12356 还有哪些空座', sql: 'SELECT se.row_label, se.seat_no\nFROM showtimes s\nJOIN seats se ON se.screen_id = s.screen_id\nWHERE s.show_id = 12356\n  AND se.seat_id NOT IN (SELECT seat_id FROM tickets WHERE show_id = 12356);', note: '子查询一定要只看这一场（<code>WHERE show_id = 12356</code>）。不加的话，同一个厅其他场次卖掉的座位也会被排除：7 个空座只剩 3 个。' },
+    { q: 'How many seats does screen 3 have?', zh: '3 号厅有几个座位', sql: 'SELECT COUNT(*) AS seats FROM seats WHERE screen_id = 3;' },
+    { q: 'Count how many tickets have been sold for showtime 12345.', zh: '场次 12345 卖了几张票', sql: 'SELECT COUNT(*) AS sold FROM tickets WHERE show_id = 12345;', note: '票上就有 show_id，不用再 JOIN showtimes 和 transactions。参考答案的模型把场次放在交易上，所以要 JOIN 三张表。' },
+    { q: 'What percentage of showing 12353 was sold?', zh: '场次 12353 卖了百分之几', sql: 'SELECT ROUND(100.0 * (SELECT COUNT(*) FROM tickets WHERE show_id = 12353)\n       / (SELECT COUNT(*) FROM seats se JOIN showtimes s ON s.screen_id = se.screen_id WHERE s.show_id = 12353), 1) AS pct;', note: '写成 <code>100.0 * …</code>：两个整数相除在 SQLite 里是整数除法，10 / 12 会得到 0。' },
+    { q: 'How many tickets were sold for each movie?', zh: '每部电影卖了几张票', sql: 'SELECT m.title, COUNT(t.ticket_id) AS tickets\nFROM movies m\nLEFT JOIN showtimes s ON s.movie_id = m.movie_id\nLEFT JOIN tickets t ON t.show_id = s.show_id\nGROUP BY m.movie_id, m.title\nORDER BY tickets DESC, m.title;', note: '用 LEFT JOIN 和 COUNT(t.ticket_id)，一张票都没卖的电影（Mickey 17）才会显示 0。' },
+    { q: 'Show the revenue for the movie titled Superman.', zh: 'Superman 的总收入', sql: "SELECT SUM(t.price) AS revenue\nFROM tickets t\nJOIN showtimes s ON s.show_id = t.show_id\nJOIN movies m ON m.movie_id = s.movie_id\nWHERE m.title = 'Superman';", note: '参考答案用 SUM(Transactions.TotalPrice)。如果交易表存了总价，查询又 JOIN 了 tickets，每笔交易的总价会按票数复制，SUM 会成倍多算（fan-out）。在票上 SUM(price) 最稳。' },
+    { q: 'Which genres were most popular between May 1 and August 1 last year?', zh: '去年 5 月 1 日到 8 月 1 日最受欢迎的类型', sql: "SELECT m.genre, COUNT(*) AS tickets\nFROM tickets t\nJOIN showtimes s ON s.show_id = t.show_id\nJOIN movies m ON m.movie_id = s.movie_id\nWHERE s.starts_at >= '2025-05-01' AND s.starts_at < '2025-08-02'\nGROUP BY m.genre\nORDER BY tickets DESC;", note: "这里把 8 月 1 日算在内。<code>BETWEEN '2025-05-01' AND '2025-08-01'</code> 会漏掉 8 月 1 日下午那场：文本比较时 '2025-08-01 14:00' 比 '2025-08-01' 大。漏掉它，Animation 会从第 2 名掉到第 3 名。" },
+    { q: 'Give me a list of the most popular movies in the last year.', zh: '过去一年最受欢迎的电影', sql: "SELECT m.title, COUNT(*) AS tickets\nFROM tickets t\nJOIN showtimes s ON s.show_id = t.show_id\nJOIN movies m ON m.movie_id = s.movie_id\nWHERE s.starts_at >= '2025-11-04' AND s.starts_at < '2026-11-04'\nGROUP BY m.movie_id, m.title\nORDER BY tickets DESC, m.title\nLIMIT 10;", note: '两头都要卡住：只写 <code>&gt;= \'2025-11-04\'</code> 的话，今晚和下周已经预售的场次也会算进去，The Hobbit 会从 5 张变成 8 张，排到 Twisters 前面。' },
+    { q: 'Show the net revenue for each genre over the last year.', zh: '过去一年各类型的收入', sql: "SELECT m.genre, SUM(t.price) AS revenue\nFROM tickets t\nJOIN showtimes s ON s.show_id = t.show_id\nJOIN movies m ON m.movie_id = s.movie_id\nWHERE s.starts_at >= '2025-11-04' AND s.starts_at < '2026-11-04'\nGROUP BY m.genre\nORDER BY revenue DESC;" },
+    { q: 'Walk me through selling seat A4 for showing 12356 to customer 1.', zh: '把场次 12356 的 A4 座卖给顾客 1', dml: true, sql: "BEGIN;\nINSERT INTO transactions (customer_id, purchased_at) VALUES (1, '2026-11-04 10:00');\nINSERT INTO tickets (transaction_id, show_id, seat_id, ticket_type, price)\nVALUES (last_insert_rowid(), 12356, 4, 'adult', 14);\nCOMMIT;", note: 'A4 是 Loop Cinema 1 号厅的 seat_id 4。如果这一场的 A4 已经卖了，UNIQUE (show_id, seat_id) 会让第二条 INSERT 报错，事务回滚，交易也不会留下。' },
+  ],
+});
+
 /* Full mock interview: hospital admissions (the course's earlier example question, rebuilt from its requirements).
    Runs on the `hospital` seed defined in c13.js; "today" in that data is 2026-10-28. */
 window.MOCKS = window.MOCKS || [];
 window.MOCKS.push({
-  id: 'hospital', order: 2, title: '医院住院系统', en: 'Hospital admissions', tag: '官方样题', seed: 'hospital', today: '2026-10-28',
+  id: 'hospital', order: 3, title: '医院住院系统', en: 'Hospital admissions', tag: '官方样题', seed: 'hospital', today: '2026-10-28',
   brief: '医院要记录挂号、门诊、住院、出院和转科，还要出在院人数、30 天再入院等报表。',
   prompt: [
     "A hospital has asked us to design its data system. Walk me through your design, from who uses it, to where the data lives, to the tables. Then I'll ask how a few operations and reports would work in SQL; pseudocode is fine.",
@@ -10207,7 +10574,7 @@ INSERT INTO waitlist VALUES
 `;
 window.MOCKS = window.MOCKS || [];
 window.MOCKS.push({
-  id: 'tickets', order: 4, title: '演出售票系统', en: 'Concert ticketing', tag: '原创练习', seed: 'tickets', today: '2026-11-04',
+  id: 'tickets', order: 5, title: '演出售票系统', en: 'Concert ticketing', tag: '原创练习', seed: 'tickets', today: '2026-11-04',
   brief: '一家演出公司要自己的售票系统：看演出、选座、买票、退票、排候补，还要分析票房和售出率。设计出一套表，再回答几个查询。',
   prompt: [
     "A regional concert promoter wants its own ticketing system. Right now they sell through spreadsheets and a third-party website, so we get to design everything from scratch. Walk me through how you'd design it, down to a database schema, meaning a set of tables and their columns. Then I'll ask how some common queries would work in your design.",
