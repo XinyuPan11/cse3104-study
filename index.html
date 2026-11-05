@@ -169,6 +169,13 @@ header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; 
 .ct-done { color: var(--ok); display: inline-flex; gap: 3px; align-items: center; }
 .ct-done .ico { color: var(--ok); fill: none; }
 .ctile.soon { opacity: .6; cursor: default; }
+.map-sub { margin: -6px 0 12px; color: var(--muted); font-size: 14px; max-width: 72ch; }
+.mtile { min-height: 132px; }
+.mtile .ct-title { font-size: 18px; margin-top: 2px; }
+.mt-new { display: inline-block; margin-left: 4px; padding: 0 7px; border-radius: 999px; font: 700 11px var(--body); background: oklch(var(--Lm) var(--Cm) var(--h)); color: var(--surface); vertical-align: 1px; }
+.mt-meta { margin-top: auto; padding-top: 10px; flex-wrap: wrap; }
+.mtile .mt-live { color: oklch(var(--Lk) var(--Ck) var(--h)); }
+.mtile .mt-live .ico { color: inherit; fill: none; }
 .ct-soon { margin-top: auto; font-size: 12.5px; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; }
 .ct-soon::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: oklch(var(--Lm) var(--Cm) var(--h)); animation: pulse 1.4s infinite; }
 @keyframes pulse { 50% { opacity: .3; } }
@@ -984,6 +991,10 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
 .ex-card { display: flex; flex-direction: column; gap: 6px; text-align: left; padding: 16px; border-radius: 16px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: 14.5px/1.55 var(--body); cursor: pointer; transition: border-color .15s, transform .12s; }
 .ex-card:hover { border-color: var(--c); transform: translateY(-1px); }
 .ex-card > b { font: 800 18px var(--display); }
+.ex-resume { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; gap: 12px; align-items: center; width: 100%; margin: 16px 0 4px; text-align: left; padding: 14px 16px; border-radius: 16px; border: 2px solid var(--c); background: var(--c-soft); color: var(--ink); font: inherit; cursor: pointer; }
+.ex-resume .sc-ico { background: var(--surface); }
+.mt-live { color: var(--c-strong); font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
+.mt-live .ico { width: 13px; }
 .ex-meta { margin-top: auto; color: var(--muted); font-size: 13px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .ex-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 20px; align-items: flex-end; margin-bottom: 12px; }
 .ex-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; }
@@ -10353,7 +10364,7 @@ INSERT INTO repair_reports VALUES
 `;
 window.MOCKS = window.MOCKS || [];
 window.MOCKS.push({
-  id: 'bikeshare', order: 4, title: '城市共享单车系统', en: 'City bike share', tag: '原创练习', seed: 'bikeshare', today: '2026-11-04',
+  id: 'bikeshare', order: 4, title: '城市共享单车系统', en: 'City bike share', tag: '原创模拟题', seed: 'bikeshare', today: '2026-11-04',
   brief: '城市共享单车：找车、找空桩、借车还车、报修，还要分析热门站点、热门路线和骑行时长。设计出一套表，再回答几个查询。',
   prompt: [
     "Our city runs a public bike-share program, and they've asked us to build the data system behind their new app. The old system is being retired, so we can design this one from scratch. Walk me through how you'd design it, down to a database schema, meaning a set of tables and their columns. After that, I'll ask how a few queries would work in your design.",
@@ -13080,7 +13091,7 @@ function renderHeader() {
       <span id="sync" class="sync" data-s="local">本机</span>
       <button type="button" class="btn sm ai-only" id="tutor-btn">${icon('chat')}问助教</button>
     </div></div>`;
-  $$('[data-go]', h).forEach((b) => (b.onclick = () => go(b.dataset.go)));
+  $$('[data-go]', h).forEach((b) => (b.onclick = () => (b.dataset.go === 'exam' ? exOpenList() : go(b.dataset.go))));
   $('#tutor-btn').onclick = () => Tutor.open();
   $('#snd').onclick = () => { S.sound = !S.sound; save(); refreshHeader(); if (S.sound) Sound.play('ok'); };
   cloud.set(cloud.status);
@@ -13158,6 +13169,25 @@ function renderHome(main) {
     sec.append(grid);
     map.append(sec);
   });
+  const mocks = simList();
+  if (mocks.length) {
+    const sec = el('div', 'map-sec');
+    sec.innerHTML = `<h2 class="map-h">${icon('clock')}模拟考试（按真实流程走一遍，交卷评分）</h2><p class="map-sub">${mocks.length} 套题，没有上锁，随时可以开始。建议顺序：先把两道官方练习题考熟，再做 3 道原创题，检验换了主题还会不会。</p>`;
+    const grid = el('div', 'tiles-map');
+    const L = exLive();
+    const hist = S.exams || [];
+    mocks.forEach((m) => {
+      const mine = hist.filter((h) => h.id === m.id);
+      const best = mine.length ? Math.max(...mine.map((h) => h.total)) : null;
+      const isNew = exGroup(m) === '原创模拟题';
+      const t = btn('ctile mtile', `<span class="ct-cls">${esc(exGroup(m))}${isNew ? ' <b class="mt-new">新</b>' : ''}</span><b class="ct-title">${esc(m.title)}</b><span class="ct-blurb">${esc(m.en)}</span>
+        <span class="ct-meta mt-meta">${L && L.id === m.id ? `<span class="mt-live">${icon('play')}没考完，点这里继续</span>` : `<span>30 分钟 · ${exQueries(m).length} 道查询</span>`}${best != null ? `<span>最好 <b class="mk-chip b-${bandOf(best)[3]}">${best}</b></span>` : ''}</span>`, () => exOpen(m.id, t));
+      t.style.setProperty('--h', MOCK_HUE[m.id] ?? 45);
+      grid.append(t);
+    });
+    sec.append(grid);
+    map.append(sec);
+  }
   main.append(map);
 }
 
@@ -13191,7 +13221,7 @@ function renderChapter(main) {
   const side = el('div', 'ch-side');
   side.innerHTML = '<h2 class="sec-h">巩固</h2>';
   const pool = ch.lessons.flatMap((l) => l.screens.filter((s) => isInter(s) && s.t !== 'sql'));
-  const box = (ic, t, sub, f, cls = '') => { const b = btn('sidecard ' + cls, `<span class="sc-ico">${icon(ic)}</span><span class="sc-t"><b>${t}</b><span>${sub}</span></span>${icon('next')}`, f); side.append(b); };
+  const box = (ic, t, sub, f, cls = '') => { const b = btn('sidecard ' + cls, `<span class="sc-ico">${icon(ic)}</span><span class="sc-t"><b>${t}</b><span>${sub}</span></span>${icon('next')}`, f); side.append(b); return b; };
   if ((ch.practice || []).length) {
     const solved = ch.practice.filter((x) => st.prac[x.id]?.solved).length;
     box('code', 'SQL 实战', `${solved} / ${ch.practice.length} 题通过 · 自动判分`, () => go('practice', { ch: ch.id, ex: null }));
@@ -13202,12 +13232,9 @@ function renderChapter(main) {
   box('cards', '闪卡', `${ch.cards.length} 张${due ? ` · ${due} 张到期` : ''}${fresh ? ` · ${fresh} 张新` : ''}`, () => go('review', { rtab: 'cards', rch: ch.id }));
   if ((ch.oral || []).length) box('mic', '口试演练', `${ch.oral.length} 题 · 用英文说出来`, () => go('review', { rtab: 'oral', rch: ch.id, oral: ch.oral[0].id }));
   const examId = { c13: null, c14: 'library', c15: 'cinema' }[ch.id];
-  if (examId !== undefined) box('clock', '模拟考试', examId ? '这道题按真实考试走一遍 · 交卷评分' : '按真实考试走一遍 · 交卷评分', () => {
-    ui.view = 'exam';
-    saveUI();
-    if (examId && !(EX && !EX.result)) { EX = null; exStart(examId); } else render();
-    window.scrollTo({ top: 0 });
-  });
+  if (examId !== undefined) {
+    const eb = box('clock', '模拟考试', examId ? '这道题按真实考试走一遍 · 交卷评分' : '6 套题按真实考试走一遍 · 交卷评分', () => (examId ? exOpen(examId, eb) : exOpenList()));
+  }
   body.append(side);
   main.append(body);
 }
@@ -14152,12 +14179,30 @@ function simRefQuery(m, q, box) {
 /* ───────── mock exam: the real exam's flow, then a grade ─────────
    stages: listen (the professor reads the prompt) → ask → design → probe → query (SQL, graded on submit) → result */
 const EX_STAGES = [['listen', '听题'], ['ask', '提问'], ['design', '设计'], ['probe', '追问'], ['query', '查询'], ['result', '评分']];
-const EX_GROUPS = [['官方练习题', '两道官方练习题，最重要，先把它们练熟'], ['官方样题', '课程更早给的医院样题'], ['原创模拟题', '题型一样、主题不同，检验你是不是真的会了']];
+const EX_GROUPS = [['官方练习题', '两道官方练习题，最重要，先把它们练熟'], ['官方样题', '课程更早给的医院样题'], ['原创模拟题', '题型一样、主题不同，检验你是不是真的会了。没有上锁，建议先把两道官方题考熟再来']];
 const exGroup = (m) => (m.tag.startsWith('原创') ? '原创模拟题' : m.tag);
 const exQueries = (m) => m.queries.filter((q) => q.exam);
 const MOCK_BY_ID = (id) => simList().find((m) => m.id === id);
+const MOCK_HUE = { library: 175, cinema: 320, hospital: 45, bikeshare: 140, hotel: 25, gym: 270 };
 let EX = null; // the exam in progress; mirrored into S.examLive so a reload doesn't lose it
+let exList = false; // show the list of exams even though one is in progress
 let exGrading = false;
+/* the unfinished exam, whether it is loaded yet or only saved */
+const exLive = () => { const L = EX || S.examLive; return L && !L.result && MOCK_BY_ID(L.id) ? L : null; };
+/* open the list of exams; an unfinished one stays saved and shows a "continue" card */
+function exOpenList() { exList = true; go('exam'); }
+/* open exam `id`: continue it if it is the unfinished one, otherwise start it — asking first (on button `b`) if that drops another unfinished exam */
+function exOpen(id, b) {
+  const L = exLive();
+  const open = () => {
+    ui.view = 'exam';
+    saveUI();
+    if (L && L.id === id) { EX = L; exList = false; render(); } else exStart(id);
+    window.scrollTo({ top: 0 });
+  };
+  if (L && L.id !== id && b) { armed(b, `<b>「${esc(MOCK_BY_ID(L.id).title)}」还没考完</b><span>再点一次：放弃那场，开始这道题</span>`, open); return; }
+  open();
+}
 /* two-step buttons instead of confirm(): sandboxed frames may block dialogs */
 function armed(b, prompt, fn) {
   if (b.dataset.armed) { delete b.dataset.armed; fn(); return; }
@@ -14176,6 +14221,7 @@ const exGo = (stage) => { EX.stage = stage; exSave(true); render(); window.scrol
 function exStart(id) {
   const m = MOCK_BY_ID(id);
   EX = { id, mode: AI.ok && ui.emode !== 'self' ? 'ai' : 'self', stage: 'listen', start: Date.now(), end: null, asks: [], design: { people: '', nouns: '', tables: '', why: '' }, probes: [], answers: exQueries(m).map(() => ({ sql: '', peeked: false })), qi: 0, result: null };
+  exList = false;
   exSave(true);
   render();
 }
@@ -14184,7 +14230,7 @@ function renderExam(main) {
   if (!EX && S.examLive && MOCK_BY_ID(S.examLive.id)) EX = S.examLive;
   const wrap = el('div', 'wrap exam');
   main.append(wrap);
-  if (!EX) { examPick(wrap); return; }
+  if (!EX || exList) { examPick(wrap); return; }
   const m = MOCK_BY_ID(EX.id);
   if (!m) { EX = null; exSave(true); examPick(wrap); return; }
   const head = el('div', 'ex-head');
@@ -14193,6 +14239,10 @@ function renderExam(main) {
     <div class="ex-steps">${EX_STAGES.map(([k, t], j) => `<span class="${j === i ? 'on' : j < i ? 'done' : ''}">${j + 1} ${t}</span>`).join('')}</div>`;
   const leave = () => { window.speechSynthesis?.cancel(); EX = null; exSave(true); render(); };
   const quit = btn('btn sm ghost', `${icon('x')}${EX.stage === 'result' ? '回到题目列表' : '放弃这场'}`, () => (EX.stage === 'result' ? leave() : armed(quit, '写的内容会丢掉，再点一次放弃', leave)));
+  if (EX.stage !== 'result') {
+    const toList = btn('btn sm ghost', `${icon('back')}题目列表（保留进度）`, () => { window.speechSynthesis?.cancel(); exList = true; render(); window.scrollTo({ top: 0 }); });
+    $('.ex-title', head).append(toList);
+  }
   $('.ex-title', head).append(quit);
   wrap.append(head, simClock(() => EX && EX.start, () => EX && EX.end));
   const body = el('div', 'ex-body');
@@ -14208,6 +14258,12 @@ function examPick(wrap) {
     $$('[data-m]', seg).forEach((b) => (b.onclick = () => { ui.emode = b.dataset.m; saveUI(); render(); }));
     $('.ex-intro', wrap).append(seg);
   } else $('.ex-intro', wrap).append(el('p', 'muted small', 'AI 考官只在 claude.ai 的链接里可用；这里是自己对照参考答案评分的版本，SQL 照样自动判分。'));
+  const L = exLive();
+  if (L) {
+    const lm = MOCK_BY_ID(L.id);
+    const si = Math.max(0, EX_STAGES.findIndex((s) => s[0] === L.stage));
+    wrap.append(btn('ex-resume', `<span class="sc-ico">${icon('play')}</span><span class="sc-t"><b>继续没考完的「${esc(lm.title)}」</b><span>停在第 ${si + 1} 步「${EX_STAGES[si][1]}」 · 已经用了 ${mmss((Date.now() - L.start) / 1000)}</span></span>${icon('next')}`, () => exOpen(L.id)));
+  }
   EX_GROUPS.forEach(([g, sub]) => {
     const ms = simList().filter((m) => exGroup(m) === g);
     if (!ms.length) return;
@@ -14216,7 +14272,8 @@ function examPick(wrap) {
     ms.forEach((m) => {
       const mine = hist.filter((h) => h.id === m.id);
       const best = mine.length ? Math.max(...mine.map((h) => h.total)) : null;
-      const c = btn('ex-card', `<b>${esc(m.title)}</b><span class="muted small">${esc(m.en)}</span><span>${esc(m.brief)}</span><span class="ex-meta">${exQueries(m).length} 道查询${best != null ? ` · 最好成绩 <b class="mk-chip b-${bandOf(best)[3]}">${best}</b>` : ''}</span>`, () => exStart(m.id));
+      const c = btn('ex-card', `<b>${esc(m.title)}</b><span class="muted small">${esc(m.en)}</span><span>${esc(m.brief)}</span><span class="ex-meta">${L && L.id === m.id ? '<span class="mt-live">没考完，点这里继续</span>' : `${exQueries(m).length} 道查询`}${best != null ? ` · 最好成绩 <b class="mk-chip b-${bandOf(best)[3]}">${best}</b>` : ''}</span>`, () => exOpen(m.id, c));
+      c.style.setProperty('--c', `oklch(60% 0.14 ${MOCK_HUE[m.id] ?? 45})`);
       grid.append(c);
     });
     sec.append(grid);
@@ -14718,7 +14775,7 @@ function boot() {
   cloud.onLoad = () => render();
   cloud.init();
   // the mock interview picks its mode from AI.ok, so redraw it once the AI is known
-  AI.init().then(() => { if (AI.ok && ((ui.view === 'review' && ui.rtab === 'mock') || (ui.view === 'exam' && !EX))) render(); });
+  AI.init().then(() => { if (AI.ok && ((ui.view === 'review' && ui.rtab === 'mock') || (ui.view === 'exam' && (!EX || exList)))) render(); });
   const setH = () => document.documentElement.style.setProperty('--hdr', $('#top').offsetHeight + 'px');
   setH();
   window.addEventListener('resize', setH);
