@@ -1027,6 +1027,33 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
   .rd-pair .rd-arrow { display: none; }
 }
 
+/* pseudocode practice */
+.pz { padding-top: 18px; padding-bottom: 70px; max-width: 900px; }
+.pz-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.pz-tabs button { border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 99px; padding: 5px 12px; font: 600 13px var(--body); cursor: pointer; }
+.pz-tabs button.on { background: var(--c); border-color: var(--c); color: var(--c-ink); }
+.pz-s { margin-left: 4px; padding: 0 6px; border-radius: 99px; background: var(--c-soft); color: var(--c-strong); font: 700 11.5px var(--mono); }
+.pz-card { margin-top: 16px; padding: 18px; border-radius: 18px; background: var(--surface); border: 1.5px solid var(--line); min-width: 0; }
+.pz-card h2 { margin: 2px 0 8px; font: 800 21px var(--display); }
+.pz-en { margin: 0 0 6px; color: var(--c-strong); }
+.pz-ta { width: 100%; box-sizing: border-box; min-height: 190px; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--code-bg); color: var(--ink); font: 14px/1.6 var(--mono); resize: vertical; }
+.pz-ta:focus { outline: none; border-color: var(--c); }
+.pz-out { margin-top: 14px; display: grid; gap: 12px; }
+.pz-score { font-size: 15px; }
+.pz-score b { font: 800 26px var(--display); color: var(--c-strong); margin: 0 4px; }
+.pz-ai { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.pz-ai li { display: flex; gap: 8px; align-items: flex-start; padding: 8px 12px; border-radius: 10px; font-size: 14.5px; }
+.pz-ai li.ok { background: oklch(var(--Ls) var(--Cs) 150); }
+.pz-ai li.no { background: oklch(var(--Ls) var(--Cs) 25); }
+.pz-ai li > .ico { flex: none; margin-top: 2px; }
+.pz-checks { display: grid; gap: 6px; padding: 12px 14px; border-radius: 12px; background: var(--c-soft); }
+.pz-checks label { display: flex; gap: 8px; align-items: flex-start; font-size: 14.5px; cursor: pointer; }
+.pz-checks input { margin-top: 4px; accent-color: var(--c); }
+.pz-ref ol { margin: 6px 0 0; padding-left: 22px; display: grid; gap: 8px; }
+.pz-ref li > span { font-weight: 600; }
+.pz-ref pre { margin-top: 6px; }
+.pz-better summary { cursor: pointer; font-weight: 600; }
+
 /* one-page template sheet */
 .sheet { padding-top: 18px; padding-bottom: 60px; }
 .sh-top .crumb { background: var(--c-soft); color: var(--c-strong); margin-bottom: 10px; }
@@ -10322,7 +10349,7 @@ window.CHAPTERS = window.CHAPTERS || [];
 window.CHAPTERS.push({
   id: 'c16', no: 16, cls: '答题模板', title: '万能答题模板', en: 'One template for every prompt',
   blurb: '不管教授出什么主题，都按同一套模板答：5 段固定流程、4 种角色、5 个设计套路、8 个 SQL 骨架。先背模板，再拿官方题和模拟考试套用。',
-  hue: 200, db: 'tpl', read: true, source: '根据两道官方练习题和评分标准总结',
+  hue: 200, db: 'tpl', read: true, pseudoLes: 'e', source: '根据两道官方练习题和评分标准总结',
   sheetSub: '考前从上到下看一遍。方括号里的词换成题目里的东西，其余照着说。',
   sheet: [
     { h: '复述 + 提问', time: '0–3 分钟',
@@ -10697,8 +10724,120 @@ window.CHAPTERS.push({
       ],
     },
   ],
+  /* 操作题伪代码练习：学生按步骤写，AI 或对照清单判分。steps = [说明, SQL 或 null]；checks = 判分要点 */
+  pseudo: [
+    { id: 'W1', theme: '图书馆', title: '还书，并通知下一位',
+      en: 'A member returns copy 13 today. Walk me through what happens in your system.',
+      task: '副本 13（书 12349）今天还回来了。按步骤写出系统要做的事，每一步说动哪张表。',
+      tables: 'copies(copy_id, book_id, branch)\nloans(loan_id, copy_id, member_id, checkout_date, due_date, return_date)\nholds(hold_id, book_id, member_id, placed_at, status)   -- waiting / fulfilled / cancelled\nmembers(member_id, name, email)',
+      steps: [
+        ['检查 check：这个副本有一条还没还的借阅', 'SELECT loan_id, due_date FROM loans\nWHERE copy_id = 13 AND return_date IS NULL;'],
+        ['写事件 write the event：只把这一条记为今天归还', "UPDATE loans SET return_date = date('now')\nWHERE copy_id = 13 AND return_date IS NULL;"],
+        ['（加分）晚还了就记一笔罚款：return_date > due_date 时往 fees 表插一行', null],
+        ['处理排队 serve the queue：按「书」找最早的 waiting 预约（副本 13 属于书 12349）', "SELECT hold_id, member_id FROM holds\nWHERE book_id = 12349 AND status = 'waiting'\nORDER BY placed_at LIMIT 1;"],
+        ['改状态 update status：把那条预约改成 fulfilled（不删行），这本副本给他留着', "UPDATE holds SET status = 'fulfilled' WHERE hold_id = :that_hold;"],
+        ['通知 notify：给那位读者发邮件；整件事放进一个事务 transaction', null],
+      ],
+      checks: ['只改「还没还」的那条借阅（return_date IS NULL），不是这个副本的所有借阅', '预约按书目 book_id 找，不是按副本', "只看 status = 'waiting'，按 placed_at 取最早的一条", '预约改状态（fulfilled / ready），不删除', '通知排第一的读者', '提到事务，或提到晚还要罚款'] },
+    { id: 'W2', theme: '图书馆', title: '借书',
+      en: 'Member 4 wants to check out copy 7. What does the system do?',
+      task: '读者 4 要借副本 7。借期 3 周。按步骤写出系统要做的事。',
+      tables: 'copies(copy_id, book_id, branch)\nloans(loan_id, copy_id, member_id, checkout_date, due_date, return_date)\nholds(hold_id, book_id, member_id, placed_at, status)',
+      steps: [
+        ['检查 check：副本 7 现在在架上（没有还没还的借阅）', 'SELECT 1 FROM loans WHERE copy_id = 7 AND return_date IS NULL;   -- 应该没有结果'],
+        ['检查 check：这本书如果有人排队，读者 4 必须是排第一的那个（否则不能借给他）', null],
+        ['写事件 write the event：插入一条借阅，到期日 = 今天 + 21 天，归还日留空', "INSERT INTO loans (copy_id, member_id, checkout_date, due_date, return_date)\nVALUES (7, 4, date('now'), date('now', '+21 days'), NULL);"],
+        ['改状态 update status：如果读者 4 有这本书的 waiting 预约，改成 fulfilled', "UPDATE holds SET status = 'fulfilled'\nWHERE member_id = 4 AND status = 'waiting'\n  AND book_id = (SELECT book_id FROM copies WHERE copy_id = 7);"],
+        ['通知 notify：打印或发送借书凭条，写明到期日', null],
+      ],
+      checks: ['先检查副本现在没被借走（看 return_date IS NULL 的借阅）', '考虑到有人在排队这本书', 'INSERT 一条借阅：copy、member、借出日、到期日，归还日为空', '到期日在借出时就算好（今天 + 3 周）', '读者自己的预约改成 fulfilled'] },
+    { id: 'W3', theme: '电影院', title: '一次买两张票',
+      en: 'A customer buys two seats for tonight\'s 7:30 show. Walk me through it.',
+      task: '顾客 7 买场次 12352 的 A1、A2 两个座位（seat_id 1、2），每张 14 元。按步骤写出系统要做的事。',
+      tables: 'showtimes(show_id, movie_id, screen_id, starts_at)\nseats(seat_id, screen_id, row_label, seat_no)\ntransactions(transaction_id, customer_id, purchased_at)\ntickets(ticket_id, transaction_id, show_id, seat_id, ticket_type, price)   -- UNIQUE(show_id, seat_id)',
+      steps: [
+        ['检查 check：这一场还没开始，两个座位都属于这个影厅、这一场还没卖出', 'SELECT seat_id FROM tickets WHERE show_id = 12352 AND seat_id IN (1, 2);   -- 应该没有结果'],
+        ['开始事务 BEGIN', null],
+        ['写事件 write the event：先插一笔交易（谁、什么时候）', "INSERT INTO transactions (customer_id, purchased_at) VALUES (7, datetime('now'));"],
+        ['写事件：再插两张票，指向这笔交易、这一场、各自的座位，价格写在票上', "INSERT INTO tickets (transaction_id, show_id, seat_id, ticket_type, price)\nVALUES (:new_tx, 12352, 1, 'adult', 14), (:new_tx, 12352, 2, 'adult', 14);"],
+        ['提交 COMMIT。两人同时抢同一座位时，UNIQUE(show_id, seat_id) 让后一个插入失败，整个事务回滚', null],
+        ['通知 notify：发确认邮件', null],
+      ],
+      checks: ['检查座位在这一场还没卖出', '先有 transaction，再插 tickets（外键）', '每张票指向场次 show_id 和座位 seat_id', '价格存在票上', '放进一个事务：要么全成功，要么全撤销', '提到 UNIQUE(show_id, seat_id) 防止重复卖'] },
+    { id: 'W4', theme: '电影院', title: '退一张票',
+      en: 'A customer wants a refund for one of their tickets. What happens?',
+      task: '顾客要退掉票 87（场次 12356 的一个座位），场次还没开始。按步骤写出系统要做的事，并说说你会删行还是改状态。',
+      tables: 'showtimes(show_id, movie_id, screen_id, starts_at)\ntransactions(transaction_id, customer_id, purchased_at)\ntickets(ticket_id, transaction_id, show_id, seat_id, ticket_type, price)   -- UNIQUE(show_id, seat_id)',
+      steps: [
+        ['检查 check：这张票属于这位顾客，场次还没开始', "SELECT t.price FROM tickets t\nJOIN transactions tr ON tr.transaction_id = t.transaction_id\nJOIN showtimes st ON st.show_id = t.show_id\nWHERE t.ticket_id = 87 AND tr.customer_id = :customer AND st.starts_at > datetime('now');"],
+        ['退款金额 = 票上存的 price（不是电影现在的价格）', null],
+        ['写事件：两种做法。A：把票移到 refunds 表（ticket 信息 + 退款时间、金额）再从 tickets 删除，座位马上能再卖；B：给 tickets 加 status = refunded，保留历史，但 UNIQUE(show_id, seat_id) 要改成只管没退的票', "-- 做法 A\nINSERT INTO refunds (ticket_id, show_id, seat_id, amount, refunded_at)\nSELECT ticket_id, show_id, seat_id, price, datetime('now') FROM tickets WHERE ticket_id = 87;\nDELETE FROM tickets WHERE ticket_id = 87;"],
+        ['放进一个事务；通知 notify 顾客退款成功', null],
+      ],
+      checks: ['检查是本人的票、场次还没开始', '退款金额用票上的价格', '说出取舍：删行会丢历史，改状态要处理唯一约束', '退完座位能再卖', '放进事务，并通知顾客'] },
+    { id: 'W5', theme: '酒店', title: '取消预订',
+      en: 'A guest calls to cancel their reservation. Walk me through it.',
+      task: '客人要取消预订 45（11 月 27 日入住）。按步骤写出系统要做的事。',
+      tables: 'rooms(room_id, hotel_id, type_id, room_no, floor)\nreservations(res_id, guest_id, room_id, check_in, check_out, nightly_rate, status, booked_on)\n-- status: booked / cancelled / checked_in / checked_out',
+      steps: [
+        ['检查 check：预订存在、属于这位客人，状态还是 booked（已经入住或退房的不能取消）', "SELECT status, check_in FROM reservations WHERE res_id = 45;"],
+        ['（政策）离入住日太近可能要收一晚的费用：用 check_in 和今天比', null],
+        ['改状态 update status：改成 cancelled，不删行（取消率报表要用）', "UPDATE reservations SET status = 'cancelled'\nWHERE res_id = 45 AND status = 'booked';"],
+        ['房间自动空出来：查空房时本来就排除 cancelled，不用改 rooms', null],
+        ['（加分）退款记到 payments / refunds 表；通知 notify 客人', null],
+      ],
+      checks: ["只在 status = 'booked' 时才取消", '改状态 cancelled，不删除', '说明房间为什么自动变回可订（查空房排除取消的预订）', '想到取消政策或退款', '通知客人'] },
+    { id: 'W6', theme: '酒店', title: '办入住',
+      en: 'A guest arrives at the front desk. How does check-in work in your data model?',
+      task: '客人 Mara Quill 今天到店，她有一个今天入住的预订。按步骤写出系统要做的事。',
+      tables: 'guests(guest_id, name, email, phone)\nrooms(room_id, hotel_id, type_id, room_no, floor)\nreservations(res_id, guest_id, room_id, check_in, check_out, nightly_rate, status, booked_on)',
+      steps: [
+        ['检查 check：找到她今天入住、状态 booked 的预订', "SELECT r.res_id, r.room_id FROM reservations r\nJOIN guests g ON g.guest_id = r.guest_id\nWHERE g.name = 'Mara Quill' AND r.check_in = date('now') AND r.status = 'booked';"],
+        ['检查 check：那间房的上一位客人已经退房（没有还在 checked_in 的预订占着它）', "SELECT 1 FROM reservations\nWHERE room_id = :room AND status = 'checked_in';   -- 应该没有结果"],
+        ['改状态 update status：改成 checked_in', "UPDATE reservations SET status = 'checked_in'\nWHERE res_id = :res AND status = 'booked';"],
+        ['（加分）如果预订只订了房型、没分配具体房间，这一步才分配 room_id', null],
+        ['通知 notify：发房卡，通知客房部', null],
+      ],
+      checks: ['按客人 + 今天的入住日 + booked 找到预订', '确认房间已经空出来', "UPDATE 带 status = 'booked' 条件", '状态改成 checked_in', '提到分配房间或通知'] },
+    { id: 'W7', theme: '健身房', title: '有人取消，候补补上',
+      en: 'A class is full. Someone cancels their booking. What happens?',
+      task: '会员取消了预约 booking 88（课程 session 15，已经满员，有人在候补）。按步骤写出系统要做的事。',
+      tables: 'sessions(session_id, class_type_id, room_id, instructor_id, starts_at, capacity)\nbookings(booking_id, session_id, member_id, booked_at, status)   -- booked / cancelled / attended / no_show\nwaitlist(waitlist_id, session_id, member_id, joined_at, status)   -- waiting / promoted / left',
+      steps: [
+        ['检查 check：这条预约是 booked，课还没开始', "SELECT b.status, s.starts_at FROM bookings b\nJOIN sessions s ON s.session_id = b.session_id WHERE b.booking_id = 88;"],
+        ['改状态 update status：预约改成 cancelled，不删行', "UPDATE bookings SET status = 'cancelled'\nWHERE booking_id = 88 AND status = 'booked';"],
+        ['处理排队 serve the queue：这节课候补里最早的 waiting', "SELECT waitlist_id, member_id FROM waitlist\nWHERE session_id = 15 AND status = 'waiting'\nORDER BY joined_at LIMIT 1;"],
+        ['写事件 write the event：给他插一条 booked 预约，候补改成 promoted', "INSERT INTO bookings (session_id, member_id, booked_at, status)\nVALUES (15, :member, datetime('now'), 'booked');\nUPDATE waitlist SET status = 'promoted' WHERE waitlist_id = :wl;"],
+        ['全部放进一个事务；通知 notify 补上的人（和取消的人）', null],
+      ],
+      checks: ['取消的预约改状态，不删除', '候补按 session 找，只看 waiting，按 joined_at 取最早', '给候补的人插入新预约', '候补那条改成 promoted', '放进事务并通知'] },
+    { id: 'W8', theme: '共享单车', title: '还车',
+      en: 'A rider docks bike 11 at a station. Walk me through what the system records.',
+      task: '骑手把车 11 停进车站 3 的桩 dock 8。按步骤写出系统要做的事（包括算钱）。',
+      tables: 'docks(dock_id, station_id, dock_no, in_service)\nbikes(bike_id, model_id, dock_id, status)   -- dock_id 为空 = 不在桩上\nrides(ride_id, bike_id, rider_id, pass_type, start_station_id, start_time, end_station_id, end_time)',
+      steps: [
+        ['检查 check：车 11 有一次还没结束的骑行；桩 8 能用、没被占', "SELECT ride_id, start_time, pass_type FROM rides\nWHERE bike_id = 11 AND end_time IS NULL;\nSELECT 1 FROM bikes WHERE dock_id = 8;   -- 应该没有结果"],
+        ['写事件 write the event：只结束这一次还开着的骑行', "UPDATE rides SET end_station_id = 3, end_time = datetime('now')\nWHERE bike_id = 11 AND end_time IS NULL;"],
+        ['改状态 update status：车停到桩上', 'UPDATE bikes SET dock_id = 8 WHERE bike_id = 11;'],
+        ['算钱：时长 = end_time - start_time，按 pass_type（会员 / 日票）的价格算；记到 payments', null],
+        ['事务；通知 notify 骑手收据', null],
+      ],
+      checks: ['只更新还没结束的那次骑行（end_time IS NULL）', '记下结束车站和结束时间', '更新车的位置（dock_id）', '按时长和票种算钱', '放进事务或说明两步要一起成功'] },
+    { id: 'W9', theme: '实习网站', title: '学生申请职位',
+      en: 'A student clicks "Apply" on a posting. What does the system do?',
+      task: '学生 1 申请职位 19。按步骤写出系统要做的事。',
+      tables: 'postings(posting_id, company_id, recruiter_id, title, ..., deadline, status)   -- open / closed / filled\napplications(app_id, student_id, posting_id, applied_at, status)   -- UNIQUE(student_id, posting_id)\nsaved_postings(student_id, posting_id, saved_at)\nrecruiters(recruiter_id, company_id, name, email)',
+      steps: [
+        ['检查 check：职位还开放：status 是 open，而且截止日期还没过', "SELECT 1 FROM postings\nWHERE posting_id = 19 AND status = 'open' AND deadline >= date('now');"],
+        ['检查 check：没申请过（UNIQUE(student_id, posting_id) 也会挡住重复申请）', null],
+        ['写事件 write the event：插入申请，状态 submitted', "INSERT INTO applications (student_id, posting_id, applied_at, status)\nVALUES (1, 19, date('now'), 'submitted');"],
+        ['（可选）从收藏 saved_postings 里移掉这个职位', null],
+        ['通知 notify：通知这个职位的招聘官', null],
+      ],
+      checks: ["检查职位开放：status = 'open' 并且 deadline 没过（只看 status 不够）", '防止重复申请（UNIQUE 或先查）', 'INSERT 申请：学生、职位、日期、状态 submitted', '通知招聘官'] },
+  ],
   practice: [
-    { id: 'T1', les: 'd', title: '① 搜索 · 电影院', prompt: '<b>电影院</b>（表 movies）：所有 R 级（<code>rating = \'R\'</code>）电影的片名和片长。',
+    { id: 'T1',les: 'd', title: '① 搜索 · 电影院', prompt: '<b>电影院</b>（表 movies）：所有 R 级（<code>rating = \'R\'</code>）电影的片名和片长。',
       cols: 'title, length_min',
       ref: "SELECT title, length_min FROM movies WHERE rating = 'R';",
       hints: ['骨架 ①：目录表 + WHERE', '只用 movies 一张表'] },
@@ -14399,9 +14538,9 @@ function render() {
   const main = $('#main');
   main.innerHTML = '';
   main.className = 'v-' + ui.view;
-  if (['chapter', 'lesson', 'practice', 'boss', 'sheet', 'read'].includes(ui.view) && !CH(ui.ch)) ui.view = 'home';
-  if (ui.view === 'sheet' && !CH(ui.ch).sheet) ui.view = 'chapter';
-  ({ home: renderHome, chapter: renderChapter, lesson: renderRunner, boss: renderRunner, mix: renderRunner, practice: renderPractice, review: renderReview, exam: renderExam, sheet: renderSheet, read: renderRead })[ui.view](main);
+  if (['chapter', 'lesson', 'practice', 'boss', 'sheet', 'read', 'pseudo'].includes(ui.view) && !CH(ui.ch)) ui.view = 'home';
+  if ((ui.view === 'sheet' && !CH(ui.ch).sheet) || (ui.view === 'pseudo' && !CH(ui.ch).pseudo)) ui.view = 'chapter';
+  ({ home: renderHome, chapter: renderChapter, lesson: renderRunner, boss: renderRunner, mix: renderRunner, practice: renderPractice, review: renderReview, exam: renderExam, sheet: renderSheet, read: renderRead, pseudo: renderPseudo })[ui.view](main);
   refreshHeader();
 }
 
@@ -14504,6 +14643,10 @@ function renderChapter(main) {
   const pool = ch.lessons.flatMap((l) => l.screens.filter((s) => isInter(s) && s.t !== 'sql'));
   const box = (ic, t, sub, f, cls = '') => { const b = btn('sidecard ' + cls, `<span class="sc-ico">${icon(ic)}</span><span class="sc-t"><b>${t}</b><span>${sub}</span></span>${icon('next')}`, f); side.append(b); return b; };
   if (ch.sheet) box('doc', '一页模板', '考前从上到下看一遍：每段做什么、照着哪句说', () => go('sheet', { ch: ch.id }), 'sheet-card');
+  if (ch.pseudo) {
+    const done = ch.pseudo.filter((p) => S.pseudo?.[ch.id + ':' + p.id]?.score != null).length;
+    box('bolt', '写伪代码：操作题', `${done} / ${ch.pseudo.length} 题做过 · ${AI.ok ? 'AI 判分' : '对照参考答案打分'}`, () => go('pseudo', { ch: ch.id, pq: ch.pseudo[0].id }));
+  }
   if ((ch.practice || []).length) {
     const solved = ch.practice.filter((x) => st.prac[x.id]?.solved).length;
     box('code', 'SQL 实战', `${solved} / ${ch.practice.length} 题通过 · 自动判分`, () => go('practice', { ch: ch.id, ex: null }));
@@ -14636,12 +14779,119 @@ function renderRead(main) {
   const end = el('div', 'rd-end');
   // pure practice for this lesson: exercises tagged with `les`, else the whole chapter's practice
   const mine = (ch.practice || []).filter((p) => p.les === les.id);
-  if (mine.length) end.append(btn('btn primary big', `${icon('code')}练这一课：${mine.length} 道题`, () => go('practice', { ch: ch.id, ex: mine[0].id })));
-  else end.append(btn('btn primary big', `${icon('clock')}去模拟考试练一场`, () => exOpenList()));
+  const pz = ch.pseudo && ch.pseudoLes === les.id;
+  if (pz) end.append(btn('btn primary big', `${icon('doc')}写伪代码：${ch.pseudo.length} 道操作题`, () => go('pseudo', { ch: ch.id, pq: ch.pseudo[0].id })));
+  if (mine.length) end.append(btn(pz ? 'btn big' : 'btn primary big', `${icon('code')}练这一课的 SQL：${mine.length} 道题`, () => go('practice', { ch: ch.id, ex: mine[0].id })));
+  else if (!pz) end.append(btn('btn primary big', `${icon('clock')}去模拟考试练一场`, () => exOpenList()));
   finish.className = 'btn big';
-  end.prepend(el('p', 'rd-end-t', mine.length ? '读完就直接做题：只给题目，写完自动判分，答案要你点了才显示。' : '读完就去练：挑一道模拟考试题，用这一课的模板答一遍。'));
+  end.prepend(el('p', 'rd-end-t', pz ? '读完就直接练：每道操作题自己按步骤写，提交后判分，参考答案提交后才显示。' : mine.length ? '读完就直接做题：只给题目，写完自动判分，答案要你点了才显示。' : '读完就去练：挑一道模拟考试题，用这一课的模板答一遍。'));
   end.append(finish);
   wrap.append(end);
+  main.append(wrap);
+}
+
+/* ───────── pseudocode practice (chapters with `pseudo`) ─────────
+   The student writes the steps of an operation in their own words + SQL-ish lines.
+   Graded by AI against the checklist (claude.ai), or self-checked against the reference steps (public site). */
+let pseudoGrading = false;
+function renderPseudo(main) {
+  const ch = CH(ui.ch);
+  setHue(ch.hue);
+  const list = ch.pseudo;
+  const cur = list.find((p) => p.id === ui.pq) || list[0];
+  const store = (S.pseudo ||= {});
+  const key = ch.id + ':' + cur.id;
+  const st = (store[key] ||= { text: '' });
+  const wrap = el('div', 'wrap pz');
+  const scoreOf = (p) => store[ch.id + ':' + p.id]?.score;
+  wrap.innerHTML = `<div class="rd-top"><button type="button" class="crumb">${icon('back')}第 ${ch.no} 章 · ${esc(ch.title)}</button>
+    <h1>写伪代码：操作题</h1>
+    <p class="muted">考试里的「Walk me through what happens when…」。按 5 步写：<b>check → write the event → update status → serve the queue → notify</b>，每步一句话 + 动哪张表；会写 SQL 就写，写不出就用伪代码。${AI.ok ? '提交后 AI 按要点判分。' : '提交后对照参考答案，自己勾要点算分（AI 判分只在 claude.ai 的链接里有）。'}</p>
+    <nav class="pz-tabs" aria-label="伪代码题">${list.map((p, i) => { const s = scoreOf(p); return `<button type="button" data-q="${p.id}" class="${p === cur ? 'on' : ''}">${i + 1}. ${esc(p.theme)} · ${esc(p.title)}${s != null ? ` <b class="pz-s">${s}</b>` : ''}</button>`; }).join('')}</nav></div>`;
+  $('.crumb', wrap).onclick = () => go('chapter', { ch: ch.id });
+  $$('[data-q]', wrap).forEach((b) => (b.onclick = () => go('pseudo', { ch: ch.id, pq: b.dataset.q })));
+  const card = el('section', 'pz-card');
+  card.innerHTML = `<span class="rd-tag">${esc(cur.theme)}</span><h2>${esc(cur.title)}</h2>
+    <p class="pz-en">Professor: <i>"${esc(cur.en)}"</i></p><p>${esc(cur.task)}</p>
+    <div class="mini-h">可以用的表</div><pre class="code"><code>${hl(cur.tables)}</code></pre>
+    <div class="mini-h">你的步骤</div>`;
+  const ta = el('textarea', 'pz-ta');
+  ta.rows = 9;
+  ta.spellcheck = false;
+  ta.placeholder = '1. Check：…（查哪张表、什么条件）\n2. Write the event：INSERT / UPDATE …\n3. Update status：…\n4. Serve the queue：…\n5. Notify：…';
+  ta.value = st.text || '';
+  ta.oninput = () => { st.text = ta.value; clearTimeout(renderPseudo.t); renderPseudo.t = setTimeout(save, 800); };
+  card.append(ta);
+  const row = el('div', 'btnrow');
+  const out = el('div', 'pz-out');
+  const showRef = () => {
+    out.insertAdjacentHTML('beforeend', `<div class="pz-ref"><div class="mini-h">参考步骤</div><ol>${cur.steps.map(([h, sql]) => `<li><span>${esc(h)}</span>${sql ? `<pre class="code"><code>${hl(sql)}</code></pre>` : ''}</li>`).join('')}</ol></div>`);
+  };
+  const selfCheck = () => {
+    out.innerHTML = '';
+    showRef();
+    const box = el('div', 'pz-checks');
+    box.innerHTML = `<div class="mini-h">对照要点，你写到了哪几条？</div>` + cur.checks.map((c, i) => `<label><input type="checkbox" data-i="${i}" ${st.self && st.self[i] ? 'checked' : ''}> <span>${esc(c)}</span></label>`).join('');
+    const tally = el('div', 'pz-score');
+    const upd = () => {
+      st.self = $$('input', box).map((x) => x.checked);
+      st.score = Math.round((100 * st.self.filter(Boolean).length) / cur.checks.length);
+      st.mode = 'self';
+      tally.innerHTML = `得分 <b>${st.score}</b>（${st.self.filter(Boolean).length} / ${cur.checks.length} 条要点）`;
+      save();
+    };
+    $$('input', box).forEach((x) => (x.onchange = upd));
+    box.append(tally);
+    out.append(box);
+    upd();
+  };
+  const showAI = (r) => {
+    out.innerHTML = `<div class="pz-score">AI 评分 <b>${r.score}</b></div>
+      <ul class="pz-ai">${cur.checks.map((c, i) => { const k = (r.checks || [])[i] || {}; return `<li class="${k.ok ? 'ok' : 'no'}">${k.ok ? icon('check') : icon('x')}<span><b>${esc(c)}</b>${k.note ? `<br><span class="muted">${esc(k.note)}</span>` : ''}</span></li>`; }).join('')}</ul>
+      ${r.feedback ? `<p>${esc(r.feedback)}</p>` : ''}
+      ${r.better ? `<details class="pz-better"><summary>口试时可以这样说（英文）</summary><p>${esc(r.better)}</p></details>` : ''}`;
+    showRef();
+  };
+  const gradeAI = async () => {
+    if (pseudoGrading) return;
+    if (!ta.value.trim()) { toast('先写下你的步骤'); return; }
+    pseudoGrading = true;
+    out.innerHTML = '<div class="muted">AI 正在对照要点判分……</div>';
+    const prompt = `You are grading one answer from a student practicing for the WashU CSE 3104 oral exam (an entry-level data engineering interview). The professor asked an "operation" question; the student wrote the steps the system takes, in pseudocode or SQL. Judge the logic, not syntax or English grammar (the student's first language is Chinese). Pseudocode is fine.
+
+Question: ${cur.en}
+Details: ${cur.task}
+Tables available:
+${cur.tables}
+Reference steps (one good answer):
+${cur.steps.map(([h, sql], i) => `${i + 1}. ${h}${sql ? '\n   ' + sql.replace(/\n/g, '\n   ') : ''}`).join('\n')}
+Checklist (grade each item: did the student's answer cover it, even in different words?):
+${cur.checks.map((c, i) => `${i + 1}. ${c}`).join('\n')}
+
+Student's answer:
+${ta.value.slice(0, 3000)}
+
+Reply with only a JSON object: {"score": integer 0-100 (mostly the share of checklist items covered; deduct for steps that would corrupt data, e.g. an UPDATE without a precise WHERE), "checks": [{"ok": true|false, "note": "一句中文，具体指出学生写了什么或缺了什么"} (one per checklist item, same order)], "feedback": "2–3 句中文：最重要的遗漏或错误，以及怎么改", "better": "how a strong candidate would say this out loud in English, 4–6 sentences"}`;
+    try {
+      const r = await AI.fn.json(prompt);
+      r.score = Math.max(0, Math.min(100, Math.round(Number(r.score) || 0)));
+      Object.assign(st, { score: r.score, ai: r, mode: 'ai' });
+      save();
+      Sound.play(r.score >= 80 ? 'ok' : 'bad');
+      if (ui.view === 'pseudo' && ui.pq === cur.id) showAI(r);
+    } catch (e) {
+      out.innerHTML = `<div class="sqlerr">${esc(AI.errText(e) || 'AI 评分没有完成。')}</div>`;
+      out.append(btn('btn', '改成对照参考答案自己打分', selfCheck));
+    } finally { pseudoGrading = false; }
+  };
+  if (AI.ok) row.append(btn('btn primary', `${icon('spark')}提交，AI 判分`, gradeAI));
+  row.append(btn(AI.ok ? 'btn' : 'btn primary', `${icon('check')}${AI.ok ? '自己对照打分' : '提交，对照参考答案'}`, () => { if (!ta.value.trim()) { toast('先写下你的步骤'); return; } selfCheck(); }));
+  const i = list.indexOf(cur);
+  if (list[i + 1]) row.append(btn('btn ghost', `下一题 ${icon('next')}`, () => go('pseudo', { ch: ch.id, pq: list[i + 1].id })));
+  card.append(row, out);
+  if (st.mode === 'ai' && st.ai) showAI(st.ai);
+  else if (st.mode === 'self') selfCheck();
+  wrap.append(card);
   main.append(wrap);
 }
 
@@ -16209,7 +16459,7 @@ function boot() {
   cloud.onLoad = () => render();
   cloud.init();
   // the mock interview picks its mode from AI.ok, so redraw it once the AI is known
-  AI.init().then(() => { if (AI.ok && ((ui.view === 'review' && ui.rtab === 'mock') || (ui.view === 'exam' && (!EX || exList)))) render(); });
+  AI.init().then(() => { if (AI.ok && ((ui.view === 'review' && ui.rtab === 'mock') || (ui.view === 'exam' && (!EX || exList)) || ui.view === 'pseudo')) render(); });
   const setH = () => document.documentElement.style.setProperty('--hdr', $('#top').offsetHeight + 'px');
   setH();
   window.addEventListener('resize', setH);
