@@ -10931,7 +10931,7 @@ window.CHAPTERS = window.CHAPTERS || [];
 window.CHAPTERS.push({
   id: 'c17', no: 17, cls: 'SQL 专项', title: 'SQL 专项：学用法，再闯关', en: 'SQL drills across four topics',
   blurb: '只学用法：筛选、JOIN、分组、子查询、日期和窗口、改数据，每块一个模板。然后在图书馆、电影院、酒店、共享单车 4 套数据上闯 27 关。',
-  hue: 265, db: 'sqlall', read: true, source: '课程 SQL 内容 + 口试查询题型',
+  hue: 265, db: 'sqlall', read: true, readTry: true, source: '课程 SQL 内容 + 口试查询题型',
   lessons: [
     {
       id: 'a', title: '筛选、排序、去重', min: 5,
@@ -14634,7 +14634,7 @@ function renderChapter(main) {
   ch.lessons.forEach((l, i) => {
     const r = st.les[l.id];
     const nI = l.screens.filter(isInter).length;
-    const b = btn('lnode' + (r?.done ? ' done' : '') + (l === nx && !r?.done ? ' next' : ''), `<span class="ln-dot">${r?.done ? icon('check') : i + 1}</span><span class="ln-main"><b>${esc(l.title)}</b><span>${ch.read ? `一页读完${(ch.practice || []).some((p) => p.les === l.id) ? ` · 然后练 ${(ch.practice || []).filter((p) => p.les === l.id).length} 道题` : ' · 然后考一场模拟考试'}` : `${l.min} 分钟 · ${l.screens.length} 屏 · ${nI} 个互动`}</span></span>${ch.read ? '' : `<span class="ln-stars">${[0, 1, 2].map((k) => `<i class="${k < (r?.stars || 0) ? 'on' : ''}">${icon('star')}</i>`).join('')}</span>`}`, () => openLesson(ch, l.id));
+    const b = btn('lnode' + (r?.done ? ' done' : '') + (l === nx && !r?.done ? ' next' : ''), `<span class="ln-dot">${r?.done ? icon('check') : i + 1}</span><span class="ln-main"><b>${esc(l.title)}</b><span>${ch.read ? `一页读完${ch.readTry && l.screens.some((s) => s.t === 'sql') ? ` · 页内 ${l.screens.filter((s) => s.t === 'sql').length} 道先写再对` : ''}${(ch.practice || []).some((p) => p.les === l.id) ? ` · 然后练 ${(ch.practice || []).filter((p) => p.les === l.id).length} 道题` : ' · 然后考一场模拟考试'}` : `${l.min} 分钟 · ${l.screens.length} 屏 · ${nI} 个互动`}</span></span>${ch.read ? '' : `<span class="ln-stars">${[0, 1, 2].map((k) => `<i class="${k < (r?.stars || 0) ? 'on' : ''}">${icon('star')}</i>`).join('')}</span>`}`, () => openLesson(ch, l.id));
     path.append(b);
   });
   body.append(path);
@@ -14740,6 +14740,20 @@ function rdBlock(s, ch) {
       b.innerHTML = head(s.title) + `<div class="q">${s.q}</div><div class="rd-pairs">${s.pairs.map(([a, c], i) => `<div class="rd-pair ${cat(i)}"><span>${esc(a)}</span><span class="rd-arrow">→</span><code>${esc(c)}</code></div>`).join('')}</div>` + (s.why ? answer(`<p>${s.why}</p>`) : '');
       break;
     case 'sql':
+      if (ch.readTry) {
+        // write first, then check: the live editor, answer only after trying (or on request)
+        b.innerHTML = `<span class="rd-tag">先写，再对答案</span>${s.title ? `<h3>${esc(s.title)}</h3>` : ''}`;
+        const inner = el('div', 'rd-sql');
+        SCR.sql(s, inner, ctx);
+        const sol = [...inner.querySelectorAll('button')].find((x) => x.textContent.includes('看答案'));
+        const runB = [...inner.querySelectorAll('button')].find((x) => x.textContent.includes('运行'));
+        if (runB) runB.innerHTML = `${icon('play')} 运行并检查 <kbd>Ctrl ↵</kbd>`;
+        if (sol) { sol.hidden = false; sol.textContent = '写不出来？看答案'; }
+        const ansBox = inner.querySelector('.solbox');
+        if (ansBox) ansBox.innerHTML = `<div class="mini-h">参考写法</div>${codeBlock(sqlLines(s.check || ''), 'sql')}${s.hint ? `<div class="note tip"><span class="note-tag">要点</span><div>${esc(s.hint)}</div></div>` : ''}`;
+        b.append(inner);
+        break;
+      }
       // reading = examples only; writing it yourself happens in the practice at the end
       b.innerHTML = head(s.title) + `<div class="q">${s.task}</div>` + codeBlock(sqlLines(s.check || s.sql || ''), 'sql') +
         (s.hint ? `<div class="note tip"><span class="note-tag">要点</span><div>${esc(s.hint)}</div></div>` : '');
