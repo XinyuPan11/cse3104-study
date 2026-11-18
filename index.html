@@ -981,6 +981,27 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
   .sim-seg em { display: none; }
 }
 
+/* one-page template sheet */
+.sheet { padding-top: 18px; padding-bottom: 60px; }
+.sh-top .crumb { background: var(--c-soft); color: var(--c-strong); margin-bottom: 10px; }
+.sh-top h1 { margin: 0 0 4px; }
+.sh-top p { margin: 0 0 16px; max-width: 70ch; }
+.sh-list { display: grid; gap: 14px; }
+.sh-sec { border: 1.5px solid oklch(var(--Lm) 0.08 var(--h) / .5); border-left: 6px solid oklch(var(--Lm) var(--Cm) var(--h)); border-radius: 16px; padding: 14px 18px; background: radial-gradient(120% 120% at 100% 0%, oklch(var(--Ls) var(--Cs) var(--h)) 0%, var(--surface) 55%); min-width: 0; }
+.sh-h { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.sh-h b { font: 800 19px var(--display); }
+.sh-n { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font: 800 15px var(--display); background: oklch(var(--Lm) var(--Cm) var(--h)); color: var(--surface); flex: none; }
+.sh-t { font: 600 12.5px var(--mono); color: oklch(var(--Lk) var(--Ck) var(--h)); background: oklch(var(--Ls) var(--Cs) var(--h)); padding: 2px 9px; border-radius: 99px; }
+.sh-do { margin: 10px 0 0; padding-left: 20px; display: grid; gap: 4px; font-size: 14.5px; }
+.sh-say { margin-top: 10px; }
+.sh-say p { margin: 4px 0; font: 15px/1.55 var(--body); font-style: italic; }
+.sh-code { margin-top: 10px; font-size: 13px; }
+.slot { font-style: normal; font-weight: 700; color: oklch(var(--Lk) var(--Ck) var(--h)); background: oklch(var(--Ls) calc(var(--Cs) * 1.6) var(--h)); border-radius: 5px; padding: 0 4px; }
+.slot::before { content: "["; opacity: .45; }
+.slot::after { content: "]"; opacity: .45; }
+.sh-code .slot span { color: inherit; }
+.sheet .btnrow { margin-top: 18px; }
+
 /* mock exam page */
 .exam { padding-top: 18px; padding-bottom: 60px; }
 .ex-intro h1 { margin: 0 0 6px; }
@@ -10244,6 +10265,835 @@ window.CHAPTERS.push({
   ],
 });
 
+/* c16 · 万能答题模板：任何主题的口试都按同一套模板答。
+   Runs on `tpl` = library + cinema + hotel seeds (table names don't overlap). "Today" is 2026-11-04 in all three. */
+window.SEEDS = window.SEEDS || {};
+Object.defineProperty(window.SEEDS, 'tpl', {
+  enumerable: true, configurable: true,
+  get() { return [window.SEEDS.library, window.SEEDS.cinema, window.SEEDS.hotel].join('\n'); },
+});
+window.CHAPTERS = window.CHAPTERS || [];
+window.CHAPTERS.push({
+  id: 'c16', no: 16, cls: '答题模板', title: '万能答题模板', en: 'One template for every prompt',
+  blurb: '不管教授出什么主题，都按同一套模板答：5 段固定流程、4 种角色、5 个设计套路、8 个 SQL 骨架。先背模板，再拿官方题和模拟考试套用。',
+  hue: 200, db: 'tpl', source: '根据两道官方练习题和评分标准总结',
+  sheetSub: '考前从上到下看一遍。方括号里的词换成题目里的东西，其余照着说。',
+  sheet: [
+    { h: '复述 + 提问', time: '0–3 分钟',
+      do: ['先用一句话复述题目，确认你听懂了', '问 5 个万能问题：一个还是多个地点、同一种东西有没有多个、时间规则、取消和排队、规模', '教授反问「你觉得呢？」：给出你的选择 + 一句理由'],
+      say: ['So, to restate: [people] use the system to [daily actions], and [managers] want reports on [analytics]. Is that right?',
+        'Is this one [location], or several?',
+        'Can there be more than one [item] of the same [catalog thing]?',
+        'How long does a [event] last? What happens if it is late or cancelled?',
+        'Can people [wait in line / cancel]? Should we keep that history?',
+        'Roughly how many [people], [items] and [events] per day?'] },
+    { h: '使用者和名词', time: '3–5 分钟',
+      do: ['说出 3–4 类使用者，每类一句「他要干什么」', '把题目里的名词念一遍，它们就是候选表', '把名词分进 4 种角色：人、目录、实物、事件（有排队就加「排队」）'],
+      say: ['Let me first list who uses this: [people] want to [x]; [staff] need to [y]; [managers] want reports on [z].',
+        'The main nouns are [noun], [noun], [noun] and [noun].',
+        '[catalog] is what kind of thing it is, [item] is the specific one you use, and [event] records who used what, and when.'] },
+    { h: '设计成表', time: '5–13 分钟',
+      do: ['套路 1：目录和实物分两张表（同一种东西有多个时一定要拆）', '套路 2：事件表 = 谁 + 用了什么 + 什么时候（+ 价格）', '套路 3：「现在是否在用」从事件推出来，不另存（说出取舍）', '套路 4：取消、排队用 status 列，不删行', '套路 5：会变的价格存在事件上'],
+      say: ['I will separate [catalog] from [item], because one [catalog] can have many [items].',
+        '[event] is my fact table: every time someone [does it], we add a row with who, what and when.',
+        'Whether an [item] is in use right now comes from [the open event], not from a flag, so the two can never disagree.',
+        'For cancellations I keep the row and change its status, so we keep the history.',
+        'I store the price on the [event], because prices change over time.'],
+      code: `[person]  (person_id PK, name, email, phone)
+[catalog] (catalog_id PK, name, category, ...)
+[item]    (item_id PK, catalog_id FK, location, ...)
+[event]   (event_id PK, person_id FK, item_id FK,
+           start_time, due_or_end_time, actual_end_time,
+           status, price)
+[queue]   (queue_id PK, catalog_id FK, person_id FK,
+           placed_at, status)` },
+    { h: '用需求检验 + 接追问', time: '13–20 分钟',
+      do: ['把需求一条条念，每条说出用哪张表、哪几列', '追问 5 连：同一种有多个？现在在用吗？取消/完成后怎么办？到期日和价格从哪来？加新需求怎么办？', '被问住：先说「Good question, let me think out loud」，发现模型有漏洞就当场改'],
+      say: ['Let me check the model against the stories. To [story], I would use [table] and [columns].',
+        'Good question. Right now my model would [x]. That breaks when [y], so I would change it to [z].',
+        'If we need [new requirement], I would add a [new table] with a foreign key to [table]. Nothing else has to change.'] },
+    { h: '查询：8 个骨架', time: '20–28 分钟',
+      do: ['说 SQL 的顺序：从哪张表出发 → JOIN 谁 → 留下哪些行 → 按什么分组 → 怎么排序', '每题先想：这题属于 8 个骨架里的哪一个', '最关键的一个空：「活跃条件」，也就是「这件事还在进行中」怎么写'],
+      say: ['I would start from [event], join [item] and [catalog] to get [columns], keep only [condition], group by [dimension], count, and sort from most to least.'],
+      code: `-- ① 搜索：SELECT ... FROM [catalog] WHERE [attribute] = ?
+-- ② 现在可用：SELECT ... FROM [item]
+--      WHERE item_id NOT IN (SELECT item_id FROM [event] WHERE [活跃条件])
+-- ③ 某人现在的：FROM [event] JOIN [item] JOIN [catalog]
+--      WHERE person_id = ? AND [活跃条件]
+-- ④ 排队第一：FROM [queue] WHERE catalog_id = ? AND status = 'waiting'
+--      ORDER BY placed_at LIMIT 1
+-- ⑤ 逾期：FROM [event] WHERE [活跃条件] AND due < today
+-- ⑥ 排行：FROM [event] JOIN ... WHERE time >= ?
+--      GROUP BY [维度] ORDER BY COUNT(*) DESC LIMIT N
+-- ⑦ 多时间窗：SELECT SUM(time >= ?) AS a, SUM(time >= ?) AS b FROM [event]
+-- ⑧ 比率：COUNT(事件) * 1.0 / COUNT(全部)，用 LEFT JOIN 保住 0` },
+    { h: '操作题（伪代码）', time: '查询阶段里穿插',
+      do: ['按 5 步说：检查 → 写事件 → 改状态 → 处理排队 → 通知', '每一步说出动了哪张表；写不出精确语法就写伪代码'],
+      say: ['First I check that the [item] is free. Then I insert a row into [event]. Then I update [status]. If someone is waiting, I mark the oldest waiting row as fulfilled and notify them.'] },
+    { h: '收尾', time: '28–30 分钟',
+      do: ['三句话：拆了什么、事实表是谁、报表怎么出', '再加一句以后怎么扩展'],
+      say: ['To sum up: [catalog] and [item] are separate, so one [catalog] can have many [items].',
+        '[event] is the fact table, and whether something is in use comes from [the open event].',
+        'Every report is [event] joined to its dimensions and grouped. If it grows, I would add [x] and move reporting to a separate warehouse.'] },
+    { h: '主题对照表', time: '换主题时查这里',
+      do: ['<b>图书馆</b>：人 members · 目录 books · 实物 copies · 事件 loans · 排队 holds · 活跃 <code>return_date IS NULL</code>',
+        '<b>电影院</b>：人 customers · 目录 movies · 实物 showtimes + seats · 事件 tickets · 活跃 <code>starts_at</code> 还没到',
+        '<b>酒店</b>：人 guests · 目录 room_types · 实物 rooms · 事件 reservations · 活跃 没取消且日期区间包含那天',
+        '<b>健身房</b>：人 members · 目录 class_types · 实物 sessions · 事件 bookings · 排队 waitlist · 活跃 <code>status = \'booked\'</code>',
+        '<b>共享单车</b>：人 riders · 目录 bike_models · 实物 bikes · 事件 rides · 活跃 <code>end_time IS NULL</code>',
+        "<b>实习网站</b>：人 students（+ recruiters）· 目录 companies · 实物 postings · 事件 applications（+ interviews、offers）· 多对多 posting_skills · 活跃 岗位 <code>status = 'open' AND deadline &gt;= today</code>，申请 <code>status IN ('submitted', 'interviewing')</code>",
+        '<b>医院</b>：人 patients · 目录 units / procedure_types · 实物 beds / appointments · 事件 admissions · 活跃 <code>discharge IS NULL</code>'] },
+  ],
+  lessons: [
+    {
+      id: 'a', title: '总模板：30 分钟分 5 段', min: 5,
+      screens: [
+        { t: 'hook', big: '图书馆、电影院、酒店……主题年年换，答法只有一套。', sub: '这一章给你一套固定模板：每段说什么、照着哪句说。', icon: 'puzzle' },
+        { t: 'flow', title: '30 分钟的 5 段',
+          nodes: [
+            { id: 'a', label: '复述 + 提问', sub: '0–3 分钟', icon: 'search' },
+            { id: 'b', label: '人和名词', sub: '3–5 分钟', icon: 'user' },
+            { id: 'c', label: '设计成表', sub: '5–13 分钟', icon: 'table' },
+            { id: 'd', label: '检验 + 追问', sub: '13–20 分钟', icon: 'check' },
+            { id: 'e', label: '查询 + 收尾', sub: '20–30 分钟', icon: 'code' },
+          ],
+          frames: [
+            { text: '<b>复述 + 提问</b>：先用一句话说出你理解的题目，再问 5 个万能问题。提问本身就计分。', on: ['a'] },
+            { text: '<b>人和名词</b>：谁用这个系统、题目里有哪些名词。名词就是候选表。', on: ['b'], go: ['a', 'b'] },
+            { text: '<b>设计成表</b>：把名词分成 4 种角色（人、目录、实物、事件），套 5 个设计套路，写出表和列。', on: ['c'], go: ['b', 'c'] },
+            { text: '<b>检验 + 追问</b>：拿需求逐条对表；教授追问时按模板接，有漏洞就当场改。', on: ['d'], go: ['c', 'd'] },
+            { text: '<b>查询 + 收尾</b>：每个查询先认出是 8 个骨架里的哪一个，再口述 SQL；最后三句话收尾。', on: ['e'], go: ['d', 'e'] },
+          ] },
+        { t: 'order', q: '把口试的 5 段按顺序排好：', parts: ['复述题目，问几个问题', '说出使用者和名词', '把名词变成表和列', '用需求检验，回答追问', '口述查询，三句话收尾'], why: '先听懂、再想人和业务、再画表。直接跳到画表是最常见的扣分点：评分标准里「先想人和业务」是单独一条。' },
+        { t: 'idea', title: '第 1 段：复述模板', body: '教授念完题，先别急着画表。用一句话把题目复述一遍：谁用、用来干什么、要什么报表。说错了教授会纠正，这比画错了再改省时间。',
+          code: 'So, to restate: [people] use the system to [daily actions],\nand [managers] want reports on [analytics]. Is that right?', lang: 'text',
+          tip: '方括号里换成题目里的词，其余一个字都不用改。' },
+        { t: 'quiz', q: '教授念完一道<b>酒店订房</b>的题（客人订房、取消、入住退房；管理层想看入住率和各房型收入）。哪句复述最好？',
+          opts: ['"OK, I will make a reservations table."', '"So, to restate: guests use the system to book, cancel, check in and check out, and managers want reports on occupancy and revenue by room type. Is that right?"', '"Hotels are a classic database problem."', '"Can I start drawing the tables now?"'],
+          a: 1, why: '第 2 句同时说出了「谁、做什么、要什么报表」，还请教授确认。第 1 句直接跳到建表，教授听不出你有没有理解题目。' },
+        { t: 'list', title: '万能 5 问（任何主题都能问）', cols: 2, items: [
+          { icon: 'globe', h: '一个还是多个？', p: 'Is this one [location], or several?' },
+          { icon: 'layers', h: '同一种有多个吗？', p: 'Can there be more than one [item] of the same [thing]?' },
+          { icon: 'clock', h: '时间规则', p: 'How long does it last? What if it is late?' },
+          { icon: 'undo', h: '取消和排队', p: 'Can people cancel or wait in line?' },
+          { icon: 'chart', h: '规模', p: 'Roughly how many per day?' },
+        ] },
+        { t: 'match', q: '每个问题帮你决定了设计里的哪件事？', pairs: [
+          ['一个还是多个地点？', '要不要一张地点表（branches / hotels）'],
+          ['同一种东西有没有多个？', '目录和实物要不要拆成两张表'],
+          ['多久到期？晚了怎么办？', '事件表上要有到期时间、实际结束时间'],
+          ['能取消、能排队吗？', '要不要 status 列和排队表'],
+          ['每天多少量？', '报表在业务库跑，还是另建数据仓库'],
+        ], why: '这 5 问不是客套：每问的答案都直接决定一张表或一列。问完你的设计就有了一半。' },
+        { t: 'quiz', q: '你问「预约是挂在某一本副本上，还是挂在书上？」教授反问：<i>"What would you choose?"</i> 最好怎么接？',
+          opts: ['"I don\'t know, you tell me."', '"On the title, because the member wants the book, and whichever copy comes back first is fine. I can change it if you need a specific copy."', '"Either works."', '沉默，等教授给答案'],
+          a: 1, why: '模板：<b>给出选择 + 一句理由 + 留个口子</b>。教授反问不是刁难，他想看你会不会做决定。' },
+        { t: 'recap', points: ['30 分钟 5 段：复述提问 → 人和名词 → 设计成表 → 检验追问 → 查询收尾', '复述句：So, to restate: [people] use the system to [x], and [managers] want reports on [y].', '万能 5 问：几个地点、同种有几个、时间规则、取消排队、规模', '被反问就给出选择 + 一句理由'] },
+      ],
+    },
+    {
+      id: 'b', title: '设计模板：4 种角色 + 5 个套路', min: 6,
+      screens: [
+        { t: 'hook', big: '每道题的名词，只有 4 种角色：人、目录、实物、事件。', sub: '认出角色，表就出来了。', icon: 'layers' },
+        { t: 'grid', title: '7 个主题，同样的 5 列',
+          rowLabels: ['图书馆', '电影院', '酒店', '健身房', '共享单车', '实习网站', '医院'],
+          colLabels: ['人', '目录', '实物', '事件', '排队'],
+          frames: [
+            { text: '<b>人</b>：用系统的人。每道题都有，一般叫 members / customers / guests。', cells: [['members', 'books', 'copies', 'loans', 'holds'], ['customers', 'movies', 'showtimes + seats', 'tickets', '—'], ['guests', 'room_types', 'rooms', 'reservations', '—'], ['members', 'class_types', 'sessions', 'bookings', 'waitlist'], ['riders', 'bike_models', 'bikes', 'rides', '—'], ['students', 'companies', 'postings', 'applications', '—'], ['patients', 'units', 'beds', 'admissions', '—']], markCols: { 0: 'a' } },
+            { text: '<b>目录</b>：「哪一种」，比如书名、电影、房型。<b>实物</b>：「具体哪一个」，比如这一本、这一场的这个座位、这一间房。', markCols: { 1: 'b', 2: 'c' } },
+            { text: '<b>事件</b>：谁、在什么时候、用了哪个实物。它会一直变长，就是事实表（fact table）。', markCols: { 3: 'd' } },
+            { text: '<b>排队</b>：「想要但还没拿到」。不是每题都有，有的话就单独一张表。', markCols: { 4: 'on' } },
+          ] },
+        { t: 'sort', q: '一道新题：<b>租车公司</b>。把名词分到对应的角色里：', buckets: ['人', '目录', '实物', '事件'], items: [
+          ['customer（租车的顾客）', 0], ['car model（如 Toyota Camry）', 1], ['vehicle class（SUV、经济型）', 1], ['car（一辆有车牌的车）', 2], ['rental（一次租车）', 3], ['payment（一次付款）', 3],
+        ], why: '目录是「哪一种」（车型、车类），实物是「具体这一辆」，事件是「谁在什么时候租了哪辆」。付款也是事件：它有时间、有金额、会一直增加。' },
+        { t: 'vs', title: '套路 1：目录和实物分开',
+          a: { name: '目录 catalog', sub: '「哪一种」', points: ['书名、作者、类型', '电影名、片长、分级', '房型、床型、价格'], code: 'books (book_id PK, title, author, genre)', lang: 'sql' },
+          b: { name: '实物 item', sub: '「具体哪一个」', points: ['这一本副本在哪个分馆', '这一场在哪个影厅几点开始', '这一间房在几楼'], code: 'copies (copy_id PK, book_id FK, branch)', lang: 'sql' },
+          bottom: '判断方法：问一句「同一种东西能有好几个吗？」能，就拆成两张表，实物表用外键指向目录表。' },
+        { t: 'quiz', q: '<b>健身房</b>：瑜伽课（Vinyasa Yoga，60 分钟）每周二、周四晚 7 点都有，每次最多 20 人。哪种设计对？',
+          opts: ['一张 classes 表，把所有上课日期存成一列 "Tue, Thu"', 'class_types（课名、时长、人数上限）+ sessions（哪种课、哪天几点、哪个教室）', '每次上课都新建一行课名和时长', '只要 bookings 表就够了'],
+          a: 1, why: '课是目录（「哪一种课」），每一次具体的上课是实物（「哪一天那一节」）。约课 bookings 指向 sessions，不是指向课名。' },
+        { t: 'er', title: '套路 2：事件表 = 谁 + 什么 + 什么时候',
+          ents: [
+            { id: 'p', name: '[人] people', cols: ['person_id PK', 'name', 'email'], x: 0, y: 0 },
+            { id: 'e', name: '[事件] events', cols: ['event_id PK', 'person_id FK', 'item_id FK', 'start_time', 'due / end_time', 'actual_end', 'status', 'price'], x: 1, y: 0 },
+            { id: 'i', name: '[实物] items', cols: ['item_id PK', 'catalog_id FK', 'location'], x: 2, y: 0 },
+            { id: 'q', name: '[排队] queue', cols: ['queue_id PK', 'catalog_id FK', 'person_id FK', 'placed_at', 'status'], x: 1, y: 1 },
+            { id: 'c', name: '[目录] catalog', cols: ['catalog_id PK', 'name', 'category'], x: 2, y: 1 },
+          ],
+          rels: [{ a: 'p', b: 'e', card: '1:N', label: '谁' }, { a: 'i', b: 'e', card: '1:N', label: '用了什么' }, { a: 'c', b: 'i', card: '1:N', label: '有多个' }, { a: 'p', b: 'q', card: '1:N' }, { a: 'c', b: 'q', card: '1:N', label: '想要哪种' }],
+          frames: [
+            { text: '先放人和实物：两张维度表（dimension tables）。', on: ['p', 'i'] },
+            { text: '事件表在中间：一个人用一个实物一次，就是一行。两个外键 + 时间 + 状态 + 价格。', on: ['p', 'i', 'e', 'r0', 'r1'] },
+            { text: '实物指向目录：一种东西有多个实物。', on: ['p', 'i', 'e', 'c', 'r0', 'r1', 'r2'] },
+            { text: '有排队就加一张：排队挂在<b>目录</b>上（要的是「这种」，哪个先空出来都行）。', on: ['p', 'i', 'e', 'c', 'q', 'r0', 'r1', 'r2', 'r3', 'r4'] },
+          ] },
+        { t: 'list', title: '5 个设计套路', cols: 2, items: [
+          { icon: 'split', h: '① 目录和实物分开', p: '同一种有多个就拆' },
+          { icon: 'clock', h: '② 事件 = 谁 + 什么 + 时间', p: '事实表，一直变长' },
+          { icon: 'eye', h: '③ 现在的状态从事件推', p: '不另存「是否在用」' },
+          { icon: 'undo', h: '④ 取消和排队用 status', p: '改状态，不删行' },
+          { icon: 'bag', h: '⑤ 价格存在事件上', p: '价格会变，历史不能跟着变' },
+        ] },
+        { t: 'rows', title: '套路 3：「现在借出去了吗」怎么推出来',
+          sql: 'SELECT copy_id\nFROM loans\nWHERE return_date IS NULL;',
+          cols: ['loan_id', 'copy_id', 'checkout', 'return_date'],
+          rows: [{ k: 'a', v: [31, 3, '2026-09-02', '2026-09-20'] }, { k: 'b', v: [35, 3, '2026-10-14', null] }, { k: 'c', v: [33, 5, '2026-10-01', null] }, { k: 'd', v: [29, 7, '2026-09-10', '2026-09-28'] }],
+          frames: [
+            { text: '这是一个例子：4 条借阅记录。副本 3 被借过两次。', line: 1 },
+            { text: '还了的借阅有归还日期：它们已经结束了。', line: 2, hl: { a: 'fail', d: 'fail' }, badge: { a: '已还', d: '已还' } },
+            { text: '<code>return_date IS NULL</code> 的就是「还在外面」：副本 3 和副本 5 现在借出中。', line: 2, show: ['b', 'c'], hl: { b: 'pass', c: 'pass' }, badge: { b: '借出中', c: '借出中' } },
+            { text: '不需要在副本表上另存一个「是否借出」：从事件推出来，两边永远不会对不上。面试时说出这句取舍就加分。', show: ['b', 'c'] },
+          ] },
+        { t: 'quiz', q: '<b>酒店</b>：怎么知道 302 房 11 月 10 日晚上有没有人住？reservations 表有 <code>room_id, check_in, check_out, status</code>（status 有 booked / cancelled / checked_in / checked_out）。',
+          opts: ['在 rooms 上加一列 is_occupied', '找 302 房的预订：status 不是 cancelled，并且 check_in ≤ 11-10 < check_out', '找 check_in = 11-10 的预订', '只看 status = \'checked_in\''],
+          a: 1, why: '还是套路 3：状态从事件推。酒店的「进行中」是一个日期区间，所以条件是「入住日 ≤ 那天 < 退房日」，而且取消的不算。只看 check_in = 那天会漏掉前几天就住进来的人。' },
+        { t: 'match', q: '每个套路，面试时用哪句英文说出来？', pairs: [
+          ['① 目录和实物分开', '"One title can have many physical copies, so I split them."'],
+          ['② 事件表', '"Every checkout adds a row: who, what, and when."'],
+          ['③ 状态从事件推', '"Whether it is out comes from the open loan, not a flag."'],
+          ['④ status 不删行', '"I keep cancelled rows and change the status."'],
+          ['⑤ 价格存在事件上', '"I store the price on the ticket, because prices change."'],
+        ], why: '每个套路配一句话。考试时说出这句，教授就知道你是有意这么设计的。' },
+        { t: 'code', title: '表的模板：换个词就是任何主题', lang: 'text',
+          code: '[person]  (person_id PK, name, email, phone)\n[catalog] (catalog_id PK, name, category, ...)\n[item]    (item_id PK, catalog_id FK, location, ...)\n[event]   (event_id PK, person_id FK, item_id FK,\n           start_time, due_or_end_time, actual_end_time,\n           status, price)\n[queue]   (queue_id PK, catalog_id FK, person_id FK,\n           placed_at, status)',
+          notes: [
+            { line: 0, text: '人：联系方式放这里，通知、催还都要用。' },
+            { line: 1, text: '目录：「哪一种」，描述性的信息只存一次。' },
+            { line: 2, text: '实物：「具体哪一个」，外键指向目录，再加上它在哪儿（分馆、影厅、楼层）。' },
+            { lines: [3, 4, 5], text: '事件：两个外键（谁、哪个实物）+ 开始时间 + 应该结束的时间 + 实际结束的时间 + 状态 + 价格。不是每题都要全部，按题目删。' },
+            { lines: [6, 7], text: '排队：挂在目录上，按 placed_at 排先后，用 status 记录等待中、已满足、已取消。' },
+          ] },
+        { t: 'fill', q: '用模板写出<b>电影院</b>的事件表：一张票 = 哪笔交易、哪一场、哪个座位、多少钱。',
+          tpl: 'tickets (ticket_id PK, transaction_id FK, {0} FK, {1} FK, {2})', lang: 'sql',
+          blanks: [{ a: ['show_id', 'showtime_id'] }, { a: ['seat_id'] }, { a: ['price'] }],
+          why: '电影院的实物有两层：<b>场次</b>（这部电影在哪个影厅几点放）和<b>座位</b>。一张票同时指向场次和座位，再加上 <code>UNIQUE (show_id, seat_id)</code>，同一场的同一个座位就不会卖两次。价格存在票上（套路 5）。' },
+        { t: 'quiz', q: '教授追问：<i>"Next month the hotel raises its King room rate. What happens to reservations that were already made?"</i> 你的设计里 room_types 有 base_rate，reservations 有 nightly_rate。怎么回答？',
+          opts: ['"All old reservations will show the new price."', '"Nothing changes for them: each reservation stores its own nightly_rate when it is booked. base_rate on room_types is only the current list price."', '"I would delete the old reservations."', '"I would add a new room type."'],
+          a: 1, why: '套路 5：价格存在事件上。目录上的价格是「现在卖多少」，事件上的价格是「当时卖了多少」。收入报表要用事件上的价格。' },
+        { t: 'recap', points: ['4 种角色：人、目录、实物、事件（有排队再加一张）', '① 目录和实物分开：同一种有多个就拆', '② 事件 = 谁 + 什么 + 时间；③ 现在的状态从事件推', '④ 取消和排队改 status 不删行；⑤ 价格存在事件上'] },
+      ],
+    },
+    {
+      id: 'c', title: '追问模板：5 个必考追问', min: 5,
+      screens: [
+        { t: 'hook', big: '主题会变，教授追问的永远是那 5 个问题。', sub: '每个问题配一个固定的接法。', icon: 'user' },
+        { t: 'flow', title: '接追问的 3 步',
+          nodes: [
+            { id: 'a', label: '接住', sub: '先复述问题', icon: 'eye' },
+            { id: 'b', label: '指到表和列', sub: '我的模型这样处理', icon: 'table' },
+            { id: 'c', label: '说取舍或改模型', sub: '有漏洞就改', icon: 'undo' },
+          ],
+          frames: [
+            { text: '<b>接住</b>："Good question. You are asking how we know a copy is out right now." 给自己 3 秒思考。', on: ['a'] },
+            { text: '<b>指到表和列</b>："In my model, that is a loan with no return_date." 说出具体的表名、列名。', on: ['b'], go: ['a', 'b'] },
+            { text: '<b>说取舍或改模型</b>："I could also store a status on copies for speed, but then it must stay in sync." 如果发现漏洞："That breaks when …, so I would change it to …"', on: ['c'], go: ['b', 'c'] },
+          ] },
+        { t: 'match', q: '5 个必考追问，各用哪个模板句接？', pairs: [
+          ['"Can there be two of the same …?"', '"That is why [catalog] and [item] are separate tables."'],
+          ['"How do you know it is in use right now?"', '"It has an open [event]: no end time yet."'],
+          ['"What happens when it is cancelled or fulfilled?"', '"I change the status and keep the row."'],
+          ['"Where do the due date and price come from?"', '"They are written on the [event] when it is created."'],
+          ['"What if we add [new requirement]?"', '"I add a table with a foreign key; nothing else changes."'],
+        ], why: '这 5 个追问对应设计里的 5 个关键决定。设计阶段用了 5 个套路，追问时就直接指回去。' },
+        { t: 'quiz', q: '<b>电影院</b>追问：<i>"Can two customers buy the same seat for the same show?"</i> 最好的回答？',
+          opts: ['"No, the cashier will check."', '"No. tickets has a unique constraint on (show_id, seat_id), so the database rejects a second ticket for the same seat at the same show."', '"Yes, that is fine."', '"I would check it in Python."'],
+          a: 1, why: '「现在能不能用」这一类问题，最好的答案是让数据库保证：在事件表上加 UNIQUE。说出具体是哪两列。' },
+        { t: 'idea', title: '被问住时的救场模板', body: '不知道答案也不要沉默。先把思路说出来，再承认模型的问题，然后改它。教授评的是你怎么处理问题，不是你有没有一次答对。',
+          code: 'Good question, let me think out loud.\nRight now my model would [what it does].\nThat breaks when [case], so I would change it to [fix].', lang: 'text',
+          tip: '评分标准里有一条「肯不肯改」：发现问题并当场修改，比硬撑加分。' },
+        { t: 'quiz', q: '<b>健身房</b>追问：<i>"A class is full and someone cancels. What happens in your model?"</i> 你的表：bookings（session_id, member_id, status）和 waitlist（session_id, member_id, placed_at, status）。',
+          opts: ['删掉那条 booking，什么都不做', '把那条 booking 改成 cancelled；在 waitlist 里找这节课最早的 waiting，给他插一条 booking，再把这条 waitlist 改成 promoted', '把 waitlist 整张表清空', '等下一节课再说'],
+          a: 1, why: '「取消 / 完成后怎么办」的模板：<b>改状态不删行 + 处理排队</b>。最早的等待者 = 按 placed_at 排序取第一个。' },
+        { t: 'sort', q: '这些追问分别属于哪一类？', buckets: ['同一种有几个', '现在的状态', '扩展新需求'], items: [
+          ['"Can the library own two copies of the same book?"', 0],
+          ['"Can a movie play in two screens at the same time?"', 0],
+          ['"Is room 302 free tonight?"', 1],
+          ['"Which bikes are being ridden right now?"', 1],
+          ['"What if the library starts charging late fees?"', 2],
+          ['"What if the gym opens a second studio?"', 2],
+        ], why: '前两个：目录和实物分开就能答。中间两个：从事件推（开着的借阅、日期区间、没结束的骑行）。最后两个：加一张表（fees、studios）和外键。' },
+        { t: 'quiz', q: '教授：<i>"What if the library starts charging late fees?"</i> 最好的回答？',
+          opts: ['"I would add a fee column to members."', '"I would add a fees table: fee_id, loan_id FK, amount, paid_at. The loan already has due_date and return_date, so the amount can be computed from how late it was."', '"I would rebuild the whole schema."', '"Fees are out of scope."'],
+          a: 1, why: '扩展模板：<b>新表 + 外键挂到已有的事件上</b>，原来的表都不用动。罚款是因为某一次借阅产生的，所以挂在 loan 上，不是挂在 member 上。' },
+        { t: 'code', title: '一段完整的接追问示范', lang: 'text',
+          code: 'Professor: How do you know a copy is checked out right now?\nYou: Good question. In my model that comes from loans.\n     A copy is out if it has a loan where return_date is null.\n     I could also keep a status column on copies for faster lookups,\n     but then every checkout and return has to update two tables,\n     and they could get out of sync. So I derive it from loans.',
+          notes: [
+            { line: 0, text: '这是「现在的状态」类追问。' },
+            { line: 1, text: '第 1 步：接住，马上说出答案在哪张表。' },
+            { line: 2, text: '第 2 步：指到具体的列和条件。' },
+            { lines: [3, 4, 5], text: '第 3 步：说出另一种做法和它的代价。这一句就是评分标准里的「说得清楚、有取舍」。' },
+          ] },
+        { t: 'recap', points: ['接追问 3 步：接住 → 指到表和列 → 说取舍或改模型', '5 个必考追问：同种有几个、现在在用吗、取消或完成后、到期日和价格从哪来、加新需求', '扩展新需求 = 新表 + 外键挂到已有的表上', '被问住：Good question, let me think out loud.'] },
+      ],
+    },
+    {
+      id: 'd', title: '查询模板：8 个万能 SQL 骨架', min: 8,
+      screens: [
+        { t: 'hook', big: '查询题看起来几十种，其实只有 8 种。', sub: '每种一个骨架，换个表名就能用。', icon: 'code' },
+        { t: 'code', title: '口述 SQL 的固定顺序', lang: 'sql',
+          code: 'SELECT b.genre, COUNT(*) AS loans\nFROM loans l\nJOIN copies c ON c.copy_id = l.copy_id\nJOIN books b ON b.book_id = c.book_id\nWHERE l.checkout_date >= \'2025-11-04\'\nGROUP BY b.genre\nORDER BY loans DESC;',
+          notes: [
+            { line: 1, text: '"I would start from loans," 先说从哪张表出发：几乎总是<b>事件表</b>。' },
+            { lines: [2, 3], text: '"join copies and books to get the genre," 再说要 JOIN 谁、为什么（要拿到哪一列）。' },
+            { line: 4, text: '"keep only the last year," 说留下哪些行。' },
+            { line: 5, text: '"group by genre, count," 说按什么分组、算什么。' },
+            { lines: [0, 6], text: '"and sort from most to least." 最后说输出什么、怎么排序。口述时 SELECT 那一行反而最后说。' },
+          ] },
+        { t: 'list', title: '8 个骨架', cols: 2, items: [
+          { icon: 'search', h: '① 搜索', p: '目录表 + WHERE' },
+          { icon: 'check', h: '② 现在可用', p: '实物 NOT IN 活跃事件' },
+          { icon: 'user', h: '③ 某人现在的', p: '事件 JOIN，某人 + 活跃' },
+          { icon: 'sort', h: '④ 排队第一', p: 'waiting + ORDER BY + LIMIT 1' },
+          { icon: 'warn', h: '⑤ 逾期', p: '活跃 + 到期 < 今天' },
+          { icon: 'chart', h: '⑥ 排行', p: 'GROUP BY + COUNT + DESC' },
+          { icon: 'clock', h: '⑦ 多时间窗', p: 'SUM(时间 >= ?) 一行出多个数' },
+          { icon: 'group', h: '⑧ 比率', p: 'LEFT JOIN 保住 0，再相除' },
+        ] },
+        { t: 'match', q: '教授的问题属于哪个骨架？', pairs: [
+          ['"Which seats are still open for this show?"', '② 现在可用'],
+          ['"Which books does member 1 have right now?"', '③ 某人现在的'],
+          ['"Who is next in line for this book?"', '④ 排队第一'],
+          ['"Which genres were most popular last year?"', '⑥ 排行'],
+          ['"What was the occupancy of each show?"', '⑧ 比率'],
+        ], why: '先认出骨架，SQL 就写了一半。上座率、入住率、出勤率都是同一个骨架 ⑧。' },
+        { t: 'idea', title: '最关键的空：活跃条件', body: '② ③ ⑤ 三个骨架都要一个条件：「这件事还在进行中」。它是每个主题唯一要现想的地方。忘了它，查询就会把已经结束的历史记录也算进去。',
+          terms: [['active condition', '活跃条件（这件事还没结束）']],
+          trap: '最常见的错：查「过期未还」只写 <code>due_date &lt; today</code>，漏了「还没还」。' },
+        { t: 'match', q: '每个主题的「活跃条件」怎么写？', pairs: [
+          ['图书馆：还没还', 'return_date IS NULL'],
+          ['共享单车：还在骑', 'end_time IS NULL'],
+          ['健身房：约了没取消', "status = 'booked'"],
+          ['酒店：那天晚上有人住', "status <> 'cancelled' AND check_in <= d AND d < check_out"],
+          ['电影院：还没开演', 'starts_at > now'],
+        ], why: '结束时间为空、状态是进行中、日期区间包含某天：活跃条件基本就这三种写法。' },
+        { t: 'sql', title: '② 现在可用 · 图书馆', task: '<b>图书馆</b>（表 copies、loans）：现在在架上的副本，也就是没有「还没还的借阅」的副本。输出 <code>copy_id</code>。今天是 2026-11-04。',
+          sql: 'SELECT copy_id\nFROM copies\nWHERE copy_id NOT IN (\n  SELECT copy_id FROM loans WHERE 1 = 1  -- 把 1 = 1 换成活跃条件\n);',
+          check: 'SELECT copy_id FROM copies WHERE copy_id NOT IN (SELECT copy_id FROM loans WHERE return_date IS NULL);',
+          hint: '活跃条件：还没还 = return_date IS NULL。不写的话，只要被借过的副本都会被排除。' },
+        { t: 'sql', title: '② 同一个骨架 · 电影院', task: '<b>电影院</b>（表 showtimes、seats、tickets）：场次 12355（11 月 4 日 21:00 的 Superman，在影厅 3）还剩<b>几个</b>空座？输出一列 <code>free_seats</code>。',
+          sql: 'SELECT COUNT(*) AS free_seats\nFROM seats\nWHERE screen_id = 3\n  AND seat_id NOT IN (\n    SELECT seat_id FROM tickets WHERE 1 = 1  -- 只要这一场的票\n  );',
+          check: 'SELECT COUNT(*) AS free_seats FROM seats WHERE screen_id = 3 AND seat_id NOT IN (SELECT seat_id FROM tickets WHERE show_id = 12355);',
+          hint: '和图书馆一模一样：实物（这个影厅的座位）NOT IN 活跃事件（这一场卖出的票）。子查询里过滤 show_id = 12355。' },
+        { t: 'fill', q: '④ 排队第一 · 图书馆：书 12349 的下一位是谁？（holds 表：book_id, member_id, placed_at, status）',
+          tpl: "SELECT m.name, m.email\nFROM holds h JOIN members m ON m.member_id = h.member_id\nWHERE h.book_id = 12349 AND h.status = {0}\nORDER BY h.{1}\n{2};", lang: 'sql',
+          blanks: [{ a: ["'waiting'"] }, { a: ['placed_at', 'placed_at ASC'] }, { a: ['LIMIT 1'] }],
+          why: '骨架 ④：只看还在等的（waiting），按排队时间从早到晚，取第一个。健身房候补、餐厅排号都是这个骨架。' },
+        { t: 'predict', title: '⑤ 逾期的坑', q: '图书馆 loans 表一共 38 条借阅，其中 7 条还没还。今天是 2026-11-04。这句查「过期未还」的 SQL 会返回几？',
+          code: "SELECT COUNT(*) AS n\nFROM loans\nWHERE due_date < '2026-11-04';", lang: 'sql', run: true,
+          opts: ['3', '7', '34', '38'], a: 2,
+          why: '漏了活跃条件，所有到期日已过的借阅都算进来，包括早就按时还了的：34 条。正确写法加上 <code>AND return_date IS NULL</code>，结果是 3。' },
+        { t: 'sql', title: '⑥ 排行 · 酒店', task: '<b>酒店</b>（表 reservations、rooms、room_types）：过去一年（<code>check_in ≥ 2025-11-04</code>）每种房型被住了几次，<b>不算取消的</b>。输出 <code>name, stays</code>，从多到少。',
+          sql: 'SELECT rt.name, COUNT(*) AS stays\nFROM reservations r\nJOIN rooms rm ON rm.room_id = r.room_id\nJOIN room_types rt ON rt.type_id = rm.type_id\nWHERE 1 = 1  -- 换成：没取消 + 过去一年\nGROUP BY rt.type_id, rt.name\nORDER BY stays DESC;',
+          check: "SELECT rt.name, COUNT(*) AS stays FROM reservations r JOIN rooms rm ON rm.room_id = r.room_id JOIN room_types rt ON rt.type_id = rm.type_id WHERE r.status <> 'cancelled' AND r.check_in >= '2025-11-04' GROUP BY rt.type_id, rt.name ORDER BY stays DESC;", ordered: true,
+          hint: "两个条件：status <> 'cancelled'，以及 check_in >= '2025-11-04'。JOIN 路径和图书馆一样：事件 → 实物 → 目录。" },
+        { t: 'quiz', q: '⑦ 多时间窗：教授要「过去 3、6、12 个月各借出多少次」，<b>一行三个数</b>。下面哪种写法对？（SQLite 里比较的结果是 1 或 0）',
+          code: "-- A\nSELECT SUM(checkout_date >= '2026-08-04') AS m3,\n       SUM(checkout_date >= '2026-05-04') AS m6,\n       SUM(checkout_date >= '2025-11-04') AS m12\nFROM loans;\n\n-- B\nSELECT COUNT(*) FROM loans\nWHERE checkout_date >= '2026-08-04'\n  AND checkout_date >= '2026-05-04'\n  AND checkout_date >= '2025-11-04';", lang: 'sql',
+          opts: ['A', 'B', '两个都对', '两个都不对'], a: 0,
+          why: 'A 对：每个 SUM 数一个时间窗，一行出三个数。B 把三个条件用 AND 连起来，只剩最严的那个（3 个月），而且只有一个数。其他数据库把 A 写成 <code>SUM(CASE WHEN … THEN 1 ELSE 0 END)</code>。' },
+        { t: 'recap', points: ['口述顺序：从事件表出发 → JOIN 谁 → 留下哪些行 → 按什么分组 → 怎么排序', '8 个骨架：搜索、现在可用、某人现在的、排队第一、逾期、排行、多时间窗、比率', '活跃条件是唯一要现想的空：结束时间为空、状态进行中、日期区间', '比率用 LEFT JOIN 保住 0；去右边「SQL 实战」把 8 个骨架在 3 个主题上各练一遍'] },
+      ],
+    },
+    {
+      id: 'e', title: '操作题模板 + 收尾', min: 5,
+      screens: [
+        { t: 'hook', big: '"Walk me through what happens when a book is returned."', sub: '操作题不用写成一条 SQL，按 5 步说就行。', icon: 'bolt' },
+        { t: 'flow', title: '操作题 5 步',
+          nodes: [
+            { id: 'a', label: '检查', sub: '能不能做', icon: 'search' },
+            { id: 'b', label: '写事件', sub: 'INSERT / UPDATE', icon: 'table' },
+            { id: 'c', label: '改状态', sub: 'status', icon: 'check' },
+            { id: 'd', label: '处理排队', sub: '最早的 waiting', icon: 'sort' },
+            { id: 'e', label: '通知', sub: '邮件 / 短信', icon: 'link' },
+          ],
+          frames: [
+            { text: '<b>检查</b>：这件事能不能做？比如这个副本是不是真的借出中，这个座位是不是还空着。', on: ['a'] },
+            { text: '<b>写事件</b>：借书、买票就 INSERT 一行；还书、退房就 UPDATE 那条还开着的事件。', on: ['b'], go: ['a', 'b'] },
+            { text: '<b>改状态</b>：预订变成 checked_out，预约变成 fulfilled。', on: ['c'], go: ['b', 'c'] },
+            { text: '<b>处理排队</b>：东西空出来了，有人在等吗？找最早的 waiting。', on: ['d'], go: ['c', 'd'] },
+            { text: '<b>通知</b>：告诉那个人可以来取了。不需要写 SQL，说出来就行。有几步要一起成功，就说一句「放进一个事务（transaction）」。', on: ['e'], go: ['d', 'e'] },
+          ] },
+        { t: 'code', title: '示范：图书馆还书', lang: 'sql',
+          code: "-- 1 检查 + 2 写事件：只改这个副本还开着的那条借阅\nUPDATE loans SET return_date = date('now')\nWHERE copy_id = 13 AND return_date IS NULL;\n\n-- 3 + 4 处理排队：这本书最早的 waiting 预约\nUPDATE holds SET status = 'fulfilled'\nWHERE hold_id = (SELECT hold_id FROM holds\n                 WHERE book_id = 12349 AND status = 'waiting'\n                 ORDER BY placed_at LIMIT 1);\n\n-- 5 通知那位读者（不在数据库里做）",
+          notes: [
+            { lines: [1, 2], text: '<code>return_date IS NULL</code> 保证只改那条还开着的借阅。漏了它，这个副本所有历史借阅的归还日都会被改掉。' },
+            { lines: [5, 6, 7, 8], text: '用骨架 ④ 找到排第一的人，把那条预约改成 fulfilled（有的设计会用 ready 表示「已经给你留好了」）。' },
+            { line: 10, text: '通知是程序做的，说一句就够了。' },
+          ] },
+        { t: 'order', q: '<b>电影院</b>：顾客买两张票（同一场、两个座位）。按 5 步模板排好顺序：', parts: [
+          '检查：这两个座位在这一场还没有票',
+          '写事件：INSERT 一笔 transaction（谁、什么时候）',
+          '写事件：INSERT 两张 ticket（交易、场次、座位、价格）',
+          '同一个事务里提交：任何一步失败就全部撤销',
+          '通知：发确认邮件',
+        ], why: '检查 → 写事件 → 提交 → 通知。就算两个人同时抢同一个座位，<code>UNIQUE (show_id, seat_id)</code> 也会让第二个人的插入失败，整个事务撤销。' },
+        { t: 'quiz', q: '<b>酒店</b>：客人今天退房（预订 34，现在是 checked_in）。哪句 UPDATE 最好？',
+          code: "-- A\nUPDATE reservations SET status = 'checked_out';\n\n-- B\nUPDATE reservations SET status = 'checked_out'\nWHERE res_id = 34 AND status = 'checked_in';\n\n-- C\nDELETE FROM reservations WHERE res_id = 34;", lang: 'sql',
+          opts: ['A', 'B', 'C', '都可以'], a: 1,
+          why: 'B：只改这一条，而且只在它确实是 checked_in 时才改（检查 + 写事件）。A 没有 WHERE，会改掉所有预订。C 删除了记录，收入和入住率报表就少了一次入住（套路 4：改状态，不删行）。' },
+        { t: 'idea', title: '收尾模板：三句话', body: '最后一两分钟，把设计用三句话收起来：拆了什么、事实表是谁、报表怎么出。再加一句以后怎么扩展。',
+          code: 'To sum up: [catalog] and [item] are separate, so one [catalog] can have many [items].\n[event] is the fact table, and whether something is in use comes from [the open event].\nEvery report is [event] joined to its dimensions and grouped.\nIf it grows, I would add [x] and move reporting to a separate warehouse.', lang: 'text' },
+        { t: 'fill', q: '用收尾模板总结<b>电影院</b>：',
+          tpl: '"To sum up: {0} and showtimes are separate, so one movie can play many times. {1} is the fact table, and every report is tickets joined to showtimes and movies, then grouped."', lang: 'text',
+          blanks: [{ a: ['movies', 'movie'] }, { a: ['tickets', 'ticket'] }],
+          why: '电影院：目录 = movies，实物 = showtimes（+ seats），事件 = tickets。三个角色说对，收尾就对了。' },
+        { t: 'quiz', q: '哪个收尾最好？',
+          opts: ['"That\'s it, I think."', '"To sum up: room types and rooms are separate; reservations is the fact table, and a room is taken when a non-cancelled reservation covers that night. Every report is reservations joined to rooms and room types. Next I would add a payments table."', '"I am not sure my design is right."', '把所有表再从头念一遍'],
+          a: 1, why: '三句话说清楚拆了什么、事实表、报表怎么出，再加一句扩展。不要自我否定，也不要从头再念一遍。' },
+        { t: 'recap', points: ['操作题 5 步：检查 → 写事件 → 改状态 → 处理排队 → 通知', 'UPDATE 一定带 WHERE，并且只改「还开着」的那一条', '几步要一起成功就说「放进一个事务」', '收尾三句话：拆了什么、事实表是谁、报表怎么出，再加一句扩展'] },
+      ],
+    },
+  ],
+  practice: [
+    { id: 'T1', title: '① 搜索 · 电影院', prompt: '<b>电影院</b>（表 movies）：所有 R 级（<code>rating = \'R\'</code>）电影的片名和片长。',
+      cols: 'title, length_min',
+      ref: "SELECT title, length_min FROM movies WHERE rating = 'R';",
+      hints: ['骨架 ①：目录表 + WHERE', '只用 movies 一张表'] },
+    { id: 'T2', title: '② 现在可用 · 图书馆', prompt: '<b>图书馆</b>（表 copies、books、loans）：Kranzberg 分馆<b>现在在架上</b>的副本。输出 <code>copy_id, title</code>。今天是 2026-11-04。',
+      cols: 'copy_id, title',
+      ref: "SELECT c.copy_id, b.title FROM copies c JOIN books b ON b.book_id = c.book_id WHERE c.branch = 'Kranzberg' AND c.copy_id NOT IN (SELECT copy_id FROM loans WHERE return_date IS NULL);",
+      hints: ['骨架 ②：实物 NOT IN 活跃事件', '活跃条件：return_date IS NULL', '书名在 books 上，要 JOIN books'] },
+    { id: 'T3', title: '② 现在可用 · 电影院', prompt: '<b>电影院</b>（表 showtimes、seats、tickets）：场次 12356（11 月 6 日 19:00 的 The Hobbit）还空着哪些座位？输出 <code>row_label, seat_no</code>。',
+      cols: 'row_label, seat_no',
+      ref: 'SELECT s.row_label, s.seat_no FROM seats s WHERE s.screen_id = (SELECT screen_id FROM showtimes WHERE show_id = 12356) AND s.seat_id NOT IN (SELECT seat_id FROM tickets WHERE show_id = 12356);',
+      hints: ['先找这一场在哪个影厅：showtimes 里 show_id = 12356 的 screen_id', '这个影厅的座位 NOT IN 这一场卖出的票'] },
+    { id: 'T4', title: '② 现在可用 · 酒店', prompt: '<b>酒店</b>（表 rooms、reservations）：Riverfront（<code>hotel_id = 1</code>）<b>11 月 21 日晚上</b>还有哪些房间空着？输出 <code>room_no</code>。取消的预订不占房；11 月 21 日退房的客人那天晚上已经走了。',
+      cols: 'room_no',
+      ref: "SELECT room_no FROM rooms WHERE hotel_id = 1 AND room_id NOT IN (SELECT room_id FROM reservations WHERE status <> 'cancelled' AND check_in <= '2026-11-21' AND check_out > '2026-11-21');",
+      hints: ['骨架 ②，活跃条件是「那天晚上有人住」', "status <> 'cancelled' AND check_in <= '2026-11-21' AND check_out > '2026-11-21'", '注意 check_out 用大于，不是大于等于'] },
+    { id: 'T5', title: '③ 某人现在的 · 酒店', prompt: '<b>酒店</b>（表 reservations、rooms、hotels）：客人 10（Dario Velez）还没完成的预订，也就是 status 是 booked 或 checked_in 的。输出 <code>res_id, name, check_in, check_out</code>，其中 name 是酒店名。',
+      cols: 'res_id, name, check_in, check_out',
+      ref: "SELECT r.res_id, h.name, r.check_in, r.check_out FROM reservations r JOIN rooms rm ON rm.room_id = r.room_id JOIN hotels h ON h.hotel_id = rm.hotel_id WHERE r.guest_id = 10 AND r.status IN ('booked', 'checked_in');",
+      hints: ['骨架 ③：事件 JOIN 实物 JOIN 地点，某人 + 活跃', "status IN ('booked', 'checked_in')", '酒店名要经过 rooms 才连得到 hotels'] },
+    { id: 'T6', title: '④ 排队 · 图书馆', prompt: '<b>图书馆</b>（表 holds、members）：书 12345 现在排队的人，按先来后到排好。只看还在等的（waiting）。输出 <code>name, placed_at</code>，最早的在前。',
+      cols: 'name, placed_at', ordered: true,
+      ref: "SELECT m.name, h.placed_at FROM holds h JOIN members m ON m.member_id = h.member_id WHERE h.book_id = 12345 AND h.status = 'waiting' ORDER BY h.placed_at;",
+      hints: ['骨架 ④，不加 LIMIT 就是整个队伍', "status = 'waiting'：已经拿到书的（fulfilled）不算"] },
+    { id: 'T7', title: '⑤ 逾期 · 图书馆', prompt: '<b>图书馆</b>（表 loans、members、copies、books）：今天是 2026-11-04。列出过期未还的借阅，以及已经逾期几天。输出 <code>name, title, days_overdue</code>（整数），逾期最久的在前。',
+      cols: 'name, title, days_overdue', ordered: true,
+      ref: "SELECT m.name, b.title, CAST(julianday('2026-11-04') - julianday(l.due_date) AS INTEGER) AS days_overdue FROM loans l JOIN members m ON m.member_id = l.member_id JOIN copies c ON c.copy_id = l.copy_id JOIN books b ON b.book_id = c.book_id WHERE l.return_date IS NULL AND l.due_date < '2026-11-04' ORDER BY days_overdue DESC;",
+      hints: ['骨架 ⑤：活跃条件 + 到期日 < 今天', "天数：julianday('2026-11-04') - julianday(due_date)，再 CAST(... AS INTEGER)", '书名要经过 copies 才连得到 books'] },
+    { id: 'T8', title: '⑥ 排行 · 图书馆', prompt: '<b>图书馆</b>（表 loans、copies、books）：过去一年（<code>checkout_date ≥ 2025-11-04</code>）借阅次数最多的 3 位作者。输出 <code>author, loans</code>，从多到少。',
+      cols: 'author, loans', ordered: true,
+      ref: "SELECT b.author, COUNT(*) AS loans FROM loans l JOIN copies c ON c.copy_id = l.copy_id JOIN books b ON b.book_id = c.book_id WHERE l.checkout_date >= '2025-11-04' GROUP BY b.author ORDER BY loans DESC LIMIT 3;",
+      hints: ['骨架 ⑥：事件 → 实物 → 目录，GROUP BY 维度', 'GROUP BY b.author，ORDER BY loans DESC LIMIT 3'] },
+    { id: 'T9', title: '⑥ 排行 · 酒店（算晚数）', prompt: '<b>酒店</b>（表 reservations、rooms、room_types）：过去一年（<code>check_in ≥ 2025-11-04</code>）每种房型一共被住了<b>几晚</b>，不算取消的。输出 <code>name, nights</code>，从多到少。',
+      cols: 'name, nights', ordered: true,
+      ref: "SELECT rt.name, SUM(julianday(r.check_out) - julianday(r.check_in)) AS nights FROM reservations r JOIN rooms rm ON rm.room_id = r.room_id JOIN room_types rt ON rt.type_id = rm.type_id WHERE r.status <> 'cancelled' AND r.check_in >= '2025-11-04' GROUP BY rt.type_id, rt.name ORDER BY nights DESC;",
+      hints: ['和「住了几次」是同一个骨架，只是 COUNT(*) 换成 SUM(晚数)', '一次预订的晚数：julianday(check_out) - julianday(check_in)'] },
+    { id: 'T10', title: '⑦ 多时间窗 · 酒店', prompt: '<b>酒店</b>（表 reservations）：按下单日期 <code>booked_on</code> 统计最近 30、90、365 天各下了多少单（取消的也算）。今天是 2026-11-04，三个起点分别是 2026-10-05、2026-08-06、2025-11-04。输出一行 <code>last_30d, last_90d, last_365d</code>。',
+      cols: 'last_30d, last_90d, last_365d',
+      ref: "SELECT SUM(booked_on >= '2026-10-05') AS last_30d, SUM(booked_on >= '2026-08-06') AS last_90d, SUM(booked_on >= '2025-11-04') AS last_365d FROM reservations;",
+      hints: ['骨架 ⑦：每个时间窗一个 SUM(条件)', 'SQLite 里比较结果是 1 或 0，SUM 起来就是个数'] },
+    { id: 'T11', title: '⑧ 比率 · 电影院', prompt: '<b>电影院</b>（表 showtimes、movies、tickets、seats）：10 月 31 日（<code>starts_at</code> 以 2026-10-31 开头）每一场卖了几张、影厅有几个座位、上座率百分之几（保留 1 位小数）。输出 <code>show_id, title, sold, seats, pct</code>。',
+      cols: 'show_id, title, sold, seats, pct',
+      ref: "SELECT st.show_id, m.title, COUNT(t.ticket_id) AS sold, (SELECT COUNT(*) FROM seats se WHERE se.screen_id = st.screen_id) AS seats, ROUND(100.0 * COUNT(t.ticket_id) / (SELECT COUNT(*) FROM seats se WHERE se.screen_id = st.screen_id), 1) AS pct FROM showtimes st JOIN movies m ON m.movie_id = st.movie_id LEFT JOIN tickets t ON t.show_id = st.show_id WHERE st.starts_at LIKE '2026-10-31%' GROUP BY st.show_id, m.title, st.screen_id;",
+      hints: ['骨架 ⑧：卖出的票 / 影厅座位数', '座位数可以用子查询：(SELECT COUNT(*) FROM seats WHERE screen_id = st.screen_id)', '乘 100.0 而不是 100，否则整数除法会得到 0'] },
+    { id: 'T12', title: '⑧ 比率 · 图书馆（保住 0）', prompt: '<b>图书馆</b>（表 copies、loans）：每个分馆有几个副本、现在借出了几个、借出比例百分之几（保留 1 位小数）。<b>一个都没借出的分馆也要列出来</b>。输出 <code>branch, copies, out, pct_out</code>。',
+      cols: 'branch, copies, out, pct_out',
+      ref: 'SELECT c.branch, COUNT(*) AS copies, COUNT(l.loan_id) AS out, ROUND(100.0 * COUNT(l.loan_id) / COUNT(*), 1) AS pct_out FROM copies c LEFT JOIN loans l ON l.copy_id = c.copy_id AND l.return_date IS NULL GROUP BY c.branch;',
+      hints: ['从 copies 出发 LEFT JOIN loans，才能保住借出为 0 的分馆', '活跃条件 return_date IS NULL 要写在 ON 里，写在 WHERE 里会把没借出的分馆过滤掉', 'COUNT(l.loan_id) 只数配上了借阅的行'] },
+    { id: 'T13', dml: true, title: '操作 · 酒店退房', prompt: '<b>酒店</b>（表 reservations）：Jonah Reyes 今天退房，他的预订是 34，现在是 checked_in。把它改成 checked_out。<b>只改这一条，而且只在它确实是 checked_in 时才改</b>。',
+      cols: '检查：所有预订的 res_id 和 status',
+      ref: "UPDATE reservations SET status = 'checked_out' WHERE res_id = 34 AND status = 'checked_in';",
+      check: 'SELECT res_id, status FROM reservations ORDER BY res_id;',
+      hints: ['操作模板：检查 + 写事件，一句 UPDATE 带两个条件', 'UPDATE 一定要有 WHERE'] },
+  ],
+  cards: [
+    ['restate', '复述题目', '开场第一句：So, to restate: [people] use the system to [x], and [managers] want reports on [y]. Is that right?'],
+    ['catalog vs item', '目录 vs 实物', '目录是「哪一种」（书名、电影、房型），实物是「具体哪一个」（副本、场次、房间）。同一种有多个就拆两张表。'],
+    ['event / fact table', '事件表 / 事实表', '谁、在什么时候、用了哪个实物。每发生一次加一行，一直变长。报表几乎都从它出发。'],
+    ['derived state', '从事件推出的状态', '「现在借出了吗」「房间今晚有人吗」从事件推出来，不另存一列，所以不会和事件对不上。'],
+    ['status, not delete', '改状态不删行', '取消、完成都改 status，保留历史；删除会让报表少算。'],
+    ['price on the event', '价格存在事件上', '目录上的价格会变；事件上记下当时的价格，收入报表用它。'],
+    ['active condition', '活跃条件', '「这件事还在进行中」的写法：结束时间为空、状态是进行中、日期区间包含那天。'],
+    ['available-now pattern', '「现在可用」骨架', '实物 WHERE id NOT IN（活跃事件里的 id）。'],
+    ['first-in-line pattern', '「排队第一」骨架', "WHERE status = 'waiting' ORDER BY placed_at LIMIT 1。"],
+    ['ranking pattern', '「排行」骨架', '事件 JOIN 维度，WHERE 时间范围，GROUP BY 维度，ORDER BY COUNT(*) DESC LIMIT N。'],
+    ['ratio pattern', '「比率」骨架', '从分母那张表出发 LEFT JOIN，活跃条件写在 ON 里，乘 100.0 再除。'],
+    ['operation in 5 steps', '操作题 5 步', '检查 → 写事件 → 改状态 → 处理排队 → 通知；几步一起成功就放进事务。'],
+    ['closing', '收尾三句话', '拆了什么、事实表是谁、报表怎么出，再加一句以后怎么扩展。'],
+  ],
+  oral: [
+    { id: 't1', q: "A car rental company wants a new data system. Customers reserve a car class, pick up a specific car at a branch, and return it later, maybe at a different branch. Managers want to know utilization and the most popular car classes. Walk me through your design.", zh: '新主题：租车公司，套模板',
+      follow: ['Can the company have several cars of the same model?', 'How do you know a car is out right now?', 'Is a reservation for a specific car or for a class? Why?', 'What happens if the customer returns the car late?', 'Which car classes were most popular last year? Walk me through the SQL.'],
+      points: ['Restates the prompt and asks the five template questions (branches, multiple cars, rental period, cancellations, scale)', 'Maps nouns to roles: customers (person), car classes / models (catalog), cars (item), rentals (event), reservations (queue)', 'Separates car class from car, puts reservations on the class, and stores pickup and return branches on the rental', 'Derives "out right now" from rentals with no actual return time, and stores the price on the rental', 'Closes with a three-sentence summary and an extension'],
+      model: "Let me restate: customers reserve a car class, pick up a specific car at a branch and return it later, and managers want utilization and popular classes. A few questions first: how many branches, and can a car be returned to a different one? I'd separate car classes from cars, because one class like a compact SUV has many physical cars. Rentals is my fact table: customer, car, pickup branch and time, due time, actual return time and return branch, plus the price. Reservations point to the class, not a specific car, because the customer just needs any car of that class. A car is out if it has a rental with no actual return time, and popular classes are rentals joined to cars and classes, grouped by class." },
+    { id: 't2', q: "Using any system you like, explain the difference between a catalog table and an item table, and tell me how you decide whether you need both.", zh: '目录表和实物表的区别',
+      points: ['Catalog = what kind of thing (title, model, room type); item = the specific one used (copy, car, room)', 'Ask whether there can be more than one of the same kind', 'One table would repeat descriptive data and cannot track each item separately', 'Events and status point at items; holds or reservations point at the catalog'],
+      model: "A catalog table describes what kind of thing something is, like a book title with its author and genre, while an item table has one row per physical thing, like each copy of that book. I decide by asking whether there can be more than one of the same kind. If yes, I need both, because otherwise the title information repeats on every copy and I can't track which copy is where or which one is checked out. Loans point at items, since you borrow a specific copy, while holds point at the catalog, since you want the book and any copy will do." },
+    { id: 't3', q: "In any system with bookings or loans, how would you list the things that are overdue, and what is the most common mistake?", zh: '逾期查询的模板和常见错误',
+      points: ['Start from the event table', 'Apply the active condition (not returned, not finished, not cancelled)', 'Compare the due time with now', 'Join the person and catalog tables for names and titles', 'Common mistake: forgetting the active condition and counting finished events'],
+      model: "I'd start from the event table, like loans or rentals, and keep only the events that are still active, for example where the return date is null. Then I compare the due date with today and keep the ones that are past due. I join the person table for the name and email, and the item and catalog tables for what they have. The most common mistake is skipping the active condition: then every old loan whose due date has passed shows up, even if it was returned on time." },
+  ],
+});
+
+/* c17 · SQL 专项：只学用法，再在 4 个主题上闯关。
+   Runs on `sqlall` = library + cinema + hotel + bikeshare seeds (table names don't overlap). "Today" is 2026-11-04 in all four. */
+window.SEEDS = window.SEEDS || {};
+Object.defineProperty(window.SEEDS, 'sqlall', {
+  enumerable: true, configurable: true,
+  get() { return [window.SEEDS.library, window.SEEDS.cinema, window.SEEDS.hotel, window.SEEDS.bikeshare].join('\n'); },
+});
+window.CHAPTERS = window.CHAPTERS || [];
+window.CHAPTERS.push({
+  id: 'c17', no: 17, cls: 'SQL 专项', title: 'SQL 专项：学用法，再闯关', en: 'SQL drills across four topics',
+  blurb: '只学用法：筛选、JOIN、分组、子查询、日期和窗口、改数据，每块一个模板。然后在图书馆、电影院、酒店、共享单车 4 套数据上闯 27 关。',
+  hue: 265, db: 'sqlall', source: '课程 SQL 内容 + 口试查询题型',
+  lessons: [
+    {
+      id: 'a', title: '筛选、排序、去重', min: 5,
+      screens: [
+        { t: 'hook', big: '考试要的 SQL，就这 6 块：筛选、JOIN、分组、子查询、日期、改数据。', sub: '这一章只学用法：每块一个模板，学完马上写。', icon: 'code' },
+        { t: 'code', title: '一条查询的骨架', lang: 'sql',
+          code: "SELECT   要输出的列\nFROM     从哪张表出发\nJOIN     再接哪张表 ON 外键 = 主键\nWHERE    留下哪些行\nGROUP BY 按什么分组\nHAVING   留下哪些组\nORDER BY 怎么排序\nLIMIT    要几行;",
+          notes: [
+            { line: 0, text: '写在最前面，但数据库最后才算它。' },
+            { lines: [1, 2], text: 'FROM + JOIN：先把需要的表接成一张大表。' },
+            { line: 3, text: 'WHERE：一行一行判断，不满足的扔掉。' },
+            { lines: [4, 5], text: 'GROUP BY 把行分组；HAVING 判断整组留不留。' },
+            { lines: [6, 7], text: '最后排序、截取前几行。' },
+          ] },
+        { t: 'order', q: '按<b>书写顺序</b>排好这些子句：', parts: ['SELECT', 'FROM', 'JOIN … ON …', 'WHERE', 'GROUP BY', 'HAVING', 'ORDER BY', 'LIMIT'], lang: 'sql', why: '口诀：「选、从、接、筛、分、滤、排、限」。顺序写错 SQL 就报错。' },
+        { t: 'idea', title: 'WHERE 工具箱', body: '每种条件一个写法。多个条件用 AND / OR 连起来，混着用时加括号。',
+          code: "WHERE status = 'booked'            -- 等于\n  AND status <> 'cancelled'        -- 不等于\n  AND status IN ('booked', 'checked_in')   -- 几个之一\n  AND base_rate BETWEEN 150 AND 300        -- 区间（含两端）\n  AND title LIKE '%the%'           -- 包含；'The%' 是以 The 开头\n  AND end_time IS NULL             -- 是空的\n  AND (a = 1 OR b = 2)             -- OR 一定加括号", lang: 'sql',
+          trap: '判断空值只能写 <code>IS NULL</code> / <code>IS NOT NULL</code>。<code>= NULL</code> 永远不成立。' },
+        { t: 'match', q: '需求 ↔ 写法：', pairs: [
+          ['还没结束（没有结束时间）', 'end_time IS NULL'],
+          ['三种状态之一', "status IN ('a', 'b', 'c')"],
+          ['价格在 10 到 14 之间', 'price BETWEEN 10 AND 14'],
+          ['书名以 The 开头', "title LIKE 'The%'"],
+          ['不是取消的', "status <> 'cancelled'"],
+        ] },
+        { t: 'sql', title: '筛选 · 共享单车', task: '<b>共享单车</b>（表 rides：ride_id, bike_id, rider_id, start_time, end_time …）：现在还在骑的车（还没有 end_time）。输出 <code>ride_id, bike_id, start_time</code>。',
+          sql: 'SELECT ride_id, bike_id, start_time\nFROM rides\nWHERE 1 = 1;  -- 把 1 = 1 换成「还没结束」',
+          check: 'SELECT ride_id, bike_id, start_time FROM rides WHERE end_time IS NULL;',
+          hint: 'end_time IS NULL' },
+        { t: 'predict', title: '= NULL 的坑', q: '共享单车 rides 表一共 37 次骑行，其中 3 次还没结束（end_time 为空）。这句返回几？',
+          code: 'SELECT COUNT(*) AS n\nFROM rides\nWHERE end_time = NULL;', lang: 'sql', run: true,
+          opts: ['0', '3', '34', '37'], a: 0,
+          why: '和 NULL 用 = 比较，结果既不是真也不是假，而是「未知」，所以一行都留不下来：0。要写 <code>end_time IS NULL</code>，结果才是 3。' },
+        { t: 'idea', title: '排序、前几名、去重', body: 'ORDER BY 默认从小到大，DESC 是从大到小；LIMIT 取前几行；DISTINCT 去掉重复的行。',
+          code: 'SELECT DISTINCT genre FROM movies ORDER BY genre;\n\nSELECT title, length_min\nFROM movies\nORDER BY length_min DESC, title   -- 先按片长，一样长再按片名\nLIMIT 3;', lang: 'sql',
+          tip: '要「前 N 名」时，想一下会不会并列：加第二个排序列，结果才稳定。' },
+        { t: 'sql', title: '排序 · 酒店', task: '<b>酒店</b>（表 room_types：type_id, name, beds, capacity, base_rate）：能住 4 人及以上的房型，按价格从低到高。输出 <code>name, base_rate</code>。',
+          sql: 'SELECT name, base_rate\nFROM room_types\n;',
+          check: 'SELECT name, base_rate FROM room_types WHERE capacity >= 4 ORDER BY base_rate;', ordered: true,
+          hint: 'WHERE capacity >= 4 ORDER BY base_rate' },
+        { t: 'fill', q: '电影院 movies 表里有哪些<b>不同的</b>类型，按字母排序？', tpl: 'SELECT {0} genre FROM movies {1} genre;', lang: 'sql',
+          blanks: [{ a: ['DISTINCT'] }, { a: ['ORDER BY'] }], why: 'DISTINCT 去重，ORDER BY 排序。8 部电影只有 7 种类型，因为有两部是 Superhero。' },
+        { t: 'recap', points: ['书写顺序：SELECT → FROM → JOIN → WHERE → GROUP BY → HAVING → ORDER BY → LIMIT', 'WHERE 工具箱：= <> IN BETWEEN LIKE IS NULL，OR 加括号', '空值只能用 IS NULL 判断', '前 N 名：ORDER BY … DESC LIMIT N，并列时加第二个排序列'] },
+      ],
+    },
+    {
+      id: 'b', title: 'JOIN：沿着外键一张一张接', min: 6,
+      screens: [
+        { t: 'hook', big: '要的列不在同一张表里？沿着外键接过去。', sub: 'INNER JOIN 只留配得上的；LEFT JOIN 左边一个不少。', icon: 'join' },
+        { t: 'join', title: '车站 × 骑行（出发站）',
+          left: { name: 'stations s', cols: ['station_id', 'name'], rows: [[1, 'Delmar Loop'], [2, 'Danforth Campus'], [6, 'Soulard Market']] },
+          right: { name: 'rides r', cols: ['ride_id', 'start_station_id'], rows: [[34, 2], [35, 1], [36, 1], [37, 1]] },
+          on: [0, 1], out: [['L', 1], ['R', 0]], types: ['inner', 'left'] },
+        { t: 'idea', title: '找 JOIN 路径的方法', body: '先问：要输出的列在哪几张表？再从事件表出发，每一步都用外键接到下一张表，直到所有列都拿到。',
+          code: 'FROM tickets t                                   -- 事件\nJOIN showtimes st ON st.show_id = t.show_id      -- 实物（场次）\nJOIN movies m     ON m.movie_id = st.movie_id    -- 目录（电影）\nJOIN seats se     ON se.seat_id = t.seat_id      -- 实物（座位）', lang: 'sql',
+          tip: '每张表起一个短别名（t、st、m），列名前都带上别名，就不会出现「列名不明确」的错误。' },
+        { t: 'order', q: '<b>图书馆</b>：要输出「每次借阅的书名」。把 FROM / JOIN 按顺序排好（loans 只知道 copy_id，书名在 books 上）：', parts: ['FROM loans l', 'JOIN copies c ON c.copy_id = l.copy_id', 'JOIN books b ON b.book_id = c.book_id'], lang: 'sql',
+          why: 'loans → copies → books：中间那一步不能跳，因为 loans 上没有 book_id。' },
+        { t: 'sql', title: 'JOIN · 共享单车', task: '<b>共享单车</b>（rides、riders、stations）：现在还在骑的人和他们的出发站名。输出 <code>name, station, start_time</code>（name 是骑手名，station 是车站名）。',
+          sql: 'SELECT ri.name, s.name AS station, r.start_time\nFROM rides r\nJOIN riders ri ON ri.rider_id = r.rider_id\nJOIN stations s ON 1 = 1   -- 换成：接到出发站\nWHERE 1 = 1;              -- 换成：还在骑的',
+          check: 'SELECT ri.name, s.name AS station, r.start_time FROM rides r JOIN riders ri ON ri.rider_id = r.rider_id JOIN stations s ON s.station_id = r.start_station_id WHERE r.end_time IS NULL;',
+          hint: 'ri.rider_id = r.rider_id；s.station_id = r.start_station_id；r.end_time IS NULL' },
+        { t: 'sql', title: 'JOIN · 电影院', task: '<b>电影院</b>（tickets、showtimes、movies、seats）：交易 3 买的每张票是哪部电影、哪个座位、多少钱。输出 <code>title, row_label, seat_no, price</code>。',
+          sql: '-- 从 tickets 出发，接 showtimes、movies、seats\nSELECT t.ticket_id, t.price\nFROM tickets t\nWHERE t.transaction_id = 3;',
+          check: 'SELECT m.title, se.row_label, se.seat_no, t.price FROM tickets t JOIN showtimes st ON st.show_id = t.show_id JOIN movies m ON m.movie_id = st.movie_id JOIN seats se ON se.seat_id = t.seat_id WHERE t.transaction_id = 3;',
+          hint: '票 → 场次 → 电影；票 → 座位。WHERE t.transaction_id = 3' },
+        { t: 'idea', title: 'LEFT JOIN 数「0」', body: '要列出「一次都没有」的东西，就从它所在的表出发 LEFT JOIN。数的时候用 COUNT(右表的 id)：配不上的行右边是 NULL，COUNT 不数 NULL，结果就是 0。',
+          code: 'SELECT m.title, COUNT(st.show_id) AS shows\nFROM movies m\nLEFT JOIN showtimes st ON st.movie_id = m.movie_id\nGROUP BY m.movie_id, m.title;', lang: 'sql',
+          trap: '写成 <code>COUNT(*)</code>，没有场次的电影也会数出 1：LEFT JOIN 留下的那一行本身也算一行。' },
+        { t: 'predict', title: 'COUNT(*) 的坑', q: '电影院：Mickey 17 一场都没排（showtimes 里没有它）。这句返回的 shows 是几？',
+          code: "SELECT m.title, COUNT(*) AS shows\nFROM movies m\nLEFT JOIN showtimes st ON st.movie_id = m.movie_id\nWHERE m.title = 'Mickey 17'\nGROUP BY m.title;", lang: 'sql', run: true,
+          opts: ['0', '1', 'NULL', '报错'], a: 1,
+          why: 'LEFT JOIN 给 Mickey 17 留了一行（右边全是 NULL），COUNT(*) 数的是行数，所以是 1。改成 <code>COUNT(st.show_id)</code> 才是 0。' },
+        { t: 'sql', title: 'LEFT JOIN · 电影院', task: '<b>电影院</b>：每部电影排了几场，<b>一场都没排的也要列出来（显示 0）</b>。输出 <code>title, shows</code>。',
+          sql: '-- 从 movies 出发 LEFT JOIN showtimes，再分组计数\nSELECT m.title\nFROM movies m;',
+          check: 'SELECT m.title, COUNT(st.show_id) AS shows FROM movies m LEFT JOIN showtimes st ON st.movie_id = m.movie_id GROUP BY m.movie_id, m.title;',
+          hint: 'FROM movies m LEFT JOIN showtimes st ON st.movie_id = m.movie_id GROUP BY m.movie_id, m.title' },
+        { t: 'quiz', q: '<b>共享单车</b>：每个车站最近 30 天（<code>start_time ≥ 2026-10-05</code>）作为出发站的骑行次数，<b>0 次的车站也要列出</b>。Soulard Market 最近 30 天一次都没有。哪句能把它留下来？',
+          code: "-- A\nSELECT s.name, COUNT(r.ride_id) AS rides\nFROM stations s\nLEFT JOIN rides r ON r.start_station_id = s.station_id\nWHERE r.start_time >= '2026-10-05'\nGROUP BY s.station_id, s.name;\n\n-- B\nSELECT s.name, COUNT(r.ride_id) AS rides\nFROM stations s\nLEFT JOIN rides r ON r.start_station_id = s.station_id\n                 AND r.start_time >= '2026-10-05'\nGROUP BY s.station_id, s.name;", lang: 'sql',
+          opts: ['A', 'B', '两个都能', '两个都不能'], a: 1,
+          why: 'A 把条件写在 WHERE：Soulard 那一行的 r.start_time 是 NULL，被 WHERE 扔掉了，LEFT JOIN 白做。B 把条件写在 ON 里：只决定「哪些骑行配得上」，车站本身一个不少。<b>LEFT JOIN 右表的条件写在 ON 里。</b>' },
+        { t: 'sql', title: 'ON 里的条件 · 共享单车', task: '<b>共享单车</b>：每个车站最近 30 天（<code>start_time ≥ 2026-10-05</code>）作为出发站的骑行次数，0 次的车站也要列出。输出 <code>name, rides</code>。',
+          sql: 'SELECT s.name, COUNT(r.ride_id) AS rides\nFROM stations s\nLEFT JOIN rides r ON r.start_station_id = s.station_id\n',
+          check: "SELECT s.name, COUNT(r.ride_id) AS rides FROM stations s LEFT JOIN rides r ON r.start_station_id = s.station_id AND r.start_time >= '2026-10-05' GROUP BY s.station_id, s.name;",
+          hint: "AND r.start_time >= '2026-10-05' 接在 ON 后面，然后 GROUP BY s.station_id, s.name" },
+        { t: 'recap', points: ['找路径：要的列在哪 → 从事件表出发 → 沿外键一步步接', '每张表起别名，列名带别名', '数「0」：从要全列的表出发 LEFT JOIN，COUNT(右表.id)', 'LEFT JOIN 右表的条件写在 ON 里，写在 WHERE 会把 0 那几行扔掉'] },
+      ],
+    },
+    {
+      id: 'c', title: 'GROUP BY：分组、统计、比率', min: 6,
+      screens: [
+        { t: 'hook', big: '听到「每个……有多少」，就是 GROUP BY。', sub: '每个分馆、每部电影、每家酒店、每个月……', icon: 'group' },
+        { t: 'rows', title: 'GROUP BY 在做什么（例子）',
+          sql: 'SELECT pass_type, COUNT(*) AS rides\nFROM rides\nGROUP BY pass_type;',
+          cols: ['ride_id', 'pass_type'],
+          rows: [{ k: 'a', v: [1, 'member'] }, { k: 'b', v: [2, 'day_pass'] }, { k: 'c', v: [3, 'member'] }, { k: 'd', v: [4, 'member'] }, { k: 'e', v: [5, 'day_pass'] }],
+          frames: [
+            { text: '例子：5 次骑行，两种票。', line: 1 },
+            { text: 'GROUP BY pass_type：pass_type 相同的行放进同一个桶。', line: 2, group: { a: 'member', c: 'member', d: 'member', b: 'day_pass', e: 'day_pass' } },
+            { text: '每个桶变成一行：COUNT(*) 数桶里有几行。', line: 0, rows: [{ k: 'm', v: ['member', 3] }, { k: 'p', v: ['day_pass', 2] }], cols: ['pass_type', 'rides'], group: null },
+          ] },
+        { t: 'idea', title: '分组的两条规则', body: 'SELECT 里不是聚合函数的列，都要写进 GROUP BY。按 id 分组再把名字一起写上，同名的东西就不会被合并。',
+          code: 'SELECT h.name, COUNT(*) AS rooms        -- name 不是聚合，要进 GROUP BY\nFROM hotels h\nJOIN rooms r ON r.hotel_id = h.hotel_id\nGROUP BY h.hotel_id, h.name;            -- 按 id 分组，再带上名字', lang: 'sql',
+          terms: [['aggregate function', '聚合函数：COUNT、SUM、AVG、MIN、MAX']] },
+        { t: 'match', q: '需求 ↔ 聚合函数：', pairs: [
+          ['有几行', 'COUNT(*)'],
+          ['有几个不同的', 'COUNT(DISTINCT x)'],
+          ['一共多少钱', 'SUM(price)'],
+          ['平均多少', 'AVG(x)'],
+          ['最近一次是什么时候', 'MAX(time)'],
+        ] },
+        { t: 'sql', title: '分组 · 酒店', task: '<b>酒店</b>（hotels、rooms）：每家酒店有几间房。输出 <code>name, rooms</code>。',
+          sql: 'SELECT h.name, COUNT(*) AS rooms\nFROM hotels h\nJOIN rooms r ON r.hotel_id = h.hotel_id\n',
+          check: 'SELECT h.name, COUNT(*) AS rooms FROM hotels h JOIN rooms r ON r.hotel_id = h.hotel_id GROUP BY h.hotel_id, h.name;',
+          hint: 'GROUP BY h.hotel_id, h.name' },
+        { t: 'idea', title: 'WHERE 还是 HAVING', body: 'WHERE 在分组<b>之前</b>筛行，HAVING 在分组<b>之后</b>筛组。条件里有 COUNT、SUM 这类聚合，就只能写在 HAVING。',
+          code: "SELECT s.name, COUNT(*) AS rides\nFROM rides r\nJOIN stations s ON s.station_id = r.start_station_id\nWHERE r.pass_type = 'member'      -- 先扔掉不要的行\nGROUP BY s.station_id, s.name\nHAVING COUNT(*) >= 5;             -- 再扔掉不够大的组", lang: 'sql' },
+        { t: 'sql', title: 'HAVING · 共享单车', task: '<b>共享单车</b>（rides、stations）：作为出发站的骑行次数 <b>至少 7 次</b>的车站（所有骑行都算）。输出 <code>name, rides</code>。',
+          sql: 'SELECT s.name, COUNT(*) AS rides\nFROM rides r\nJOIN stations s ON s.station_id = r.start_station_id\nGROUP BY s.station_id, s.name\n',
+          check: 'SELECT s.name, COUNT(*) AS rides FROM rides r JOIN stations s ON s.station_id = r.start_station_id GROUP BY s.station_id, s.name HAVING COUNT(*) >= 7;',
+          hint: 'HAVING COUNT(*) >= 7' },
+        { t: 'fill', q: '<b>酒店</b>：每位客人一共几个预订、其中几个被取消。用「条件计数」：SQLite 里比较的结果是 1 或 0，SUM 起来就是个数。',
+          tpl: 'SELECT g.name, COUNT(*) AS total, SUM({0}) AS cancelled\nFROM reservations r JOIN guests g ON g.guest_id = r.guest_id\nGROUP BY g.guest_id, g.name;', lang: 'sql',
+          blanks: [{ a: ["r.status = 'cancelled'", "r.status='cancelled'", "status = 'cancelled'", "status='cancelled'", "CASE WHEN r.status = 'cancelled' THEN 1 ELSE 0 END", "CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END"] }],
+          why: '<code>SUM(条件)</code> 数满足条件的行。别的数据库要写 <code>SUM(CASE WHEN 条件 THEN 1 ELSE 0 END)</code>，两种都要会。比率就是再除以 COUNT(*)。' },
+        { t: 'predict', title: '整数除法', q: '这句的两列分别是多少？',
+          code: 'SELECT 7 / 10 AS a,\n       7 * 1.0 / 10 AS b;', lang: 'sql', run: true, data: false,
+          opts: ['a = 0，b = 0.7', 'a = 0.7，b = 0.7', 'a = 0，b = 0', 'a = 1，b = 0.7'], a: 0,
+          why: '两个整数相除，结果还是整数，小数部分直接丢掉：7 / 10 = 0。算比率时先乘 1.0（或 100.0）。上座率、取消率、入住率都会踩这个坑。' },
+        { t: 'sql', title: 'COUNT(DISTINCT) · 电影院', task: '<b>电影院</b>（customers、transactions、tickets、showtimes）：每位顾客一共看过几部<b>不同的</b>电影。输出 <code>name, movies</code>。',
+          sql: '-- 顾客 → 交易 → 票 → 场次（场次上才有 movie_id）\nSELECT c.name\nFROM customers c;',
+          check: 'SELECT c.name, COUNT(DISTINCT st.movie_id) AS movies FROM customers c JOIN transactions tr ON tr.customer_id = c.customer_id JOIN tickets t ON t.transaction_id = tr.transaction_id JOIN showtimes st ON st.show_id = t.show_id GROUP BY c.customer_id, c.name;',
+          hint: '顾客 → 交易 → 票 → 场次（场次上才有 movie_id）。同一部看了两次只算一部，所以用 COUNT(DISTINCT)' },
+        { t: 'recap', points: ['「每个……」= GROUP BY；非聚合列都进 GROUP BY，按 id 分组', 'WHERE 筛行（分组前），HAVING 筛组（分组后，可以用聚合）', '条件计数：SUM(条件) 或 SUM(CASE WHEN … THEN 1 ELSE 0 END)', '比率先乘 1.0 / 100.0，避免整数除法'] },
+      ],
+    },
+    {
+      id: 'd', title: '子查询：「从来没有」和「比平均高」', min: 5,
+      screens: [
+        { t: 'hook', big: '「从来没取消过的客人」「比平均贵的电影」：一条查询里再套一条。', sub: '三种子查询，各有固定用法。', icon: 'layers' },
+        { t: 'idea', title: '三种子查询', body: 'IN / NOT IN：在不在一张名单里。EXISTS / NOT EXISTS：有没有一行满足条件。标量子查询：先算出一个数，再拿来比较。',
+          code: "-- IN / NOT IN：一张名单\nWHERE guest_id NOT IN (SELECT guest_id FROM reservations WHERE status = 'cancelled')\n\n-- NOT EXISTS：对每一行问「有没有」\nWHERE NOT EXISTS (SELECT 1 FROM loans l WHERE l.member_id = m.member_id)\n\n-- 标量子查询：一个数\nHAVING AVG(t.price) > (SELECT AVG(price) FROM tickets)", lang: 'sql' },
+        { t: 'sql', title: 'NOT IN · 酒店', task: '<b>酒店</b>（guests、reservations）：从来没有取消过预订的客人。输出 <code>name</code>。',
+          sql: 'SELECT name\nFROM guests\nWHERE guest_id NOT IN (\n  SELECT guest_id FROM reservations WHERE 1 = 0  -- 换成：取消过的\n);',
+          check: "SELECT name FROM guests WHERE guest_id NOT IN (SELECT guest_id FROM reservations WHERE status = 'cancelled');",
+          hint: "子查询：SELECT guest_id FROM reservations WHERE status = 'cancelled'" },
+        { t: 'predict', title: 'NOT IN 遇到 NULL', q: '共享单车：8 个骑手里有 3 个从没报过修。但报修表 repair_reports 里有一条是巡检发现的，<code>rider_id</code> 是 NULL。这句返回几？',
+          code: 'SELECT COUNT(*) AS n\nFROM riders\nWHERE rider_id NOT IN (SELECT rider_id FROM repair_reports);', lang: 'sql', run: true,
+          opts: ['0', '3', '5', '8'], a: 0,
+          why: '名单里只要有一个 NULL，<code>x NOT IN (…, NULL)</code> 对任何 x 都不会是「真」，所以一行都不剩：0。两种改法：子查询里加 <code>WHERE rider_id IS NOT NULL</code>，或者改用 NOT EXISTS。' },
+        { t: 'idea', title: 'NOT EXISTS：最稳的「从来没有」', body: '对外层每一行，去子查询里找「有没有配得上的行」。子查询里用外层的列做关联条件。NULL 不会让它出错。',
+          code: 'SELECT ri.name\nFROM riders ri\nWHERE NOT EXISTS (\n  SELECT 1 FROM repair_reports rr\n  WHERE rr.rider_id = ri.rider_id     -- 关联：和外层这一行比\n);', lang: 'sql',
+          tip: '子查询里 SELECT 什么都行（习惯写 1），EXISTS 只关心有没有行。' },
+        { t: 'sql', title: 'NOT EXISTS · 共享单车', task: '<b>共享单车</b>（riders、repair_reports）：从来没报过修的骑手。输出 <code>name</code>。',
+          sql: 'SELECT ri.name\nFROM riders ri\nWHERE NOT EXISTS (\n  SELECT 1 FROM repair_reports rr\n  WHERE 1 = 0   -- 换成关联条件\n);',
+          check: 'SELECT ri.name FROM riders ri WHERE NOT EXISTS (SELECT 1 FROM repair_reports rr WHERE rr.rider_id = ri.rider_id);',
+          hint: 'SELECT 1 FROM repair_reports rr WHERE rr.rider_id = ri.rider_id' },
+        { t: 'quiz', q: '<b>电影院</b>：「平均票价比全部票的平均价还高的电影」。比较的那个「全部票的平均价」应该怎么写？',
+          opts: ['HAVING AVG(t.price) > AVG(price)', 'HAVING AVG(t.price) > (SELECT AVG(price) FROM tickets)', 'WHERE AVG(t.price) > (SELECT AVG(price) FROM tickets)', 'WHERE t.price > AVG(t.price)'],
+          a: 1, why: '「全部票的平均价」要单独算一次，所以是标量子查询；拿每部电影的 AVG 去比，所以写在 HAVING（WHERE 里不能用聚合）。' },
+        { t: 'sql', title: '标量子查询 · 电影院', task: '<b>电影院</b>（tickets、showtimes、movies）：平均票价比<b>全部票的平均价</b>高的电影。输出 <code>title, avg_price</code>（avg_price 保留 2 位小数）。',
+          sql: 'SELECT m.title, ROUND(AVG(t.price), 2) AS avg_price\nFROM tickets t\nJOIN showtimes st ON st.show_id = t.show_id\nJOIN movies m ON m.movie_id = st.movie_id\nGROUP BY m.movie_id, m.title\n',
+          check: 'SELECT m.title, ROUND(AVG(t.price), 2) AS avg_price FROM tickets t JOIN showtimes st ON st.show_id = t.show_id JOIN movies m ON m.movie_id = st.movie_id GROUP BY m.movie_id, m.title HAVING AVG(t.price) > (SELECT AVG(price) FROM tickets);',
+          hint: 'HAVING AVG(t.price) > (SELECT AVG(price) FROM tickets)' },
+        { t: 'fill', q: '<b>图书馆</b>：现在手上有书没还的读者（至少有一条 return_date 为空的借阅）。',
+          tpl: 'SELECT m.name FROM members m\nWHERE {0} (SELECT 1 FROM loans l\n             WHERE l.member_id = m.member_id AND l.return_date {1});', lang: 'sql',
+          blanks: [{ a: ['EXISTS'] }, { a: ['IS NULL'] }],
+          why: 'EXISTS 是「至少有一条」。用 JOIN 也能做，但一个人借了两本就会出现两次，还得加 DISTINCT；EXISTS 天然每人一行。' },
+        { t: 'recap', points: ['IN / NOT IN：一张名单；NOT IN 的名单里有 NULL 就一行不剩', '「从来没有」最稳的写法：NOT EXISTS + 关联条件', '「比平均高」：标量子查询 (SELECT AVG(…) FROM …)', '和聚合比较写在 HAVING，不能写在 WHERE'] },
+      ],
+    },
+    {
+      id: 'e', title: '日期、时长、重叠、每组第一', min: 6,
+      screens: [
+        { t: 'hook', big: '「过去一年」「每个月」「住了几晚」「每家酒店最赚钱的房型」', sub: '日期四件套，加一个窗口函数。', icon: 'clock' },
+        { t: 'idea', title: '日期四件套（SQLite）', body: '日期存成 \'YYYY-MM-DD\' 文本，可以直接比大小。算差值用 julianday，按月分组用 strftime。',
+          code: "WHERE checkout_date >= '2025-11-04'              -- 直接比\nWHERE checkout_date >= date('now', '-1 year')    -- 相对今天\njulianday(check_out) - julianday(check_in)       -- 相差几天\n(julianday(end_time) - julianday(start_time)) * 24 * 60   -- 相差几分钟\nstrftime('%Y-%m', start_time)                    -- 取年-月，用来按月分组", lang: 'sql',
+          tip: '口试时忘了函数名就写伪代码，比如 <code>month(start_time)</code>，说一句「这里用数据库的取月份函数」。' },
+        { t: 'match', q: '需求 ↔ 写法：', pairs: [
+          ['过去一年', "date('now', '-1 year')"],
+          ['住了几晚', 'julianday(check_out) - julianday(check_in)'],
+          ['按月统计', "strftime('%Y-%m', t)"],
+          ['骑了几分钟', '(julianday(end) - julianday(start)) * 24 * 60'],
+        ] },
+        { t: 'sql', title: '按月统计 · 共享单车', task: '<b>共享单车</b>（rides）：2026 年（<code>start_time ≥ 2026-01-01</code>）每个月骑了几次。输出 <code>month, rides</code>，month 形如 2026-03，按月份排序。',
+          sql: "SELECT strftime('%Y-%m', start_time) AS month, COUNT(*) AS rides\nFROM rides\n",
+          check: "SELECT strftime('%Y-%m', start_time) AS month, COUNT(*) AS rides FROM rides WHERE start_time >= '2026-01-01' GROUP BY month ORDER BY month;", ordered: true,
+          hint: "WHERE start_time >= '2026-01-01' GROUP BY month ORDER BY month" },
+        { t: 'predict', title: 'julianday 相减', q: '11 月 4 日入住、11 月 7 日退房。这句返回多少？',
+          code: "SELECT julianday('2026-11-07') - julianday('2026-11-04') AS nights;", lang: 'sql', run: true, data: false,
+          opts: ['3.0', '4.0', '2.0', "'3 days'"], a: 0,
+          why: '相差 3 天，结果是小数 3.0。住了 4、5、6 号三个晚上，正好就是晚数。' },
+        { t: 'sql', title: '时长 · 酒店', task: '<b>酒店</b>（reservations）：住了 7 晚及以上的预订，不算取消的。输出 <code>res_id, check_in, check_out, nights</code>。',
+          sql: 'SELECT res_id, check_in, check_out,\n       julianday(check_out) - julianday(check_in) AS nights\nFROM reservations\nWHERE 1 = 1;  -- 换成：没取消 + 晚数 ≥ 7',
+          check: "SELECT res_id, check_in, check_out, julianday(check_out) - julianday(check_in) AS nights FROM reservations WHERE status <> 'cancelled' AND julianday(check_out) - julianday(check_in) >= 7;",
+          hint: "status <> 'cancelled' AND julianday(check_out) - julianday(check_in) >= 7（WHERE 里不能直接用别名 nights，要把表达式再写一遍）" },
+        { t: 'idea', title: '时间段重叠', body: '两个时间段 [a开始, a结束) 和 [b开始, b结束) 重叠，当且仅当：a开始 < b结束，并且 b开始 < a结束。酒店查空房、会议室、约课冲突都用这一条。',
+          code: "-- 这间房在 11-20 到 11-23 有没有被占\nEXISTS (SELECT 1 FROM reservations r\n        WHERE r.room_id = rm.room_id\n          AND r.status <> 'cancelled'\n          AND r.check_in < '2026-11-23'\n          AND '2026-11-20' < r.check_out)", lang: 'sql' },
+        { t: 'quiz', q: '一个预订 11 月 17 日入住、11 月 20 日退房。新客人想 11 月 20 日到 23 日入住。按重叠公式，冲突吗？',
+          opts: ['冲突：20 号两个人都在', '不冲突：check_in(17) < 23，但 20 < check_out(20) 不成立', '冲突：17 < 23 就够了', '没法判断'],
+          a: 1, why: '退房日当天房间就空了，所以用「小于」不用「小于等于」。两个条件要同时成立才算重叠，这里第二个不成立。' },
+        { t: 'idea', title: '每组第一名：窗口函数', body: 'ROW_NUMBER() OVER (PARTITION BY 组 ORDER BY 指标 DESC) 给每组里的行排名次，外面再套一层取名次 = 1。',
+          code: "SELECT hotel, type, revenue\nFROM (\n  SELECT h.name AS hotel, rt.name AS type, SUM(…) AS revenue,\n         ROW_NUMBER() OVER (PARTITION BY h.hotel_id\n                            ORDER BY SUM(…) DESC) AS rn\n  FROM … GROUP BY h.hotel_id, h.name, rt.type_id, rt.name\n)\nWHERE rn = 1;", lang: 'sql',
+          trap: '不能在同一层 WHERE 里写 rn = 1：窗口函数在 WHERE 之后才算，所以要套一层。' },
+        { t: 'sql', title: '每组第一 · 酒店', task: '<b>酒店</b>（reservations、rooms、hotels、room_types）：每家酒店收入最高的房型（不算取消；收入 = 每晚价格 × 晚数）。输出 <code>hotel, type, revenue</code>。',
+          sql: "SELECT hotel, type, revenue\nFROM (\n  SELECT h.name AS hotel, rt.name AS type,\n         SUM(r.nightly_rate * (julianday(r.check_out) - julianday(r.check_in))) AS revenue,\n         ROW_NUMBER() OVER (PARTITION BY h.hotel_id ORDER BY 0) AS rn  -- 把 0 换成：收入 DESC\n  FROM reservations r\n  JOIN rooms rm ON rm.room_id = r.room_id\n  JOIN hotels h ON h.hotel_id = rm.hotel_id\n  JOIN room_types rt ON rt.type_id = rm.type_id\n  WHERE r.status <> 'cancelled'\n  GROUP BY h.hotel_id, h.name, rt.type_id, rt.name\n)\nWHERE rn = 1;",
+          check: "SELECT hotel, type, revenue FROM (SELECT h.name AS hotel, rt.name AS type, SUM(r.nightly_rate * (julianday(r.check_out) - julianday(r.check_in))) AS revenue, ROW_NUMBER() OVER (PARTITION BY h.hotel_id ORDER BY SUM(r.nightly_rate * (julianday(r.check_out) - julianday(r.check_in))) DESC) AS rn FROM reservations r JOIN rooms rm ON rm.room_id = r.room_id JOIN hotels h ON h.hotel_id = rm.hotel_id JOIN room_types rt ON rt.type_id = rm.type_id WHERE r.status <> 'cancelled' GROUP BY h.hotel_id, h.name, rt.type_id, rt.name) WHERE rn = 1;",
+          hint: 'ORDER BY 后面填收入表达式再加 DESC：SUM(r.nightly_rate * (julianday(r.check_out) - julianday(r.check_in))) DESC' },
+        { t: 'recap', points: ["日期文本直接比；相对今天用 date('now', '-1 year')", '相差天数 julianday(b) - julianday(a)；分钟再 × 24 × 60', "按月：strftime('%Y-%m', t)", '重叠：a开始 < b结束 AND b开始 < a结束', '每组第一：ROW_NUMBER() OVER (PARTITION BY … ORDER BY … DESC)，外层取 rn = 1'] },
+      ],
+    },
+    {
+      id: 'f', title: '改数据：INSERT、UPDATE、DELETE、事务', min: 4,
+      screens: [
+        { t: 'hook', big: 'UPDATE 少写一个 WHERE，整张表就全改了。', sub: '三条语句、一个事务，各一个模板。', icon: 'warn' },
+        { t: 'idea', title: '三条语句的模板', body: 'INSERT 写清楚列名；UPDATE 和 DELETE 一定带 WHERE，而且条件要精确到「只有那一行」。',
+          code: "INSERT INTO reservations (guest_id, room_id, check_in, check_out, nightly_rate, status, booked_on)\nVALUES (7, 7, '2026-12-01', '2026-12-03', 159, 'booked', '2026-11-04');\n\nUPDATE rides SET end_station_id = 3, end_time = '2026-11-04 09:00'\nWHERE ride_id = 36 AND end_time IS NULL;\n\nDELETE FROM tickets WHERE ticket_id = 87;", lang: 'sql',
+          tip: 'UPDATE 的 WHERE 里再加一个状态条件（比如 end_time IS NULL），就不会改掉已经结束的记录。' },
+        { t: 'quiz', q: '这句会改掉几行？（reservations 共 47 行）',
+          code: "UPDATE reservations SET status = 'checked_out';", lang: 'sql',
+          opts: ['0 行', '1 行', '47 行，全部', '报错'], a: 2,
+          why: '没有 WHERE 就是整张表。考试里写 UPDATE / DELETE，第一件事就是写 WHERE。' },
+        { t: 'fill', q: '共享单车：骑行 36 结束了，停在车站 3，时间 2026-11-04 09:00。只改这一次骑行，而且只在它还没结束时才改。',
+          tpl: "UPDATE rides\nSET end_station_id = 3, end_time = '2026-11-04 09:00'\nWHERE ride_id = 36 AND {0};", lang: 'sql',
+          blanks: [{ a: ['end_time IS NULL'] }],
+          why: '「还没结束」就是活跃条件。加上它，就算这句被误执行两次，第二次也不会改掉已经记好的结束时间。' },
+        { t: 'idea', title: '事务：几步要么全做，要么全不做', body: '一件事要改两张表（比如修好车：关掉报修单 + 把车改回 ok），就放进一个事务。中间出错就 ROLLBACK，回到开始前。',
+          code: "BEGIN;\nUPDATE repair_reports SET resolved_at = '2026-11-04 09:00'\nWHERE bike_id = 13 AND resolved_at IS NULL;\nUPDATE bikes SET status = 'ok' WHERE bike_id = 13;\nCOMMIT;", lang: 'sql',
+          terms: [['transaction', '事务'], ['atomicity', '原子性：全做或全不做']] },
+        { t: 'order', q: '<b>电影院</b>：顾客买两张票。按顺序排好这一组语句：', parts: ['BEGIN;', 'INSERT INTO transactions (customer_id, purchased_at) VALUES (7, \'2026-11-04 18:00\');', 'INSERT INTO tickets (…) VALUES (…第一张…);', 'INSERT INTO tickets (…) VALUES (…第二张…);', 'COMMIT;'], lang: 'sql',
+          why: '先有交易，票才能指向它（外键）。两张票和交易要么一起成功，要么一起撤销，所以包在 BEGIN … COMMIT 里。' },
+        { t: 'quiz', q: '客人取消了预订 45。哪种做法最好？',
+          opts: ['DELETE FROM reservations WHERE res_id = 45;', "UPDATE reservations SET status = 'cancelled' WHERE res_id = 45 AND status = 'booked';", 'DELETE FROM reservations;', "UPDATE reservations SET status = 'cancelled';"],
+          a: 1, why: '改状态不删行：取消率、退款这些报表还要用这条记录。再加 <code>status = \'booked\'</code>，已经入住的预订就不会被误取消。' },
+        { t: 'recap', points: ['INSERT 写清列名；UPDATE / DELETE 第一件事写 WHERE', 'WHERE 里加活跃条件，只改「还开着」的那一条', '改两张表放进 BEGIN … COMMIT', '取消用 UPDATE status，不用 DELETE'] },
+      ],
+    },
+  ],
+  practice: [
+    { id: 'Q1', title: '1 筛选 · 图书馆', prompt: '<b>图书馆</b>（books）：书名里含有 "the" 的书（不分大小写）。输出 <code>title</code>。',
+      cols: 'title', ref: "SELECT title FROM books WHERE title LIKE '%the%';", hints: ["LIKE '%the%'", 'SQLite 的 LIKE 对英文字母不分大小写'] },
+    { id: 'Q2', title: '1 筛选 · 酒店', prompt: '<b>酒店</b>（room_types）：基础价 <code>base_rate</code> 在 150 到 300 之间（含两端）的房型。输出 <code>name, base_rate</code>。',
+      cols: 'name, base_rate', ref: 'SELECT name, base_rate FROM room_types WHERE base_rate BETWEEN 150 AND 300;', hints: ['BETWEEN 150 AND 300'] },
+    { id: 'Q3', title: '1 排序 · 电影院', prompt: '<b>电影院</b>（movies）：片长最长的 3 部电影。输出 <code>title, length_min</code>，从长到短。',
+      cols: 'title, length_min', ordered: true, ref: 'SELECT title, length_min FROM movies ORDER BY length_min DESC LIMIT 3;', hints: ['ORDER BY length_min DESC LIMIT 3'] },
+    { id: 'Q4', title: '2 JOIN · 共享单车', prompt: '<b>共享单车</b>（rides、riders、stations）：现在还在骑的人（end_time 为空）和出发站名。输出 <code>name, station, start_time</code>。',
+      cols: 'name, station, start_time', ref: 'SELECT ri.name, s.name AS station, r.start_time FROM rides r JOIN riders ri ON ri.rider_id = r.rider_id JOIN stations s ON s.station_id = r.start_station_id WHERE r.end_time IS NULL;',
+      hints: ['rides → riders，rides → stations（start_station_id）', 'WHERE r.end_time IS NULL'] },
+    { id: 'Q5', title: '2 JOIN · 酒店', prompt: '<b>酒店</b>（guests、reservations、rooms、hotels）：客人 Priya Sen 的所有预订（包括取消的）。输出 <code>hotel, room_no, check_in, status</code>，其中 hotel 是酒店名。',
+      cols: 'hotel, room_no, check_in, status', ref: "SELECT h.name AS hotel, rm.room_no, r.check_in, r.status FROM reservations r JOIN guests g ON g.guest_id = r.guest_id JOIN rooms rm ON rm.room_id = r.room_id JOIN hotels h ON h.hotel_id = rm.hotel_id WHERE g.name = 'Priya Sen';",
+      hints: ['预订 → 客人（按名字筛）；预订 → 房间 → 酒店', "WHERE g.name = 'Priya Sen'"] },
+    { id: 'Q6', title: '2 JOIN · 电影院', prompt: '<b>电影院</b>（tickets、showtimes、movies、seats）：交易 3 买的票：电影、座位、价格。输出 <code>title, row_label, seat_no, price</code>。',
+      cols: 'title, row_label, seat_no, price', ref: 'SELECT m.title, se.row_label, se.seat_no, t.price FROM tickets t JOIN showtimes st ON st.show_id = t.show_id JOIN movies m ON m.movie_id = st.movie_id JOIN seats se ON se.seat_id = t.seat_id WHERE t.transaction_id = 3;',
+      hints: ['票 → 场次 → 电影；票 → 座位'] },
+    { id: 'Q7', title: '2 LEFT JOIN · 电影院', prompt: '<b>电影院</b>（movies、showtimes）：每部电影排了几场，一场没排的显示 0。输出 <code>title, shows</code>。',
+      cols: 'title, shows', ref: 'SELECT m.title, COUNT(st.show_id) AS shows FROM movies m LEFT JOIN showtimes st ON st.movie_id = m.movie_id GROUP BY m.movie_id, m.title;',
+      hints: ['从 movies 出发 LEFT JOIN', 'COUNT(st.show_id)，不是 COUNT(*)'] },
+    { id: 'Q8', title: '2 ON 还是 WHERE · 共享单车', prompt: '<b>共享单车</b>（stations、rides）：每个车站最近 30 天（<code>start_time ≥ 2026-10-05</code>）作为出发站的次数，0 次的也列出。输出 <code>name, rides</code>。',
+      cols: 'name, rides', ref: "SELECT s.name, COUNT(r.ride_id) AS rides FROM stations s LEFT JOIN rides r ON r.start_station_id = s.station_id AND r.start_time >= '2026-10-05' GROUP BY s.station_id, s.name;",
+      hints: ['时间条件写在 ON 里', 'COUNT(r.ride_id)'] },
+    { id: 'Q9', title: '3 分组 · 图书馆', prompt: '<b>图书馆</b>（copies、books）：每个分馆、每种类型各有几个副本。输出 <code>branch, genre, copies</code>。',
+      cols: 'branch, genre, copies', ref: 'SELECT c.branch, b.genre, COUNT(*) AS copies FROM copies c JOIN books b ON b.book_id = c.book_id GROUP BY c.branch, b.genre;',
+      hints: ['按两列分组：GROUP BY c.branch, b.genre'] },
+    { id: 'Q10', title: '3 HAVING · 共享单车', prompt: '<b>共享单车</b>（rides、stations）：作为出发站至少 7 次的车站。输出 <code>name, rides</code>。',
+      cols: 'name, rides', ref: 'SELECT s.name, COUNT(*) AS rides FROM rides r JOIN stations s ON s.station_id = r.start_station_id GROUP BY s.station_id, s.name HAVING COUNT(*) >= 7;',
+      hints: ['HAVING COUNT(*) >= 7'] },
+    { id: 'Q11', title: '3 COUNT DISTINCT · 电影院', prompt: '<b>电影院</b>（customers、transactions、tickets、showtimes）：每位顾客看过几部不同的电影。输出 <code>name, movies</code>。',
+      cols: 'name, movies', ref: 'SELECT c.name, COUNT(DISTINCT st.movie_id) AS movies FROM customers c JOIN transactions tr ON tr.customer_id = c.customer_id JOIN tickets t ON t.transaction_id = tr.transaction_id JOIN showtimes st ON st.show_id = t.show_id GROUP BY c.customer_id, c.name;',
+      hints: ['顾客 → 交易 → 票 → 场次', 'COUNT(DISTINCT st.movie_id)'] },
+    { id: 'Q12', title: '3 条件计数 · 酒店', prompt: '<b>酒店</b>（reservations、guests）：每位客人一共几个预订、其中几个取消、取消率百分之几（保留 1 位小数）。输出 <code>name, total, cancelled, pct</code>。',
+      cols: 'name, total, cancelled, pct', ref: "SELECT g.name, COUNT(*) AS total, SUM(r.status = 'cancelled') AS cancelled, ROUND(100.0 * SUM(r.status = 'cancelled') / COUNT(*), 1) AS pct FROM reservations r JOIN guests g ON g.guest_id = r.guest_id GROUP BY g.guest_id, g.name;",
+      hints: ["SUM(r.status = 'cancelled')", '比率：100.0 * 取消数 / COUNT(*)，再 ROUND(…, 1)'] },
+    { id: 'Q13', title: '3 平均时长 · 共享单车', prompt: '<b>共享单车</b>（rides）：会员（member）和日票（day_pass）各骑了几次、平均每次几分钟（保留 1 位小数）。只算已经结束的骑行。输出 <code>pass_type, rides, avg_min</code>。',
+      cols: 'pass_type, rides, avg_min', ref: 'SELECT pass_type, COUNT(*) AS rides, ROUND(AVG((julianday(end_time) - julianday(start_time)) * 24 * 60), 1) AS avg_min FROM rides WHERE end_time IS NOT NULL GROUP BY pass_type;',
+      hints: ['WHERE end_time IS NOT NULL', '分钟：(julianday(end_time) - julianday(start_time)) * 24 * 60'] },
+    { id: 'Q14', title: '3 平均 · 酒店', prompt: '<b>酒店</b>（reservations、rooms、room_types）：每种房型的平均每晚成交价（<code>nightly_rate</code>，不算取消，保留 2 位小数）。输出 <code>name, avg_rate</code>。',
+      cols: 'name, avg_rate', ref: "SELECT rt.name, ROUND(AVG(r.nightly_rate), 2) AS avg_rate FROM reservations r JOIN rooms rm ON rm.room_id = r.room_id JOIN room_types rt ON rt.type_id = rm.type_id WHERE r.status <> 'cancelled' GROUP BY rt.type_id, rt.name;",
+      hints: ['预订 → 房间 → 房型', "WHERE r.status <> 'cancelled'"] },
+    { id: 'Q15', title: '4 NOT IN · 酒店', prompt: '<b>酒店</b>（guests、reservations）：从来没有取消过预订的客人。输出 <code>name</code>。',
+      cols: 'name', ref: "SELECT name FROM guests WHERE guest_id NOT IN (SELECT guest_id FROM reservations WHERE status = 'cancelled');",
+      hints: ["NOT IN (SELECT guest_id FROM reservations WHERE status = 'cancelled')"] },
+    { id: 'Q16', title: '4 NOT EXISTS · 共享单车', prompt: '<b>共享单车</b>（riders、repair_reports）：从来没报过修的骑手。注意报修表里有一条 rider_id 是 NULL。输出 <code>name</code>。',
+      cols: 'name', ref: 'SELECT ri.name FROM riders ri WHERE NOT EXISTS (SELECT 1 FROM repair_reports rr WHERE rr.rider_id = ri.rider_id);',
+      hints: ['NOT IN 遇到 NULL 会一行不剩', 'NOT EXISTS (SELECT 1 FROM repair_reports rr WHERE rr.rider_id = ri.rider_id)'] },
+    { id: 'Q17', title: '4 标量子查询 · 电影院', prompt: '<b>电影院</b>（tickets、showtimes、movies）：平均票价高于全部票平均价的电影。输出 <code>title, avg_price</code>（保留 2 位小数）。',
+      cols: 'title, avg_price', ref: 'SELECT m.title, ROUND(AVG(t.price), 2) AS avg_price FROM tickets t JOIN showtimes st ON st.show_id = t.show_id JOIN movies m ON m.movie_id = st.movie_id GROUP BY m.movie_id, m.title HAVING AVG(t.price) > (SELECT AVG(price) FROM tickets);',
+      hints: ['HAVING AVG(t.price) > (SELECT AVG(price) FROM tickets)'] },
+    { id: 'Q18', title: '4 EXISTS · 图书馆', prompt: '<b>图书馆</b>（members、loans）：现在手上有没还的书的读者，每人只出现一次。输出 <code>name</code>。',
+      cols: 'name', ref: 'SELECT m.name FROM members m WHERE EXISTS (SELECT 1 FROM loans l WHERE l.member_id = m.member_id AND l.return_date IS NULL);',
+      hints: ['EXISTS (… WHERE l.member_id = m.member_id AND l.return_date IS NULL)', '用 JOIN 的话要加 DISTINCT'] },
+    { id: 'Q19', title: '5 按月 · 共享单车', prompt: '<b>共享单车</b>（rides）：2026 年每个月的骑行次数。输出 <code>month, rides</code>（month 形如 2026-03），按月份排序。',
+      cols: 'month, rides', ordered: true, ref: "SELECT strftime('%Y-%m', start_time) AS month, COUNT(*) AS rides FROM rides WHERE start_time >= '2026-01-01' GROUP BY month ORDER BY month;",
+      hints: ["strftime('%Y-%m', start_time)", "WHERE start_time >= '2026-01-01'"] },
+    { id: 'Q20', title: '5 晚数 · 酒店', prompt: '<b>酒店</b>（reservations）：住 7 晚及以上的预订（不算取消）。输出 <code>res_id, check_in, check_out, nights</code>。',
+      cols: 'res_id, check_in, check_out, nights', ref: "SELECT res_id, check_in, check_out, julianday(check_out) - julianday(check_in) AS nights FROM reservations WHERE status <> 'cancelled' AND julianday(check_out) - julianday(check_in) >= 7;",
+      hints: ['julianday(check_out) - julianday(check_in)', 'WHERE 里不能用别名 nights，把表达式再写一遍'] },
+    { id: 'Q21', title: '5 最近一次 · 共享单车', prompt: '<b>共享单车</b>（riders、rides）：每个骑手最近一次出发的时间。输出 <code>name, last_ride</code>。',
+      cols: 'name, last_ride', ref: 'SELECT ri.name, MAX(r.start_time) AS last_ride FROM riders ri JOIN rides r ON r.rider_id = ri.rider_id GROUP BY ri.rider_id, ri.name;',
+      hints: ['MAX(r.start_time)：日期文本最大的就是最近的'] },
+    { id: 'Q22', title: '5 重叠 · 酒店', prompt: '<b>酒店</b>（rooms、reservations）：Riverfront（<code>hotel_id = 1</code>）哪些房间 <b>11 月 20 日入住、23 日退房</b>整段都空着？取消的预订不占房。输出 <code>room_no</code>。',
+      cols: 'room_no', ref: "SELECT room_no FROM rooms rm WHERE rm.hotel_id = 1 AND NOT EXISTS (SELECT 1 FROM reservations r WHERE r.room_id = rm.room_id AND r.status <> 'cancelled' AND r.check_in < '2026-11-23' AND '2026-11-20' < r.check_out);",
+      hints: ['重叠：r.check_in < 新退房日 AND 新入住日 < r.check_out', '「整段都空」= 不存在重叠的有效预订：NOT EXISTS'] },
+    { id: 'Q23', title: '5 每组第一 · 酒店', prompt: '<b>酒店</b>（reservations、rooms、hotels、room_types）：每家酒店收入最高的房型（不算取消；收入 = nightly_rate × 晚数）。输出 <code>hotel, type, revenue</code>。',
+      cols: 'hotel, type, revenue', ref: "SELECT hotel, type, revenue FROM (SELECT h.name AS hotel, rt.name AS type, SUM(r.nightly_rate * (julianday(r.check_out) - julianday(r.check_in))) AS revenue, ROW_NUMBER() OVER (PARTITION BY h.hotel_id ORDER BY SUM(r.nightly_rate * (julianday(r.check_out) - julianday(r.check_in))) DESC) AS rn FROM reservations r JOIN rooms rm ON rm.room_id = r.room_id JOIN hotels h ON h.hotel_id = rm.hotel_id JOIN room_types rt ON rt.type_id = rm.type_id WHERE r.status <> 'cancelled' GROUP BY h.hotel_id, h.name, rt.type_id, rt.name) WHERE rn = 1;",
+      hints: ['先按酒店 + 房型分组算收入', 'ROW_NUMBER() OVER (PARTITION BY h.hotel_id ORDER BY 收入 DESC)，外层 WHERE rn = 1'] },
+    { id: 'Q24', dml: true, title: '6 UPDATE · 共享单车', prompt: '<b>共享单车</b>（rides）：骑行 36 结束了，停在车站 3，时间 2026-11-04 09:00。只改这一次骑行，而且只在它还没结束时才改。',
+      cols: '检查：所有骑行的 ride_id, end_station_id, end_time', check: 'SELECT ride_id, end_station_id, end_time FROM rides ORDER BY ride_id;',
+      ref: "UPDATE rides SET end_station_id = 3, end_time = '2026-11-04 09:00' WHERE ride_id = 36 AND end_time IS NULL;",
+      hints: ['UPDATE … SET 两列 … WHERE ride_id = 36 AND end_time IS NULL'] },
+    { id: 'Q25', dml: true, title: '6 INSERT · 酒店', prompt: '<b>酒店</b>（reservations）：客人 7 订 Riverfront 301 号房（<code>room_id = 7</code>），12 月 1 日入住、12 月 3 日退房，每晚 159，状态 booked，下单日 2026-11-04。<code>res_id</code> 让数据库自动生成。',
+      cols: '检查：客人 7 的所有预订', check: 'SELECT guest_id, room_id, check_in, check_out, nightly_rate, status, booked_on FROM reservations WHERE guest_id = 7 ORDER BY check_in;',
+      ref: "INSERT INTO reservations (guest_id, room_id, check_in, check_out, nightly_rate, status, booked_on) VALUES (7, 7, '2026-12-01', '2026-12-03', 159, 'booked', '2026-11-04');",
+      hints: ['写清列名，不写 res_id', "VALUES (7, 7, '2026-12-01', '2026-12-03', 159, 'booked', '2026-11-04')"] },
+    { id: 'Q26', dml: true, title: '6 DELETE · 电影院', prompt: '<b>电影院</b>（tickets）：交易 30 退掉场次 12356 座位 3 的那张票（真实系统里更常见的是改状态，这里练 DELETE）。',
+      cols: '检查：场次 12356 剩下的票', check: 'SELECT ticket_id, transaction_id, seat_id FROM tickets WHERE show_id = 12356 ORDER BY ticket_id;',
+      ref: 'DELETE FROM tickets WHERE transaction_id = 30 AND show_id = 12356 AND seat_id = 3;',
+      hints: ['DELETE FROM tickets WHERE … 三个条件同时满足'] },
+    { id: 'Q27', dml: true, title: '6 事务 · 共享单车', prompt: '<b>共享单车</b>（repair_reports、bikes）：车 13 修好了。把它所有还没解决的报修记为 2026-11-04 09:00 解决，并把车 13 的状态改回 ok。两步放进一个事务。',
+      cols: '检查：每辆车的状态和未解决的报修数', check: 'SELECT b.bike_id, b.status, (SELECT COUNT(*) FROM repair_reports r WHERE r.bike_id = b.bike_id AND r.resolved_at IS NULL) AS open_reports FROM bikes b ORDER BY b.bike_id;',
+      ref: "BEGIN;\nUPDATE repair_reports SET resolved_at = '2026-11-04 09:00' WHERE bike_id = 13 AND resolved_at IS NULL;\nUPDATE bikes SET status = 'ok' WHERE bike_id = 13;\nCOMMIT;",
+      hints: ['BEGIN; 两句 UPDATE; COMMIT;', '报修那句要加 resolved_at IS NULL'] },
+  ],
+  cards: [
+    ['clause order', '子句书写顺序', 'SELECT → FROM → JOIN → WHERE → GROUP BY → HAVING → ORDER BY → LIMIT。'],
+    ['IS NULL', '判断空值', '只能写 IS NULL / IS NOT NULL；= NULL 永远不成立。'],
+    ['join path', 'JOIN 路径', '从事件表出发，沿外键一步步接到有目标列的表，中间的表不能跳。'],
+    ['LEFT JOIN + COUNT(col)', '数出 0', '从要全列的表出发 LEFT JOIN，COUNT(右表的 id)；COUNT(*) 会把空行算成 1。'],
+    ['ON vs WHERE', 'LEFT JOIN 的条件位置', '右表的条件写在 ON 里；写在 WHERE 会把配不上的行扔掉，LEFT JOIN 白做。'],
+    ['GROUP BY rule', '分组规则', 'SELECT 里的非聚合列都要进 GROUP BY；按 id 分组再带上名字。'],
+    ['WHERE vs HAVING', '筛行还是筛组', 'WHERE 在分组前筛行；HAVING 在分组后筛组，可以用聚合函数。'],
+    ['conditional count', '条件计数', 'SUM(条件) 或 SUM(CASE WHEN … THEN 1 ELSE 0 END)。'],
+    ['integer division', '整数除法', '7 / 10 = 0；比率先乘 1.0 或 100.0。'],
+    ['NOT IN + NULL', 'NOT IN 的坑', '名单里有 NULL，NOT IN 一行都不返回；用 NOT EXISTS 或过滤掉 NULL。'],
+    ['NOT EXISTS', '「从来没有」', 'WHERE NOT EXISTS (SELECT 1 FROM t WHERE t.fk = 外层.id)。'],
+    ['scalar subquery', '标量子查询', '(SELECT AVG(x) FROM t) 算出一个数，拿来和每行或每组比较。'],
+    ['julianday', '日期相减', 'julianday(b) - julianday(a) 得天数；× 24 × 60 得分钟。'],
+    ['overlap', '时间段重叠', 'a开始 < b结束 AND b开始 < a结束。'],
+    ['ROW_NUMBER', '每组第一', 'ROW_NUMBER() OVER (PARTITION BY 组 ORDER BY 指标 DESC)，外层取 rn = 1。'],
+    ['transaction', '事务', 'BEGIN … COMMIT：几步要么全做，要么全不做；出错 ROLLBACK。'],
+  ],
+  oral: [
+    { id: 's1', q: "Walk me through how you would write a query that lists every station and how many rides started there in the last 30 days, including stations with zero rides.", zh: '口述 LEFT JOIN 数 0',
+      points: ['Starts from stations, the table that must be fully listed', 'Uses LEFT JOIN to rides', 'Puts the 30-day condition in the ON clause, not WHERE', 'Counts the ride id, not COUNT(*), and groups by station'],
+      model: "I'd start from the stations table, because every station has to appear. Then I'd LEFT JOIN rides on the start station, and put the 30-day condition inside the ON clause. If I put it in WHERE, stations with no recent rides would get filtered out, because their ride columns are null. Then I group by station and count the ride id rather than star, so a station with no matching ride gets zero instead of one." },
+    { id: 's2', q: "How would you find customers who have never cancelled anything? What could go wrong with NOT IN?", zh: '「从来没有」怎么写，NOT IN 的坑',
+      points: ['NOT EXISTS with a correlated subquery, or NOT IN', 'Explains that a NULL in the NOT IN list makes the result empty', 'Fix: filter NULLs in the subquery or use NOT EXISTS'],
+      model: "I'd use NOT EXISTS: for each customer, check that there is no reservation for that customer with status cancelled. NOT IN also works, but it has a trap: if the subquery returns even one null, NOT IN returns no rows at all, because comparing with null is unknown. So with NOT IN I'd add WHERE the id is not null inside the subquery, or I'd just use NOT EXISTS, which doesn't have that problem." },
+    { id: 's3', q: "For each hotel, how would you find the room type that brought in the most revenue?", zh: '每组第一怎么写',
+      points: ['Compute revenue per hotel and room type with GROUP BY', 'Revenue = nightly rate times nights, excluding cancelled', 'ROW_NUMBER over a partition by hotel ordered by revenue descending', 'Outer query keeps rank 1; mentions ties'],
+      model: "First I'd compute revenue per hotel and room type: join reservations to rooms, hotels and room types, skip cancelled ones, and sum the nightly rate times the number of nights. Then I'd add ROW_NUMBER over a partition by hotel, ordered by that revenue descending. Window functions are computed after WHERE, so I'd wrap it in an outer query and keep the rows where the rank is one. If ties matter, I'd use RANK instead so both tied types show up." },
+  ],
+});
+
 /* Full mock interview: city bike share (original practice scenario).
    Defines its own `bikeshare` seed. "Today" in the data is 2026-11-04, and "now" is 09:00 that morning. */
 window.SEEDS = window.SEEDS || {};
@@ -11135,6 +11985,381 @@ window.MOCKS.push({
   ],
 });
 
+/* Full mock interview: campus internship site (original practice scenario).
+   Defines its own `internship` seed. "Today" in the data is 2026-11-04. */
+window.SEEDS = window.SEEDS || {};
+window.SEEDS.internship = `
+CREATE TABLE students (
+  student_id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  major TEXT NOT NULL,
+  grad_year INTEGER NOT NULL CHECK (grad_year BETWEEN 2020 AND 2035)
+);
+INSERT INTO students VALUES
+ (1,'Mei Tanaka','mei.tanaka@student.example.edu','Computer Science',2027),
+ (2,'Jordan Alvarez','jordan.alvarez@student.example.edu','Data Science',2027),
+ (3,'Nina Sorensen','nina.sorensen@student.example.edu','Statistics',2027),
+ (4,'Kwame Boateng','kwame.boateng@student.example.edu','Mechanical Engineering',2027),
+ (5,'Lucas Ferreira','lucas.ferreira@student.example.edu','Computer Science',2028),
+ (6,'Sofia Rossi','sofia.rossi@student.example.edu','Economics',2027),
+ (7,'Ethan Brooks','ethan.brooks@student.example.edu','Computer Science',2026),
+ (8,'Hana Yilmaz','hana.yilmaz@student.example.edu','Biomedical Engineering',2027),
+ (9,'Omar Haddad','omar.haddad@student.example.edu','Finance',2028),
+ (10,'Grace Kim','grace.kim@student.example.edu','Computer Science',2027),
+ (11,'Mateo Silva','mateo.silva@student.example.edu','Data Science',2028),
+ (12,'Chloe Dubois','chloe.dubois@student.example.edu','Statistics',2026),
+ (13,'Ruby Nakamura','ruby.nakamura@student.example.edu','Economics',2029),
+ (14,'Tariq Hassan','tariq.hassan@student.example.edu','Mechanical Engineering',2028);
+CREATE TABLE companies (
+  company_id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL UNIQUE,
+  industry TEXT NOT NULL,
+  city TEXT NOT NULL
+);
+INSERT INTO companies VALUES
+ (1,'Nimbus Analytics','Software','St. Louis'),
+ (2,'Brightpath Health','Healthcare','St. Louis'),
+ (3,'Cobalt Robotics','Manufacturing','Chicago'),
+ (4,'Juniper Capital','Finance','Chicago'),
+ (5,'Maple Grid Energy','Energy','Kansas City'),
+ (6,'Quillstone Games','Software','Seattle'),
+ (7,'Ledgerline Bank','Finance','St. Louis');
+CREATE TABLE recruiters (
+  recruiter_id INTEGER PRIMARY KEY,
+  company_id INTEGER NOT NULL REFERENCES companies(company_id),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE
+);
+INSERT INTO recruiters VALUES
+ (1,1,'Rosa Lindgren','rosa@nimbus.example.com'),
+ (2,1,'Kofi Mensah','kofi@nimbus.example.com'),
+ (3,2,'Helen Ostrowski','helen@brightpath.example.com'),
+ (4,3,'Marcus Feld','marcus@cobalt.example.com'),
+ (5,4,'Tessa Yamamoto','tessa@juniper.example.com'),
+ (6,4,'Arjun Mehta','arjun@juniper.example.com'),
+ (7,5,'Colleen Burke','colleen@maplegrid.example.com'),
+ (8,6,'Diego Navarro','diego@quillstone.example.com'),
+ (9,7,'Wen Li','wen@ledgerline.example.com'),
+ (10,7,'Patrick Doyle','patrick@ledgerline.example.com');
+CREATE TABLE postings (
+  posting_id INTEGER PRIMARY KEY,
+  company_id INTEGER NOT NULL REFERENCES companies(company_id),
+  recruiter_id INTEGER REFERENCES recruiters(recruiter_id),
+  title TEXT NOT NULL,
+  location TEXT NOT NULL,
+  term TEXT NOT NULL,
+  pay_per_hour NUMERIC NOT NULL CHECK (pay_per_hour > 0),
+  posted_on TEXT NOT NULL,
+  deadline TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','closed','filled')),
+  CHECK (deadline >= posted_on)
+);
+INSERT INTO postings VALUES
+ (1,1,1,'Data Analyst Intern','St. Louis','Summer 2026',24,'2025-09-15','2025-11-30','filled'),
+ (2,2,3,'Health Data Intern','St. Louis','Summer 2026',21,'2025-10-01','2025-12-15','filled'),
+ (3,3,4,'Mechanical Design Intern','Chicago','Summer 2026',23,'2025-10-10','2026-01-15','closed'),
+ (4,4,5,'Quant Research Intern','Chicago','Summer 2026',38,'2025-10-20','2026-01-10','filled'),
+ (5,6,8,'Gameplay Programmer Intern','Seattle','Summer 2026',30,'2025-11-01','2026-02-01','filled'),
+ (6,7,9,'Risk Analytics Intern','St. Louis','Summer 2026',26,'2025-11-15','2026-02-15','closed'),
+ (7,5,7,'Grid Data Intern','Kansas City','Fall 2026',22,'2026-02-01','2026-04-30','filled'),
+ (8,1,2,'BI Dashboard Intern','St. Louis','Fall 2026',23,'2026-03-01','2026-05-15','closed'),
+ (9,2,3,'Clinical Data Intern','St. Louis','Spring 2027',26,'2026-08-15','2026-10-15','open'),
+ (10,4,6,'Software Engineering Intern','Chicago','Spring 2027',34,'2026-08-20','2026-10-31','open'),
+ (11,1,1,'Data Engineering Intern','St. Louis','Summer 2027',28,'2026-09-01','2026-12-15','open'),
+ (12,1,2,'Product Analyst Intern','Remote','Summer 2027',25,'2026-09-10','2026-11-04','open'),
+ (13,3,4,'Robotics Software Intern','Chicago','Summer 2027',31,'2026-09-15','2027-01-15','open'),
+ (14,4,5,'Quant Research Intern','Chicago','Summer 2027',40,'2026-09-20','2026-12-01','open'),
+ (15,5,7,'Energy Analytics Intern','Kansas City','Summer 2027',24,'2026-10-01','2027-01-31','open'),
+ (16,6,8,'Frontend Developer Intern','Seattle','Summer 2027',32,'2026-10-05','2026-12-20','open'),
+ (17,7,10,'Data Science Intern','St. Louis','Summer 2027',30,'2026-10-10','2026-12-31','open'),
+ (18,2,3,'Healthcare Analytics Intern','St. Louis','Summer 2027',25,'2026-10-20','2027-01-10','open'),
+ (19,7,9,'Financial Systems Intern','St. Louis','Summer 2027',28,'2026-10-28','2026-12-10','open'),
+ (20,3,4,'Manufacturing Engineering Intern','Chicago','Summer 2027',26,'2026-11-02','2027-02-01','open'),
+ (21,6,8,'QA Tester Intern','Seattle','Fall 2026',20,'2026-05-01','2026-06-30','closed');
+CREATE TABLE skills (
+  skill_id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL UNIQUE
+);
+INSERT INTO skills VALUES
+ (1,'SQL'),(2,'Python'),(3,'Java'),(4,'Excel'),(5,'Tableau'),
+ (6,'C++'),(7,'React'),(8,'Statistics'),(9,'Machine Learning'),(10,'CAD');
+CREATE TABLE posting_skills (
+  posting_id INTEGER NOT NULL REFERENCES postings(posting_id),
+  skill_id INTEGER NOT NULL REFERENCES skills(skill_id),
+  PRIMARY KEY (posting_id, skill_id)
+);
+INSERT INTO posting_skills VALUES
+ (1,1),(1,4),(1,5),
+ (2,1),(2,4),
+ (3,10),
+ (4,2),(4,8),
+ (5,6),
+ (6,1),(6,2),(6,8),
+ (7,2),(7,1),
+ (8,1),(8,5),
+ (9,1),(9,4),
+ (10,3),(10,1),
+ (11,1),(11,2),
+ (12,1),(12,4),(12,8),
+ (13,6),(13,2),
+ (14,2),(14,8),(14,9),
+ (15,2),(15,4),
+ (16,7),
+ (17,2),(17,1),(17,9),
+ (18,1),(18,5),
+ (19,3),(19,1),
+ (20,10),(20,4),
+ (21,3);
+CREATE TABLE student_skills (
+  student_id INTEGER NOT NULL REFERENCES students(student_id),
+  skill_id INTEGER NOT NULL REFERENCES skills(skill_id),
+  PRIMARY KEY (student_id, skill_id)
+);
+INSERT INTO student_skills VALUES
+ (1,2),(1,3),(1,1),(1,7),
+ (2,2),(2,1),(2,8),(2,9),
+ (3,1),(3,2),(3,4),(3,5),
+ (4,10),(4,4),(4,6),
+ (5,3),(5,6),(5,2),
+ (6,4),(6,8),(6,1),
+ (7,3),(7,7),(7,1),
+ (8,2),(8,8),(8,4),
+ (9,4),(9,8),(9,2),
+ (10,6),(10,2),(10,3),
+ (11,2),(11,1),(11,9),(11,8),
+ (12,1),(12,8),(12,4),(12,5),
+ (13,4),
+ (14,10);
+CREATE TABLE applications (
+  app_id INTEGER PRIMARY KEY,
+  student_id INTEGER NOT NULL REFERENCES students(student_id),
+  posting_id INTEGER NOT NULL REFERENCES postings(posting_id),
+  applied_at TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'submitted' CHECK (status IN ('submitted','interviewing','offer','rejected','withdrawn')),
+  UNIQUE (student_id, posting_id)
+);
+INSERT INTO applications VALUES
+ (1,3,1,'2025-09-20','offer'),
+ (2,6,1,'2025-09-28','rejected'),
+ (3,12,1,'2025-10-15','rejected'),
+ (4,2,1,'2025-11-02','withdrawn'),
+ (5,8,2,'2025-10-12','offer'),
+ (6,6,2,'2025-11-04','rejected'),
+ (7,12,2,'2025-11-20','withdrawn'),
+ (8,4,3,'2025-10-25','rejected'),
+ (9,10,3,'2025-12-01','rejected'),
+ (10,9,4,'2025-10-28','rejected'),
+ (11,2,4,'2025-11-15','offer'),
+ (12,11,4,'2025-12-05','offer'),
+ (13,5,5,'2025-11-10','offer'),
+ (14,10,5,'2025-12-12','rejected'),
+ (15,1,5,'2026-01-08','withdrawn'),
+ (16,6,6,'2025-12-01','rejected'),
+ (17,9,6,'2026-01-20','rejected'),
+ (18,8,7,'2026-02-15','rejected'),
+ (19,11,7,'2026-03-02','withdrawn'),
+ (20,7,7,'2026-03-20','offer'),
+ (21,12,8,'2026-03-10','rejected'),
+ (22,3,8,'2026-04-02','rejected'),
+ (23,6,9,'2026-08-25','submitted'),
+ (24,8,9,'2026-09-10','interviewing'),
+ (25,12,9,'2026-10-01','submitted'),
+ (26,2,11,'2026-09-05','interviewing'),
+ (27,3,11,'2026-09-12','interviewing'),
+ (28,11,11,'2026-09-20','rejected'),
+ (29,1,11,'2026-10-10','submitted'),
+ (30,7,11,'2026-10-28','withdrawn'),
+ (31,6,12,'2026-09-15','offer'),
+ (32,12,12,'2026-10-02','interviewing'),
+ (33,9,12,'2026-11-03','submitted'),
+ (34,5,13,'2026-09-25','interviewing'),
+ (35,10,13,'2026-10-06','interviewing'),
+ (36,4,13,'2026-10-20','submitted'),
+ (37,2,14,'2026-09-22','offer'),
+ (38,11,14,'2026-09-30','interviewing'),
+ (39,9,14,'2026-10-15','rejected'),
+ (40,8,15,'2026-10-05','submitted'),
+ (41,3,15,'2026-10-12','submitted'),
+ (42,1,16,'2026-10-08','offer'),
+ (43,7,16,'2026-10-14','interviewing'),
+ (44,10,16,'2026-10-30','withdrawn'),
+ (45,11,17,'2026-10-12','interviewing'),
+ (46,2,17,'2026-10-18','submitted'),
+ (47,3,17,'2026-10-25','withdrawn'),
+ (48,12,17,'2026-11-01','submitted'),
+ (49,8,18,'2026-10-22','submitted'),
+ (50,6,18,'2026-11-02','submitted');
+CREATE TABLE interviews (
+  interview_id INTEGER PRIMARY KEY,
+  app_id INTEGER NOT NULL REFERENCES applications(app_id),
+  round INTEGER NOT NULL CHECK (round >= 1),
+  scheduled_at TEXT NOT NULL,
+  outcome TEXT NOT NULL DEFAULT 'pending' CHECK (outcome IN ('pending','passed','failed')),
+  UNIQUE (app_id, round)
+);
+INSERT INTO interviews VALUES
+ (1,1,1,'2025-10-08 10:00','passed'),
+ (2,1,2,'2025-10-22 14:00','passed'),
+ (3,5,1,'2025-11-03 13:00','passed'),
+ (4,11,1,'2025-12-01 09:00','passed'),
+ (5,12,1,'2025-12-15 10:00','passed'),
+ (6,13,1,'2025-12-02 16:00','passed'),
+ (7,14,1,'2026-01-05 11:00','failed'),
+ (8,20,1,'2026-04-02 10:00','passed'),
+ (9,24,1,'2026-10-05 13:00','passed'),
+ (10,26,1,'2026-11-04 15:00','pending'),
+ (11,27,1,'2026-10-20 10:00','passed'),
+ (12,27,2,'2026-11-06 14:00','pending'),
+ (13,28,1,'2026-10-01 10:00','failed'),
+ (14,30,1,'2026-11-05 11:00','pending'),
+ (15,31,1,'2026-10-01 10:00','passed'),
+ (16,31,2,'2026-10-14 15:00','passed'),
+ (17,32,1,'2026-11-05 09:00','pending'),
+ (18,34,1,'2026-10-16 10:00','passed'),
+ (19,35,1,'2026-11-10 14:00','pending'),
+ (20,37,1,'2026-10-02 11:00','passed'),
+ (21,38,1,'2026-10-21 16:00','passed'),
+ (22,42,1,'2026-10-20 13:00','passed'),
+ (23,43,1,'2026-11-03 10:00','passed'),
+ (24,45,1,'2026-10-27 10:00','passed');
+CREATE TABLE offers (
+  offer_id INTEGER PRIMARY KEY,
+  app_id INTEGER NOT NULL UNIQUE REFERENCES applications(app_id),
+  pay_per_hour NUMERIC NOT NULL CHECK (pay_per_hour > 0),
+  offered_on TEXT NOT NULL,
+  response TEXT NOT NULL DEFAULT 'pending' CHECK (response IN ('pending','accepted','declined'))
+);
+INSERT INTO offers VALUES
+ (1,1,24,'2025-11-01','accepted'),
+ (2,5,21,'2025-11-20','accepted'),
+ (3,11,38,'2025-12-12','declined'),
+ (4,12,40,'2025-12-22','accepted'),
+ (5,13,30,'2025-12-10','accepted'),
+ (6,20,22,'2026-04-15','accepted'),
+ (7,31,25,'2026-10-20','pending'),
+ (8,37,42,'2026-10-10','accepted'),
+ (9,42,33,'2026-10-25','accepted');
+CREATE TABLE saved_postings (
+  student_id INTEGER NOT NULL REFERENCES students(student_id),
+  posting_id INTEGER NOT NULL REFERENCES postings(posting_id),
+  saved_at TEXT NOT NULL,
+  PRIMARY KEY (student_id, posting_id)
+);
+INSERT INTO saved_postings VALUES
+ (1,19,'2026-11-01'),
+ (2,14,'2026-09-21'),
+ (3,17,'2026-10-11'),
+ (5,20,'2026-11-03'),
+ (6,18,'2026-10-25'),
+ (9,12,'2026-10-30'),
+ (10,13,'2026-09-30'),
+ (14,13,'2026-10-18'),
+ (14,20,'2026-11-03');
+`;
+window.MOCKS = window.MOCKS || [];
+window.MOCKS.push({
+  id: 'internship', order: 7, title: '学生实习求职网站', en: 'Student internship site', tag: '原创模拟题', seed: 'internship', today: '2026-11-04',
+  brief: '学校就业中心要从零建一个实习求职网站：公司发职位、学生按技能找职位、投申请、约面试、收 offer，还要统计各公司的申请数、offer 率、热门技能和薪资。设计出一套表，再回答几个查询。',
+  prompt: [
+    "Our university's career center wants to replace its old job board with a new internship site, and we get to design the data side from scratch. I'd like you to walk me through how you would design it, down to a database schema, meaning a set of tables and their columns. After that, I'll ask how a few common queries would work in your design.",
+    "Companies sign up with the career center, and each company has one or more recruiters. A recruiter posts internships: a title, a location, which term it is for, like Summer 2027, the hourly pay, and an application deadline. Each posting lists the skills it requires, like SQL, Python or CAD, and students list the skills they have, so they can search for postings that match. Students apply to postings; an application moves from submitted to interviewing, and ends with an offer, a rejection, or the student withdrawing. An application can have several interview rounds, and if it ends in an offer, we record the pay offered and whether the student accepted. Students can also bookmark postings to look at later. The career center wants reports too: which companies get the most applications, how often applications turn into offers, which skills employers are asking for, and what accepted offers pay.",
+  ],
+  stories: {
+    ops: [
+      'As a student, I want to search open postings by skill, for example everything that asks for SQL.',
+      'As a student, I want to filter open postings by city and minimum hourly pay.',
+      'As a student, I want to see which open postings I am fully qualified for, given my skills.',
+      'As a student, I want to bookmark postings and come back to them later.',
+      'As a student, I want to apply to a posting before its deadline.',
+      'As a student, I want to see the status of my applications, and withdraw one if I change my mind.',
+      'As a recruiter, I want to post an internship with its required skills and deadline, and close it when it is filled.',
+      'As a recruiter, I want to see my upcoming interviews and record how each one went.',
+      'As a recruiter, I want to make an offer and record whether the student accepts it.',
+    ],
+    analytic: [
+      'As the career center, I want to know which companies received the most applications over the last year.',
+      'As the career center, I want to know what share of applications turn into offers at each company.',
+      'As the career center, I want to know which skills are most in demand among open postings, so we can plan workshops.',
+      'As the career center, I want to know the average pay of accepted offers in each industry.',
+      'As the career center, I want to find students who have not applied anywhere, so advisors can reach out.',
+      'As the career center, I want to see how many applications came in over the last 30, 90 and 365 days.',
+    ],
+  },
+  closing: "That's the site. Put together a data model, a set of tables, that supports these stories. Take a minute to think it over. Do you have any questions before you start?",
+  clarify: [
+    ['How big is this: how many students, companies and applications?', 'One university, about 15,000 students. A few thousand companies have accounts, and in a busy month we get around 20,000 applications.'],
+    ['Does a posting belong to a company or to a recruiter?', 'Both, in a way. A company can have several recruiters, and each posting is managed by one of them. Recruiters do leave companies, though. What would you do with their postings? (The interviewer turns it back to you.)'],
+    ['Can a student apply to the same posting twice?', 'No. One application per student per posting. If they withdraw, that is final.'],
+    ['What does "open" mean? Does a recruiter close postings by hand?', 'Recruiters set a deadline, and they mark a posting closed or filled when they are done. In practice many forget, so some postings still say open weeks after the deadline.'],
+    ['Are skills free text, or a fixed list?', 'A fixed list the career center maintains, like SQL, Python or CAD. Postings list the skills they require; students list the skills they have.'],
+    ['How many interview rounds can there be?', 'Usually one to three, each with its own date, time and outcome.'],
+    ['Is the offered pay always the posted pay?', 'Not always. Some companies offer more than they advertised, so record what was actually offered. Contracts and payroll are out of scope.'],
+  ],
+  stakeholders: ['学生 students：按技能、城市、时薪找职位，收藏、申请、撤回，看申请进度', '招聘官 recruiters：发职位、列技能要求、安排面试、记录结果、发 offer', '公司 companies：一家公司有几位招聘官、好几个职位', '就业中心 career center：申请数排名、offer 率、热门技能、薪资报表、找出还没申请的学生'],
+  nouns: ['student（学生：专业、毕业年份）', 'company（公司：行业、所在城市）', 'recruiter（招聘官：属于一家公司）', 'posting（职位：标题、工作地点、学期 term、时薪、发布日、截止日、状态 open / closed / filled）', 'skill（技能：SQL、Python、CAD……）', 'required skill / student skill（职位要求的技能、学生会的技能：都是多对多）', 'application（一次申请：submitted / interviewing / offer / rejected / withdrawn）', 'interview（面试：第几轮、时间、结果 pending / passed / failed）', 'offer（录用通知：时薪、日期、学生是否接受）', 'bookmark / saved posting（收藏的职位）'],
+  checklist: ['先问了问题：规模、职位属于公司还是招聘官、能不能重复申请、「开放」怎么定义、技能是不是固定列表', '说出使用者和业务名词', '套上四种角色：person = students / recruiters，catalog = companies，item = postings，event = applications', '技能是多对多：posting_skills 和 student_skills 两张联结表，不在一列里存 "SQL, Python"', '申请一行一次，UNIQUE (student_id, posting_id)；撤回、拒绝只改 status，不删行', '面试挂在申请下（1:N，UNIQUE (app_id, round)），offer 也挂在申请下（1:1，app_id UNIQUE）', 'offer 上单独存实际时薪，不只靠职位的标价', '「开放」= status 为 open 并且 deadline ≥ 今天；「进行中的申请」= submitted 或 interviewing', '写得出「技能完全符合」的查询（NOT EXISTS 或 GROUP BY … HAVING COUNT）', '用 user story 检验模型，发现问题就改'],
+  model: {
+    ents: [
+      { id: 'ss', name: 'student_skills', cols: ['student_id PK FK', 'skill_id PK FK'], x: 0, y: 0 },
+      { id: 'sk', name: 'skills', cols: ['skill_id PK', 'name UNIQUE'], x: 1, y: 0 },
+      { id: 'ps', name: 'posting_skills', cols: ['posting_id PK FK', 'skill_id PK FK'], x: 2, y: 0 },
+      { id: 'co', name: 'companies', cols: ['company_id PK', 'name UNIQUE', 'industry', 'city'], x: 3, y: 0 },
+      { id: 'st', name: 'students', cols: ['student_id PK', 'name', 'email UNIQUE', 'major', 'grad_year'], x: 0, y: 1 },
+      { id: 'sv', name: 'saved_postings', cols: ['student_id PK FK', 'posting_id PK FK', 'saved_at'], x: 1, y: 1 },
+      { id: 'po', name: 'postings', cols: ['posting_id PK', 'company_id FK', 'recruiter_id FK', 'title', 'location', 'term', 'pay_per_hour', 'posted_on', 'deadline', 'status'], x: 2, y: 1 },
+      { id: 'rc', name: 'recruiters', cols: ['recruiter_id PK', 'company_id FK', 'name', 'email'], x: 3, y: 1 },
+      { id: 'iv', name: 'interviews', cols: ['interview_id PK', 'app_id FK', 'round', 'scheduled_at', 'outcome'], x: 0, y: 2 },
+      { id: 'ap', name: 'applications', cols: ['app_id PK', 'student_id FK', 'posting_id FK', 'applied_at', 'status'], x: 1, y: 2 },
+      { id: 'of', name: 'offers', cols: ['offer_id PK', 'app_id FK UNIQUE', 'pay_per_hour', 'offered_on', 'response'], x: 2, y: 2 },
+    ],
+    rels: [
+      { a: 'st', b: 'ss', card: '1:N', label: '会' }, { a: 'sk', b: 'ss', card: '1:N' },
+      { a: 'sk', b: 'ps', card: '1:N' }, { a: 'po', b: 'ps', card: '1:N', label: '要求' },
+      { a: 'co', b: 'rc', card: '1:N', label: '雇用' }, { a: 'co', b: 'po', card: '1:N', label: '发布' }, { a: 'rc', b: 'po', card: '1:N', label: '负责' },
+      { a: 'st', b: 'sv', card: '1:N', label: '收藏' }, { a: 'po', b: 'sv', card: '1:N' },
+      { a: 'st', b: 'ap', card: '1:N', label: '申请' }, { a: 'po', b: 'ap', card: '1:N', label: '收到' },
+      { a: 'ap', b: 'iv', card: '1:N', label: '面试' }, { a: 'ap', b: 'of', card: '1:1', label: 'offer' },
+    ],
+  },
+  design: [
+    "<b>先套四种角色</b>：person = students（还有 recruiters），catalog = companies，item = postings，event = applications，interviews 和 offers 挂在一次申请下面；many-to-many = posting_skills / student_skills。和图书馆「会员—书目—借阅」、酒店「客人—房间—预订」是同一个骨架，面试时先把这张对照说出来，后面的表就顺了。",
+    "<b>技能是多对多，用两张联结表</b>：一个职位要好几项技能，一项技能被很多职位要求，所以 posting_skills (posting_id, skill_id) 联合主键；学生这边同理是 student_skills。千万别在 postings 里存一列 <code>'SQL, Python'</code>：违反第一范式，「要求 SQL 的职位」只能用 LIKE 去猜（'NoSQL' 也会被匹配到），「技能完全符合」根本写不出来。",
+    "<b>「技能完全符合」是关系除法</b>：职位要求的技能里，<b>没有一项</b>是这个学生不会的。写法一：<code>NOT EXISTS (要求的技能 NOT IN 她的技能)</code>；写法二：JOIN 她会的技能，<code>GROUP BY posting_id HAVING COUNT(*) = 这个职位要求的技能数</code>。普通 JOIN 只能找出「至少会一项」的职位。",
+    "<b>postings 同时有 company_id 和 recruiter_id</b>：严格说 company 可以从 recruiter 推出来（传递依赖），但招聘官会离职：把 recruiter_id 改成别人或设成 NULL，职位仍然属于这家公司，按公司统计也不用多 JOIN 一张表。说出这个取舍，并加一个检查（招聘官必须属于同一家公司）就很好。companies.city 是公司总部，postings.location 是实习地点（可以是 Remote），两者不是一回事。",
+    "<b>申请是事件表</b>：applications 一次申请一行，<code>UNIQUE (student_id, posting_id)</code> 挡住重复申请；status 从 submitted → interviewing → offer / rejected，进行中的随时可以 withdrawn。撤回、拒绝都只改 status，不删行：删了就算不出 offer 率，学生也看不到自己的历史。收藏（saved_postings）是另一种事件，单独一张表，不要塞进 applications 当成一种 status。",
+    "<b>面试和 offer 挂在申请下</b>：interviews 是 1:N（第几轮、时间、结果），加 <code>UNIQUE (app_id, round)</code>；offers 是 1:1，<code>app_id UNIQUE</code>。offer 上单独存 pay_per_hour：公司可能比招聘广告给得多，就像酒店预订上存成交房价。学生接受与否记在 offers.response。",
+    "<b>两个「活跃」条件要背熟</b>：职位开放 = <code>status = 'open' AND deadline &gt;= 今天</code>（状态靠招聘官手动改，常常忘了关，截止日期才是硬事实）；申请进行中 = <code>status IN ('submitted', 'interviewing')</code>。可以建一个视图 open_postings，所有查询都从它出发，就不会漏写一半。",
+    "<b>日期存成 'YYYY-MM-DD' 文本</b>，按字符串比较就是按时间比较；面试时间是 'YYYY-MM-DD HH:MM'，按天筛选时要用「&gt;= 第一天 并且 &lt; 最后一天的下一天」，不要用 BETWEEN 到最后一天。报表里的「近 30 天」可以写 <code>date('2026-11-04', '-30 days')</code>，参考答案直接写算好的日期，结果才固定。",
+  ],
+  probes: [
+    'Where do the skills a posting requires live? Why not just a comma-separated column on postings?',
+    'Your postings table has both company_id and recruiter_id. Is that redundant? What happens when a recruiter leaves the company?',
+    'A posting still says open, but its deadline was two weeks ago. Is it open? How do your queries decide?',
+    'How do you stop a student from applying to the same posting twice?',
+    'A student withdraws. Do you delete the application? What about the interview that is already on the calendar?',
+    'How would you find the postings a student is fully qualified for, not just partly qualified for?',
+    'Where does the pay live: on the posting, or on the offer? What if the company offers more than it advertised?',
+    'For the offer rate, what goes in the denominator? Do withdrawn applications count?',
+  ],
+  queries: [
+    { q: 'A student wants to see every open posting that asks for SQL. What would you run?', zh: '要求 SQL 技能、仍在开放的职位', exam: true, ordered: true, spec: '输出 <code>company, title, location, deadline</code>（company 是公司名）：要求 SQL 技能、并且仍在开放的职位。开放 = status 为 open 且 deadline ≥ 2026-11-04（今天截止的也算）；按 deadline 从早到晚，相同按 title', sql: "SELECT c.name AS company, p.title, p.location, p.deadline\nFROM postings p\nJOIN companies c ON c.company_id = p.company_id\nJOIN posting_skills ps ON ps.posting_id = p.posting_id\nJOIN skills s ON s.skill_id = ps.skill_id\nWHERE s.name = 'SQL'\n  AND p.status = 'open'\n  AND p.deadline >= '2026-11-04'\nORDER BY p.deadline, p.title;", note: "答案 5 行。三个坑：① 只写 <code>status = 'open'</code> 会变成 7 行：Brightpath 的 Clinical Data Intern（10 月 15 日截止）和 Juniper 的 Software Engineering Intern（10 月 31 日截止）早就过了截止日期，招聘官忘了关；② Nimbus 的 Product Analyst Intern 今天（11 月 4 日）截止，今天还能投，写成 <code>deadline &gt; '2026-11-04'</code> 会漏掉它，只剩 4 行；③ 技能名在 skills 表里，要 postings → posting_skills → skills 一路 JOIN 过去，或者先查出 SQL 的 skill_id（是 1）。" },
+    { q: 'Show me the open postings in St. Louis that pay at least 25 dollars an hour, best-paying first.', zh: '圣路易斯时薪 ≥ 25 的开放职位，高薪在前', ordered: true, spec: '输出 <code>title, company, pay_per_hour, deadline</code>：location 为 St. Louis、开放（status 为 open 且 deadline ≥ 2026-11-04）、pay_per_hour ≥ 25 的职位；按 pay_per_hour 从高到低，相同按 deadline 从早到晚', sql: "SELECT p.title, c.name AS company, p.pay_per_hour, p.deadline\nFROM postings p\nJOIN companies c ON c.company_id = p.company_id\nWHERE p.location = 'St. Louis'\n  AND p.pay_per_hour >= 25\n  AND p.status = 'open'\n  AND p.deadline >= '2026-11-04'\nORDER BY p.pay_per_hour DESC, p.deadline;", note: "答案 4 行：Data Science 30、Financial Systems 28、Data Engineering 28、Healthcare Analytics 25。坑：① 不看 deadline，过期的 Clinical Data Intern（时薪 26）会混进来；② Healthcare Analytics 正好 25，写成 <code>&gt; 25</code> 会漏掉它；③ 两个 28 并列，要有第二排序（这里按截止日期，Financial Systems 12 月 10 日截止，排在前面）；④ 城市要看职位的 location，不是 companies.city：Nimbus 总部在 St. Louis，但 Product Analyst 是 Remote。" },
+    { q: 'Chloe Dubois, student 12, wants to see her applications that are still in play. What would you run?', zh: '学生 12（Chloe Dubois）还在进行中的申请', exam: true, ordered: true, spec: '输出 <code>company, title, status, applied_at</code>：student_id 12 的申请里 status 为 submitted 或 interviewing 的；按 applied_at 排序', sql: "SELECT c.name AS company, p.title, a.status, a.applied_at\nFROM applications a\nJOIN postings p ON p.posting_id = a.posting_id\nJOIN companies c ON c.company_id = p.company_id\nWHERE a.student_id = 12\n  AND a.status IN ('submitted', 'interviewing')\nORDER BY a.applied_at;", note: "答案 3 行：Brightpath 的 Clinical Data Intern（submitted）、Nimbus 的 Product Analyst Intern（interviewing）、Ledgerline 的 Data Science Intern（submitted）。Chloe 一共有 6 条申请，不按 status 过滤会全出来：两条 rejected，还有一条 2025 年的 withdrawn。反过来的坑：Clinical Data Intern 已经过了截止日期，但那只是说<b>不能再投</b>，她 10 月 1 日投的申请还在处理中。在这里套用「职位开放」的条件，会把它漏掉，只剩 2 行。「职位开放」和「申请进行中」是两件事。" },
+    { q: 'Which open postings is Nina Sorensen, student 3, fully qualified for, meaning she has every skill the posting asks for?', zh: '学生 3（Nina Sorensen）技能完全符合的开放职位', exam: true, spec: '输出 <code>posting_id, title</code>：开放的职位（status 为 open 且 deadline ≥ 2026-11-04）里，要求的<b>每一项</b>技能 student 3 都有的职位', sql: "SELECT p.posting_id, p.title\nFROM postings p\nWHERE p.status = 'open'\n  AND p.deadline >= '2026-11-04'\n  AND NOT EXISTS (\n    SELECT 1 FROM posting_skills ps\n    WHERE ps.posting_id = p.posting_id\n      AND ps.skill_id NOT IN (SELECT skill_id FROM student_skills WHERE student_id = 3)\n  )\nORDER BY p.posting_id;", note: "Nina 会 SQL、Python、Excel、Tableau。答案 3 个：11 Data Engineering（SQL + Python）、15 Energy Analytics（Python + Excel）、18 Healthcare Analytics（SQL + Tableau）。坑：① 普通 JOIN student_skills 只能找出「至少会一项」的职位，会冒出 9 个；② 差一项的不算：12 Product Analyst 还要 Statistics，17 Data Science 还要 Machine Learning；③ 9 Clinical Data Intern（SQL + Excel）她完全符合，但已经过了截止日期，不加 deadline 条件就会多出它。另一种写法：<code>JOIN posting_skills ps … JOIN student_skills ss ON ss.skill_id = ps.skill_id AND ss.student_id = 3 GROUP BY p.posting_id HAVING COUNT(*) = (SELECT COUNT(*) FROM posting_skills WHERE posting_id = p.posting_id)</code>。NOT EXISTS 写法有个细节：一个技能都不要求的职位会自动算「符合」；示例数据里每个职位都至少要求一项技能。" },
+    { q: "Which open postings haven't received a single application yet?", zh: '还没有人申请的开放职位', spec: '输出 <code>posting_id, company, title, posted_on</code>：开放（status 为 open 且 deadline ≥ 2026-11-04）、在 applications 里一行都没有的职位', sql: "SELECT p.posting_id, c.name AS company, p.title, p.posted_on\nFROM postings p\nJOIN companies c ON c.company_id = p.company_id\nLEFT JOIN applications a ON a.posting_id = p.posting_id\nWHERE a.app_id IS NULL\n  AND p.status = 'open'\n  AND p.deadline >= '2026-11-04'\nORDER BY p.posting_id;", note: "答案 2 个：19 Financial Systems Intern 和 20 Manufacturing Engineering Intern，都是刚发布的。LEFT JOIN 以后找 <code>a.app_id IS NULL</code>，或者写 <code>NOT EXISTS</code> / <code>NOT IN (SELECT posting_id FROM applications)</code>（posting_id 不会是 NULL，NOT IN 才安全）。不加开放条件会是 4 个：多出过期没人关的 10 Software Engineering Intern 和已经 closed 的 21 QA Tester Intern；只看 status 不看 deadline 是 3 个。" },
+    { q: 'Which students have never applied to anything? The career center wants to reach out to them.', zh: '一次都没申请过的学生', exam: true, spec: '输出 <code>name, email, major</code>：在 applications 里一行都没有的学生（不论状态；只收藏过职位不算申请）', sql: "SELECT s.name, s.email, s.major\nFROM students s\nLEFT JOIN applications a ON a.student_id = s.student_id\nWHERE a.app_id IS NULL;", note: "答案 2 人：Ruby Nakamura 和 Tariq Hassan。用普通 JOIN 一个人都找不到：没有申请的学生 JOIN 完就消失了，所以要 LEFT JOIN 再找 NULL，或者写 <code>NOT EXISTS (SELECT 1 FROM applications a WHERE a.student_id = s.student_id)</code>。坑：Tariq 收藏了 2 个职位，但收藏不等于申请；把 saved_postings 也当成「有动静」就会漏掉他。另外撤回过的申请也算申过：Ethan Brooks 撤回过一次，但他还有别的申请。" },
+    { q: 'Rank the companies by how many applications they received in the last 12 months.', zh: '近 12 个月各公司收到的申请数排名', exam: true, ordered: true, spec: '输出 <code>company, applications</code>：applied_at ≥ 2025-11-04（含这一天）的全部申请，不论状态，按公司汇总；按 applications 从多到少，相同按 company 名', sql: "SELECT c.name AS company, COUNT(*) AS applications\nFROM applications a\nJOIN postings p ON p.posting_id = a.posting_id\nJOIN companies c ON c.company_id = p.company_id\nWHERE a.applied_at >= '2025-11-04'\nGROUP BY c.company_id, c.name\nORDER BY applications DESC, c.name;", note: "申请上没有公司，要经过 postings 才知道是哪家公司。答案：Nimbus Analytics 10、Brightpath Health 7、Ledgerline Bank 6、Quillstone Games 6、Juniper Capital 5、Maple Grid Energy 5、Cobalt Robotics 4。两组并列，要有第二排序（按公司名）。边界：Sofia Rossi 正好在 2025-11-04 投了 Brightpath，写成 <code>&gt;</code> 会漏掉她，Brightpath 变成 6，和另外两家并列。不加日期条件是 Nimbus 14、Brightpath 8。「12 个月前」也可以写 <code>date('2026-11-04', '-12 months')</code>，算出来就是 2025-11-04。" },
+    { q: 'Which skills are most in demand across the postings that are open right now?', zh: '当前开放职位里最抢手的技能', ordered: true, spec: '输出 <code>skill, postings</code>：每项技能被多少个开放职位（status 为 open 且 deadline ≥ 2026-11-04）要求；只列至少被一个开放职位要求的技能；按 postings 从多到少，相同按 skill 名', sql: "SELECT s.name AS skill, COUNT(*) AS postings\nFROM posting_skills ps\nJOIN postings p ON p.posting_id = ps.posting_id\nJOIN skills s ON s.skill_id = ps.skill_id\nWHERE p.status = 'open'\n  AND p.deadline >= '2026-11-04'\nGROUP BY s.skill_id, s.name\nORDER BY postings DESC, s.name;", note: "开放的职位有 10 个。Python 和 SQL 并列第一（各 5 个），按名字 Python 在前；Excel 3 个第三。用 <code>LIMIT 1</code> 只报一个「最抢手」就会漏掉并列的另一个。坑：不看 deadline，两个过期职位（都要 SQL）会让 SQL 变成 7 个、独占第一，Excel 也变成 4 个。只看 status 也一样错。" },
+    { q: 'What is the offer rate at each company, meaning offers divided by applications?', zh: '各公司的 offer 率', exam: true, ordered: true, spec: '输出 <code>company, applications, offers, offer_pct</code>：每家公司收到的全部申请数（不论状态、不限时间）、其中拿到 offer 的数目（offers 表里有一行）、offer_pct = 100 × offers ÷ applications，保留 1 位小数；7 家公司都要列出；按 offer_pct 从高到低，相同按 company 名', sql: "SELECT c.name AS company,\n       COUNT(a.app_id) AS applications,\n       COUNT(o.offer_id) AS offers,\n       ROUND(100.0 * COUNT(o.offer_id) / COUNT(a.app_id), 1) AS offer_pct\nFROM companies c\nJOIN postings p ON p.company_id = c.company_id\nJOIN applications a ON a.posting_id = p.posting_id\nLEFT JOIN offers o ON o.app_id = a.app_id\nGROUP BY c.company_id, c.name\nORDER BY offer_pct DESC, c.name;", note: "答案：Juniper Capital 3 / 6 = 50.0、Quillstone Games 33.3、Maple Grid Energy 20.0、Nimbus Analytics 2 / 14 = 14.3、Brightpath Health 12.5、Cobalt Robotics 0.0、Ledgerline Bank 0.0。三个坑：① 整数除法：<code>COUNT(o.offer_id) / COUNT(a.app_id)</code> 是两个整数相除，7 家全是 0，连 Juniper 的 3 / 6 也是 0；要写 <code>100.0 *</code>。② offers 要 LEFT JOIN：用普通 JOIN，Cobalt 和 Ledgerline 一个 offer 都没有，会直接消失；剩下的公司分母也只剩拿到 offer 的那几条申请，每家都变成 100.0。③ Cobalt 和 Ledgerline 并列 0.0，要按公司名排。分母要不要算撤回的申请可以讨论，这里按「全部申请」算；也可以写 <code>SUM(a.status = 'offer')</code> 当分子，结果一样。" },
+    { q: 'What is the average hourly pay of accepted offers in each industry?', zh: '各行业已接受 offer 的平均时薪', ordered: true, spec: '输出 <code>industry, accepted, avg_pay</code>：response 为 accepted 的 offer，按公司所在行业汇总：个数，以及 offers.pay_per_hour 的平均值（保留 1 位小数）；没有已接受 offer 的行业不列；按 avg_pay 从高到低', sql: "SELECT c.industry, COUNT(*) AS accepted,\n       ROUND(AVG(o.pay_per_hour), 1) AS avg_pay\nFROM offers o\nJOIN applications a ON a.app_id = o.app_id\nJOIN postings p ON p.posting_id = a.posting_id\nJOIN companies c ON c.company_id = p.company_id\nWHERE o.response = 'accepted'\nGROUP BY c.industry\nORDER BY avg_pay DESC;", note: "offer 到行业要连 4 张表：offers → applications → postings → companies。答案：Finance 2 个、41.0；Software 3 个、29.0；Energy 22.0；Healthcare 21.0。坑：① 不看 response，Finance 会算进 Juniper 被拒的那个 38，变成 40.0，Software 算进还没回复的 25，变成 28.0；② 用职位上的 <code>p.pay_per_hour</code> 也不对：两个 Finance offer 都比招聘广告给得多（40 对 38、42 对 40），Finance 会变成 39.0。所以 offers 上要单独存实际时薪。" },
+    { q: 'How many applications came in over the last 30, 90 and 365 days? Give me one row.', zh: '近 30 / 90 / 365 天的申请数（一行）', spec: '输出一行三列 <code>last_30, last_90, last_365</code>：applied_at 分别 ≥ 2026-10-05、≥ 2026-08-06、≥ 2025-11-04 的申请数（不论状态）', sql: "SELECT SUM(applied_at >= '2026-10-05') AS last_30,\n       SUM(applied_at >= '2026-08-06') AS last_90,\n       SUM(applied_at >= '2025-11-04') AS last_365\nFROM applications;", note: "SQLite 里比较的结果是 1 或 0，SUM 起来就是满足条件的行数；别的数据库写 <code>SUM(CASE WHEN … THEN 1 ELSE 0 END)</code>。答案：17、28、43。大坑：写成 <code>COUNT(applied_at &gt;= '2026-10-05')</code>，COUNT 数的是「不是 NULL」，0 也不是 NULL，三列全是 50。日期可以写成 <code>date('2026-11-04', '-30 days')</code>，算出来正是 2026-10-05；Hana Yilmaz 正好在 10 月 5 日投了一份，写成 <code>&gt;</code> 就少 1。" },
+    { q: 'Mei Tanaka, student 1, wants to apply to the Financial Systems internship at Ledgerline Bank, posting 19. Walk me through it.', zh: '学生 1（Mei Tanaka）申请职位 19', exam: true, dml: true, spec: '在 applications 里新增一行：student_id 1、posting_id 19、applied_at 为 2026-11-04（今天）、status 为 submitted；app_id 让数据库自动生成。只有职位仍然开放（status 为 open 且 deadline ≥ 2026-11-04）时才能申请', check: 'SELECT app_id, posting_id, applied_at, status\nFROM applications\nWHERE student_id = 1\nORDER BY applied_at;', sql: "INSERT INTO applications (student_id, posting_id, applied_at, status)\nSELECT 1, 19, '2026-11-04', 'submitted'\nWHERE EXISTS (\n  SELECT 1 FROM postings\n  WHERE posting_id = 19\n    AND status = 'open'\n    AND deadline >= '2026-11-04'\n);", note: "直接写 <code>INSERT … VALUES (1, 19, '2026-11-04', 'submitted')</code> 也算对，但要说出来：数据库不会替你检查截止日期。参考答案把「职位还开放」写进了 INSERT：把 19 换成 10（Juniper 的 Software Engineering Intern，status 还是 open，但 10 月 31 日已经截止）试试，一行都不会插进去。<code>UNIQUE (student_id, posting_id)</code> 挡住重复申请：Mei 已经申过 16，再 INSERT (1, 16) 会报 UNIQUE 错误。插入以后 Mei 有 4 条申请，新的这条 app_id 是 51。" },
+    { q: 'Chloe Dubois has changed her mind and wants to withdraw application 32, her Product Analyst application at Nimbus. What do you do?', zh: '撤回申请 32（Chloe 在 Nimbus 的 Product Analyst）', dml: true, spec: '把 app_id 32 的 status 改成 withdrawn，前提是它还在进行中（submitted 或 interviewing）；不删行', check: 'SELECT app_id, posting_id, status FROM applications WHERE student_id = 12 ORDER BY app_id;', sql: "UPDATE applications\nSET status = 'withdrawn'\nWHERE app_id = 32\n  AND status IN ('submitted', 'interviewing');", note: "撤回是改 status，不是 DELETE：删掉了 offer 率的分母就少一条，Chloe 也看不到自己的历史。<code>status IN (…)</code> 防止把已经结束的申请改掉：对 Sofia 拿到 offer 的申请 31 执行同样的语句，0 行被改。只写 <code>WHERE student_id = 12</code> 是大错：她另外两条进行中的申请会一起被撤回，两条 rejected 也会被改成 withdrawn，历史就乱了。还有一件事：Chloe 明早 9 点有一场 pending 的面试（interview 17），撤回以后它还在 interviews 表里。要么一起删掉或标记，要么像下一题那样，查面试时永远检查申请是否还在进行中。" },
+    { q: 'Rosa Lindgren, a recruiter at Nimbus, wants to see her interviews for the rest of this week.', zh: '招聘官 Rosa Lindgren 本周剩下的面试', ordered: true, spec: '输出 <code>scheduled_at, student, title, round</code>（student 是学生姓名，title 是职位名）：recruiter_id 1 负责的职位上、scheduled_at ≥ 2026-11-04 且 &lt; 2026-11-07（今天到本周五）、outcome 为 pending、所属申请仍在进行中（submitted 或 interviewing）的面试；按 scheduled_at 排序', sql: "SELECT i.scheduled_at, s.name AS student, p.title, i.round\nFROM interviews i\nJOIN applications a ON a.app_id = i.app_id\nJOIN students s ON s.student_id = a.student_id\nJOIN postings p ON p.posting_id = a.posting_id\nWHERE p.recruiter_id = 1\n  AND i.outcome = 'pending'\n  AND a.status IN ('submitted', 'interviewing')\n  AND i.scheduled_at >= '2026-11-04'\n  AND i.scheduled_at < '2026-11-07'\nORDER BY i.scheduled_at;", note: "答案 2 场：今天 15:00 Jordan Alvarez 第 1 轮，周五 14:00 Nina Sorensen 第 2 轮（都是 Data Engineering Intern）。三个坑：① Ethan Brooks 周四 11:00 的面试还是 pending，可他已经撤回了申请；不检查 applications.status 就会多出这一场。② 写成 <code>BETWEEN '2026-11-04' AND '2026-11-06'</code> 会漏掉周五 14:00 那场：文本比较时 '2026-11-06 14:00' 比 '2026-11-06' 大。③ 招聘官在 postings.recruiter_id 上，不要按公司过滤：Chloe 周四 9:00 那场是 Nimbus 的另一位招聘官 Kofi Mensah 负责的。" },
+  ],
+});
+
 /* Full mock interview: library book lending (the course's official practice prompt, reworded).
    Runs on the `library` seed defined in c13.js; "today" in that data is 2026-11-04. */
 window.MOCKS = window.MOCKS || [];
@@ -11795,7 +13020,8 @@ function staticTable(head, rows, cls = '') {
     rows.map((r) => '<tr>' + r.map((v) => `<td>${cellHTML(v)}</td>`).join('') + '</tr>').join('') + '</tbody></table></div>';
 }
 function compareSets(u, r, ordered) {
-  if (!u) return { ok: false, msg: '你的语句没有返回结果。这道题需要一条 SELECT 查询。' };
+  // sql.js gives no result set at all for a SELECT that matched 0 rows, so "no set" also means "0 rows"
+  if (!u) return { ok: false, msg: `你的查询一行都没返回（或者不是一条 SELECT）。期望 ${r ? r.values.length : '若干'} 行。` };
   if (!r) return { ok: false, msg: '参考答案没有结果（题目配置问题）。' };
   const norm = (row) => row.map((v) => (v === null ? null : typeof v === 'number' ? Math.round(v * 100) / 100 : String(v)));
   const U = u.values.map(norm);
@@ -13040,8 +14266,10 @@ const PLAN = [
   { id: 'c13', no: 13, cls: '口试复习', title: '口试冲刺：数据工程面试', hue: 45 },
   { id: 'c14', no: 14, cls: '官方练习题 ①', title: '图书馆借书系统', hue: 175 },
   { id: 'c15', no: 15, cls: '官方练习题 ②', title: '电影院售票系统', hue: 320 },
+  { id: 'c16', no: 16, cls: '答题模板', title: '万能答题模板', hue: 200 },
+  { id: 'c17', no: 17, cls: 'SQL 专项', title: 'SQL 专项：学用法，再闯关', hue: 265 },
 ];
-const SECTIONS = [['SQL 查询', 1, 5, 'db'], ['数据库设计', 6, 8, 'layers'], ['Python 与数据获取', 9, 12, 'py'], ['口试准备', 13, 13, 'user'], ['官方练习题（最重要）', 14, 15, 'star']];
+const SECTIONS = [['SQL 查询', 1, 5, 'db'], ['数据库设计', 6, 8, 'layers'], ['Python 与数据获取', 9, 12, 'py'], ['口试准备', 13, 13, 'user'], ['官方练习题（最重要）', 14, 15, 'star'], ['考前专项：答题模板 + SQL（任何主题都能套）', 16, 17, 'puzzle']];
 const CHS = () => (window.CHAPTERS || []).slice().sort((a, b) => a.no - b.no);
 const CH = (id) => (window.CHAPTERS || []).find((c) => c.id === id);
 const DAY = 864e5;
@@ -13119,8 +14347,9 @@ function render() {
   const main = $('#main');
   main.innerHTML = '';
   main.className = 'v-' + ui.view;
-  if (['chapter', 'lesson', 'practice', 'boss'].includes(ui.view) && !CH(ui.ch)) ui.view = 'home';
-  ({ home: renderHome, chapter: renderChapter, lesson: renderRunner, boss: renderRunner, mix: renderRunner, practice: renderPractice, review: renderReview, exam: renderExam })[ui.view](main);
+  if (['chapter', 'lesson', 'practice', 'boss', 'sheet'].includes(ui.view) && !CH(ui.ch)) ui.view = 'home';
+  if (ui.view === 'sheet' && !CH(ui.ch).sheet) ui.view = 'chapter';
+  ({ home: renderHome, chapter: renderChapter, lesson: renderRunner, boss: renderRunner, mix: renderRunner, practice: renderPractice, review: renderReview, exam: renderExam, sheet: renderSheet })[ui.view](main);
   refreshHeader();
 }
 
@@ -13222,6 +14451,7 @@ function renderChapter(main) {
   side.innerHTML = '<h2 class="sec-h">巩固</h2>';
   const pool = ch.lessons.flatMap((l) => l.screens.filter((s) => isInter(s) && s.t !== 'sql'));
   const box = (ic, t, sub, f, cls = '') => { const b = btn('sidecard ' + cls, `<span class="sc-ico">${icon(ic)}</span><span class="sc-t"><b>${t}</b><span>${sub}</span></span>${icon('next')}`, f); side.append(b); return b; };
+  if (ch.sheet) box('doc', '一页模板', '考前从上到下看一遍：每段做什么、照着哪句说', () => go('sheet', { ch: ch.id }), 'sheet-card');
   if ((ch.practice || []).length) {
     const solved = ch.practice.filter((x) => st.prac[x.id]?.solved).length;
     box('code', 'SQL 实战', `${solved} / ${ch.practice.length} 题通过 · 自动判分`, () => go('practice', { ch: ch.id, ex: null }));
@@ -13231,12 +14461,40 @@ function renderChapter(main) {
   const fresh = M.cardsNew(ch.id);
   box('cards', '闪卡', `${ch.cards.length} 张${due ? ` · ${due} 张到期` : ''}${fresh ? ` · ${fresh} 张新` : ''}`, () => go('review', { rtab: 'cards', rch: ch.id }));
   if ((ch.oral || []).length) box('mic', '口试演练', `${ch.oral.length} 题 · 用英文说出来`, () => go('review', { rtab: 'oral', rch: ch.id, oral: ch.oral[0].id }));
-  const examId = { c13: null, c14: 'library', c15: 'cinema' }[ch.id];
+  const examId = { c13: null, c14: 'library', c15: 'cinema', c16: null }[ch.id];
   if (examId !== undefined) {
     const eb = box('clock', '模拟考试', examId ? '这道题按真实考试走一遍 · 交卷评分' : '6 套题按真实考试走一遍 · 交卷评分', () => (examId ? exOpen(examId, eb) : exOpenList()));
   }
   body.append(side);
   main.append(body);
+}
+
+/* ───────── one-page template sheet (chapters with `sheet`) ─────────
+   [slot] in a `say` line or in `code` is shown as a blank to fill with the prompt's own words */
+function renderSheet(main) {
+  const ch = CH(ui.ch);
+  setHue(ch.hue);
+  const slot = (s) => s.replace(/\[([^\]]+)\]/g, '<span class="slot">$1</span>');
+  const wrap = el('div', 'wrap sheet');
+  wrap.innerHTML = `<div class="sh-top"><button type="button" class="crumb">${icon('back')}第 ${ch.no} 章 · ${esc(ch.title)}</button>
+    <h1>一页模板</h1><p class="muted">${esc(ch.sheetSub || '')}</p></div>`;
+  $('.crumb', wrap).onclick = () => go('chapter', { ch: ch.id });
+  const list = el('div', 'sh-list');
+  ch.sheet.forEach((sec, i) => {
+    const c = el('section', 'sh-sec');
+    c.style.setProperty('--h', (ch.hue + i * 40) % 360);
+    c.innerHTML = `<div class="sh-h"><span class="sh-n">${i + 1}</span><b>${esc(sec.h)}</b>${sec.time ? `<span class="sh-t">${esc(sec.time)}</span>` : ''}</div>
+      ${sec.do ? `<ul class="sh-do">${sec.do.map((x) => `<li>${x}</li>`).join('')}</ul>` : ''}
+      ${sec.say ? `<div class="sh-say"><span class="mini-h">照着说</span>${sec.say.map((x) => `<p>${slot(esc(x))}</p>`).join('')}</div>` : ''}
+      ${sec.code ? `<pre class="code sh-code"><code>${slot(hl(sec.code))}</code></pre>` : ''}`;
+    list.append(c);
+  });
+  wrap.append(list);
+  const row = el('div', 'btnrow');
+  const first = ch.lessons[0];
+  row.append(btn('btn primary', `${icon('play')}从第 1 课开始学`, () => go('lesson', { ch: ch.id, les: first.id, i: 0 })), btn('btn', `${icon('clock')}拿模板去模拟考试`, () => exOpenList()));
+  wrap.append(row);
+  main.append(wrap);
 }
 
 /* ───────── runner: lesson / chapter challenge / mixed quiz ───────── */
@@ -14183,7 +15441,7 @@ const EX_GROUPS = [['官方练习题', '两道官方练习题，最重要，先�
 const exGroup = (m) => (m.tag.startsWith('原创') ? '原创模拟题' : m.tag);
 const exQueries = (m) => m.queries.filter((q) => q.exam);
 const MOCK_BY_ID = (id) => simList().find((m) => m.id === id);
-const MOCK_HUE = { library: 175, cinema: 320, hospital: 45, bikeshare: 140, hotel: 25, gym: 270 };
+const MOCK_HUE = { library: 175, cinema: 320, hospital: 45, bikeshare: 140, hotel: 25, gym: 270, internship: 60 };
 let EX = null; // the exam in progress; mirrored into S.examLive so a reload doesn't lose it
 let exList = false; // show the list of exams even though one is in progress
 let exGrading = false;
