@@ -981,6 +981,52 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
   .sim-seg em { display: none; }
 }
 
+/* reading view: a whole lesson on one page */
+.rd { padding-top: 18px; padding-bottom: 70px; max-width: 900px; }
+.rd-top .crumb { background: var(--c-soft); color: var(--c-strong); margin-bottom: 10px; }
+.rd-top h1 { margin: 14px 0 6px; font-size: clamp(24px, 3.4vw, 32px); }
+.rd-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.rd-tabs button { border: 1.5px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 99px; padding: 5px 12px; font: 600 13px var(--body); cursor: pointer; }
+.rd-tabs button.done { color: var(--ink); }
+.rd-tabs button.done::before { content: "✓ "; color: var(--ok); }
+.rd-tabs button.on { background: var(--c); border-color: var(--c); color: var(--c-ink); }
+.rd-b { margin: 18px 0; padding: 16px 18px; border-radius: 16px; background: var(--surface); border: 1.5px solid var(--line); min-width: 0; }
+.rd-b h3 { margin: 2px 0 10px; font: 800 18px var(--display); }
+.rd-b > div > .idea, .rd-b .tiles, .rd-b .vs { margin-top: 0; }
+.rd-tag { display: inline-block; font: 700 11.5px var(--mono); letter-spacing: .05em; color: var(--c-strong); background: var(--c-soft); padding: 2px 9px; border-radius: 99px; margin-bottom: 6px; }
+.rd-hook { margin: 0; font: 800 clamp(19px, 2.6vw, 24px)/1.45 var(--display); color: var(--c-strong); }
+.rd-hook span { display: block; margin-top: 4px; font: 500 15px var(--body); color: var(--muted); }
+.rd-b.rd-hook, .rd-b:has(.rd-hook) { background: var(--c-soft); border-color: transparent; }
+.rd-b.rd-recap { border-color: var(--c); border-width: 2px; }
+.rd-steps { margin: 10px 0 0; padding-left: 22px; display: grid; gap: 5px; font-size: 14.5px; }
+.rd-notes { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 7px; }
+.rd-notes li { display: grid; gap: 2px; font-size: 14.5px; }
+.rd-notes code { justify-self: start; font-size: 12.5px; max-width: 100%; overflow-x: auto; white-space: nowrap; }
+.rd-flow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.rd-node { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 12px; background: oklch(var(--Ls) var(--Cs) var(--k, var(--h))); font-size: 14px; }
+.rd-node .ico { width: 16px; }
+.rd-node i { font-style: normal; color: var(--muted); font-size: 12.5px; }
+.rd-arrow { color: var(--muted); font-weight: 700; }
+.rd-ans { display: flex; gap: 10px; align-items: flex-start; margin-top: 10px; padding: 10px 14px; border-radius: 12px; background: oklch(var(--Ls) var(--Cs) 150); color: var(--ink); }
+.rd-ans > .ico { flex: none; color: var(--ok); margin-top: 3px; }
+.rd-ans p { margin: 4px 0 0; }
+.rd-fill { background: var(--c-soft); color: var(--c-strong); border-radius: 4px; padding: 0 3px; font-weight: 700; }
+.rd-order { margin: 8px 0 0; padding-left: 24px; display: grid; gap: 5px; }
+.rd-buckets { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-top: 8px; }
+.rd-bucket { border-radius: 12px; padding: 10px 12px; background: oklch(var(--Ls) var(--Cs) var(--k, var(--h))); }
+.rd-bucket ul { margin: 6px 0 0; padding-left: 18px; font-size: 14px; }
+.rd-pairs { display: grid; gap: 6px; margin-top: 8px; }
+.rd-pair { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.2fr); gap: 10px; align-items: center; padding: 7px 12px; border-radius: 10px; background: oklch(var(--Ls) var(--Cs) var(--k, var(--h))); font-size: 14.5px; }
+.rd-pair code { overflow-wrap: anywhere; }
+.rd-grid td:first-child { font-weight: 700; }
+.rd-end { margin-top: 28px; padding: 18px; border-radius: 18px; background: var(--c-soft); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.rd-end-t { flex: 1 0 100%; margin: 0 0 4px; font-weight: 600; }
+@media (max-width: 560px) {
+  .rd-b { padding: 14px; }
+  .rd-pair { grid-template-columns: 1fr; gap: 2px; }
+  .rd-pair .rd-arrow { display: none; }
+}
+
 /* one-page template sheet */
 .sheet { padding-top: 18px; padding-bottom: 60px; }
 .sh-top .crumb { background: var(--c-soft); color: var(--c-strong); margin-bottom: 10px; }
@@ -10276,7 +10322,7 @@ window.CHAPTERS = window.CHAPTERS || [];
 window.CHAPTERS.push({
   id: 'c16', no: 16, cls: '答题模板', title: '万能答题模板', en: 'One template for every prompt',
   blurb: '不管教授出什么主题，都按同一套模板答：5 段固定流程、4 种角色、5 个设计套路、8 个 SQL 骨架。先背模板，再拿官方题和模拟考试套用。',
-  hue: 200, db: 'tpl', source: '根据两道官方练习题和评分标准总结',
+  hue: 200, db: 'tpl', read: true, source: '根据两道官方练习题和评分标准总结',
   sheetSub: '考前从上到下看一遍。方括号里的词换成题目里的东西，其余照着说。',
   sheet: [
     { h: '复述 + 提问', time: '0–3 分钟',
@@ -10646,55 +10692,55 @@ window.CHAPTERS.push({
     },
   ],
   practice: [
-    { id: 'T1', title: '① 搜索 · 电影院', prompt: '<b>电影院</b>（表 movies）：所有 R 级（<code>rating = \'R\'</code>）电影的片名和片长。',
+    { id: 'T1', les: 'd', title: '① 搜索 · 电影院', prompt: '<b>电影院</b>（表 movies）：所有 R 级（<code>rating = \'R\'</code>）电影的片名和片长。',
       cols: 'title, length_min',
       ref: "SELECT title, length_min FROM movies WHERE rating = 'R';",
       hints: ['骨架 ①：目录表 + WHERE', '只用 movies 一张表'] },
-    { id: 'T2', title: '② 现在可用 · 图书馆', prompt: '<b>图书馆</b>（表 copies、books、loans）：Kranzberg 分馆<b>现在在架上</b>的副本。输出 <code>copy_id, title</code>。今天是 2026-11-04。',
+    { id: 'T2', les: 'd', title: '② 现在可用 · 图书馆', prompt: '<b>图书馆</b>（表 copies、books、loans）：Kranzberg 分馆<b>现在在架上</b>的副本。输出 <code>copy_id, title</code>。今天是 2026-11-04。',
       cols: 'copy_id, title',
       ref: "SELECT c.copy_id, b.title FROM copies c JOIN books b ON b.book_id = c.book_id WHERE c.branch = 'Kranzberg' AND c.copy_id NOT IN (SELECT copy_id FROM loans WHERE return_date IS NULL);",
       hints: ['骨架 ②：实物 NOT IN 活跃事件', '活跃条件：return_date IS NULL', '书名在 books 上，要 JOIN books'] },
-    { id: 'T3', title: '② 现在可用 · 电影院', prompt: '<b>电影院</b>（表 showtimes、seats、tickets）：场次 12356（11 月 6 日 19:00 的 The Hobbit）还空着哪些座位？输出 <code>row_label, seat_no</code>。',
+    { id: 'T3', les: 'd', title: '② 现在可用 · 电影院', prompt: '<b>电影院</b>（表 showtimes、seats、tickets）：场次 12356（11 月 6 日 19:00 的 The Hobbit）还空着哪些座位？输出 <code>row_label, seat_no</code>。',
       cols: 'row_label, seat_no',
       ref: 'SELECT s.row_label, s.seat_no FROM seats s WHERE s.screen_id = (SELECT screen_id FROM showtimes WHERE show_id = 12356) AND s.seat_id NOT IN (SELECT seat_id FROM tickets WHERE show_id = 12356);',
       hints: ['先找这一场在哪个影厅：showtimes 里 show_id = 12356 的 screen_id', '这个影厅的座位 NOT IN 这一场卖出的票'] },
-    { id: 'T4', title: '② 现在可用 · 酒店', prompt: '<b>酒店</b>（表 rooms、reservations）：Riverfront（<code>hotel_id = 1</code>）<b>11 月 21 日晚上</b>还有哪些房间空着？输出 <code>room_no</code>。取消的预订不占房；11 月 21 日退房的客人那天晚上已经走了。',
+    { id: 'T4', les: 'd', title: '② 现在可用 · 酒店', prompt: '<b>酒店</b>（表 rooms、reservations）：Riverfront（<code>hotel_id = 1</code>）<b>11 月 21 日晚上</b>还有哪些房间空着？输出 <code>room_no</code>。取消的预订不占房；11 月 21 日退房的客人那天晚上已经走了。',
       cols: 'room_no',
       ref: "SELECT room_no FROM rooms WHERE hotel_id = 1 AND room_id NOT IN (SELECT room_id FROM reservations WHERE status <> 'cancelled' AND check_in <= '2026-11-21' AND check_out > '2026-11-21');",
       hints: ['骨架 ②，活跃条件是「那天晚上有人住」', "status <> 'cancelled' AND check_in <= '2026-11-21' AND check_out > '2026-11-21'", '注意 check_out 用大于，不是大于等于'] },
-    { id: 'T5', title: '③ 某人现在的 · 酒店', prompt: '<b>酒店</b>（表 reservations、rooms、hotels）：客人 10（Dario Velez）还没完成的预订，也就是 status 是 booked 或 checked_in 的。输出 <code>res_id, name, check_in, check_out</code>，其中 name 是酒店名。',
+    { id: 'T5', les: 'd', title: '③ 某人现在的 · 酒店', prompt: '<b>酒店</b>（表 reservations、rooms、hotels）：客人 10（Dario Velez）还没完成的预订，也就是 status 是 booked 或 checked_in 的。输出 <code>res_id, name, check_in, check_out</code>，其中 name 是酒店名。',
       cols: 'res_id, name, check_in, check_out',
       ref: "SELECT r.res_id, h.name, r.check_in, r.check_out FROM reservations r JOIN rooms rm ON rm.room_id = r.room_id JOIN hotels h ON h.hotel_id = rm.hotel_id WHERE r.guest_id = 10 AND r.status IN ('booked', 'checked_in');",
       hints: ['骨架 ③：事件 JOIN 实物 JOIN 地点，某人 + 活跃', "status IN ('booked', 'checked_in')", '酒店名要经过 rooms 才连得到 hotels'] },
-    { id: 'T6', title: '④ 排队 · 图书馆', prompt: '<b>图书馆</b>（表 holds、members）：书 12345 现在排队的人，按先来后到排好。只看还在等的（waiting）。输出 <code>name, placed_at</code>，最早的在前。',
+    { id: 'T6', les: 'd', title: '④ 排队 · 图书馆', prompt: '<b>图书馆</b>（表 holds、members）：书 12345 现在排队的人，按先来后到排好。只看还在等的（waiting）。输出 <code>name, placed_at</code>，最早的在前。',
       cols: 'name, placed_at', ordered: true,
       ref: "SELECT m.name, h.placed_at FROM holds h JOIN members m ON m.member_id = h.member_id WHERE h.book_id = 12345 AND h.status = 'waiting' ORDER BY h.placed_at;",
       hints: ['骨架 ④，不加 LIMIT 就是整个队伍', "status = 'waiting'：已经拿到书的（fulfilled）不算"] },
-    { id: 'T7', title: '⑤ 逾期 · 图书馆', prompt: '<b>图书馆</b>（表 loans、members、copies、books）：今天是 2026-11-04。列出过期未还的借阅，以及已经逾期几天。输出 <code>name, title, days_overdue</code>（整数），逾期最久的在前。',
+    { id: 'T7', les: 'd', title: '⑤ 逾期 · 图书馆', prompt: '<b>图书馆</b>（表 loans、members、copies、books）：今天是 2026-11-04。列出过期未还的借阅，以及已经逾期几天。输出 <code>name, title, days_overdue</code>（整数），逾期最久的在前。',
       cols: 'name, title, days_overdue', ordered: true,
       ref: "SELECT m.name, b.title, CAST(julianday('2026-11-04') - julianday(l.due_date) AS INTEGER) AS days_overdue FROM loans l JOIN members m ON m.member_id = l.member_id JOIN copies c ON c.copy_id = l.copy_id JOIN books b ON b.book_id = c.book_id WHERE l.return_date IS NULL AND l.due_date < '2026-11-04' ORDER BY days_overdue DESC;",
       hints: ['骨架 ⑤：活跃条件 + 到期日 < 今天', "天数：julianday('2026-11-04') - julianday(due_date)，再 CAST(... AS INTEGER)", '书名要经过 copies 才连得到 books'] },
-    { id: 'T8', title: '⑥ 排行 · 图书馆', prompt: '<b>图书馆</b>（表 loans、copies、books）：过去一年（<code>checkout_date ≥ 2025-11-04</code>）借阅次数最多的 3 位作者。输出 <code>author, loans</code>，从多到少。',
+    { id: 'T8', les: 'd', title: '⑥ 排行 · 图书馆', prompt: '<b>图书馆</b>（表 loans、copies、books）：过去一年（<code>checkout_date ≥ 2025-11-04</code>）借阅次数最多的 3 位作者。输出 <code>author, loans</code>，从多到少。',
       cols: 'author, loans', ordered: true,
       ref: "SELECT b.author, COUNT(*) AS loans FROM loans l JOIN copies c ON c.copy_id = l.copy_id JOIN books b ON b.book_id = c.book_id WHERE l.checkout_date >= '2025-11-04' GROUP BY b.author ORDER BY loans DESC LIMIT 3;",
       hints: ['骨架 ⑥：事件 → 实物 → 目录，GROUP BY 维度', 'GROUP BY b.author，ORDER BY loans DESC LIMIT 3'] },
-    { id: 'T9', title: '⑥ 排行 · 酒店（算晚数）', prompt: '<b>酒店</b>（表 reservations、rooms、room_types）：过去一年（<code>check_in ≥ 2025-11-04</code>）每种房型一共被住了<b>几晚</b>，不算取消的。输出 <code>name, nights</code>，从多到少。',
+    { id: 'T9', les: 'd', title: '⑥ 排行 · 酒店（算晚数）', prompt: '<b>酒店</b>（表 reservations、rooms、room_types）：过去一年（<code>check_in ≥ 2025-11-04</code>）每种房型一共被住了<b>几晚</b>，不算取消的。输出 <code>name, nights</code>，从多到少。',
       cols: 'name, nights', ordered: true,
       ref: "SELECT rt.name, SUM(julianday(r.check_out) - julianday(r.check_in)) AS nights FROM reservations r JOIN rooms rm ON rm.room_id = r.room_id JOIN room_types rt ON rt.type_id = rm.type_id WHERE r.status <> 'cancelled' AND r.check_in >= '2025-11-04' GROUP BY rt.type_id, rt.name ORDER BY nights DESC;",
       hints: ['和「住了几次」是同一个骨架，只是 COUNT(*) 换成 SUM(晚数)', '一次预订的晚数：julianday(check_out) - julianday(check_in)'] },
-    { id: 'T10', title: '⑦ 多时间窗 · 酒店', prompt: '<b>酒店</b>（表 reservations）：按下单日期 <code>booked_on</code> 统计最近 30、90、365 天各下了多少单（取消的也算）。今天是 2026-11-04，三个起点分别是 2026-10-05、2026-08-06、2025-11-04。输出一行 <code>last_30d, last_90d, last_365d</code>。',
+    { id: 'T10', les: 'd', title: '⑦ 多时间窗 · 酒店', prompt: '<b>酒店</b>（表 reservations）：按下单日期 <code>booked_on</code> 统计最近 30、90、365 天各下了多少单（取消的也算）。今天是 2026-11-04，三个起点分别是 2026-10-05、2026-08-06、2025-11-04。输出一行 <code>last_30d, last_90d, last_365d</code>。',
       cols: 'last_30d, last_90d, last_365d',
       ref: "SELECT SUM(booked_on >= '2026-10-05') AS last_30d, SUM(booked_on >= '2026-08-06') AS last_90d, SUM(booked_on >= '2025-11-04') AS last_365d FROM reservations;",
       hints: ['骨架 ⑦：每个时间窗一个 SUM(条件)', 'SQLite 里比较结果是 1 或 0，SUM 起来就是个数'] },
-    { id: 'T11', title: '⑧ 比率 · 电影院', prompt: '<b>电影院</b>（表 showtimes、movies、tickets、seats）：10 月 31 日（<code>starts_at</code> 以 2026-10-31 开头）每一场卖了几张、影厅有几个座位、上座率百分之几（保留 1 位小数）。输出 <code>show_id, title, sold, seats, pct</code>。',
+    { id: 'T11', les: 'd', title: '⑧ 比率 · 电影院', prompt: '<b>电影院</b>（表 showtimes、movies、tickets、seats）：10 月 31 日（<code>starts_at</code> 以 2026-10-31 开头）每一场卖了几张、影厅有几个座位、上座率百分之几（保留 1 位小数）。输出 <code>show_id, title, sold, seats, pct</code>。',
       cols: 'show_id, title, sold, seats, pct',
       ref: "SELECT st.show_id, m.title, COUNT(t.ticket_id) AS sold, (SELECT COUNT(*) FROM seats se WHERE se.screen_id = st.screen_id) AS seats, ROUND(100.0 * COUNT(t.ticket_id) / (SELECT COUNT(*) FROM seats se WHERE se.screen_id = st.screen_id), 1) AS pct FROM showtimes st JOIN movies m ON m.movie_id = st.movie_id LEFT JOIN tickets t ON t.show_id = st.show_id WHERE st.starts_at LIKE '2026-10-31%' GROUP BY st.show_id, m.title, st.screen_id;",
       hints: ['骨架 ⑧：卖出的票 / 影厅座位数', '座位数可以用子查询：(SELECT COUNT(*) FROM seats WHERE screen_id = st.screen_id)', '乘 100.0 而不是 100，否则整数除法会得到 0'] },
-    { id: 'T12', title: '⑧ 比率 · 图书馆（保住 0）', prompt: '<b>图书馆</b>（表 copies、loans）：每个分馆有几个副本、现在借出了几个、借出比例百分之几（保留 1 位小数）。<b>一个都没借出的分馆也要列出来</b>。输出 <code>branch, copies, out, pct_out</code>。',
+    { id: 'T12', les: 'd', title: '⑧ 比率 · 图书馆（保住 0）', prompt: '<b>图书馆</b>（表 copies、loans）：每个分馆有几个副本、现在借出了几个、借出比例百分之几（保留 1 位小数）。<b>一个都没借出的分馆也要列出来</b>。输出 <code>branch, copies, out, pct_out</code>。',
       cols: 'branch, copies, out, pct_out',
       ref: 'SELECT c.branch, COUNT(*) AS copies, COUNT(l.loan_id) AS out, ROUND(100.0 * COUNT(l.loan_id) / COUNT(*), 1) AS pct_out FROM copies c LEFT JOIN loans l ON l.copy_id = c.copy_id AND l.return_date IS NULL GROUP BY c.branch;',
       hints: ['从 copies 出发 LEFT JOIN loans，才能保住借出为 0 的分馆', '活跃条件 return_date IS NULL 要写在 ON 里，写在 WHERE 里会把没借出的分馆过滤掉', 'COUNT(l.loan_id) 只数配上了借阅的行'] },
-    { id: 'T13', dml: true, title: '操作 · 酒店退房', prompt: '<b>酒店</b>（表 reservations）：Jonah Reyes 今天退房，他的预订是 34，现在是 checked_in。把它改成 checked_out。<b>只改这一条，而且只在它确实是 checked_in 时才改</b>。',
+    { id: 'T13', les: 'e', dml: true, title: '操作 · 酒店退房', prompt: '<b>酒店</b>（表 reservations）：Jonah Reyes 今天退房，他的预订是 34，现在是 checked_in。把它改成 checked_out。<b>只改这一条，而且只在它确实是 checked_in 时才改</b>。',
       cols: '检查：所有预订的 res_id 和 status',
       ref: "UPDATE reservations SET status = 'checked_out' WHERE res_id = 34 AND status = 'checked_in';",
       check: 'SELECT res_id, status FROM reservations ORDER BY res_id;',
@@ -10740,7 +10786,7 @@ window.CHAPTERS = window.CHAPTERS || [];
 window.CHAPTERS.push({
   id: 'c17', no: 17, cls: 'SQL 专项', title: 'SQL 专项：学用法，再闯关', en: 'SQL drills across four topics',
   blurb: '只学用法：筛选、JOIN、分组、子查询、日期和窗口、改数据，每块一个模板。然后在图书馆、电影院、酒店、共享单车 4 套数据上闯 27 关。',
-  hue: 265, db: 'sqlall', source: '课程 SQL 内容 + 口试查询题型',
+  hue: 265, db: 'sqlall', read: true, source: '课程 SQL 内容 + 口试查询题型',
   lessons: [
     {
       id: 'a', title: '筛选、排序、去重', min: 5,
@@ -10980,85 +11026,85 @@ window.CHAPTERS.push({
     },
   ],
   practice: [
-    { id: 'Q1', title: '1 筛选 · 图书馆', prompt: '<b>图书馆</b>（books）：书名里含有 "the" 的书（不分大小写）。输出 <code>title</code>。',
+    { id: 'Q1', les: 'a', title: '1 筛选 · 图书馆', prompt: '<b>图书馆</b>（books）：书名里含有 "the" 的书（不分大小写）。输出 <code>title</code>。',
       cols: 'title', ref: "SELECT title FROM books WHERE title LIKE '%the%';", hints: ["LIKE '%the%'", 'SQLite 的 LIKE 对英文字母不分大小写'] },
-    { id: 'Q2', title: '1 筛选 · 酒店', prompt: '<b>酒店</b>（room_types）：基础价 <code>base_rate</code> 在 150 到 300 之间（含两端）的房型。输出 <code>name, base_rate</code>。',
+    { id: 'Q2', les: 'a', title: '1 筛选 · 酒店', prompt: '<b>酒店</b>（room_types）：基础价 <code>base_rate</code> 在 150 到 300 之间（含两端）的房型。输出 <code>name, base_rate</code>。',
       cols: 'name, base_rate', ref: 'SELECT name, base_rate FROM room_types WHERE base_rate BETWEEN 150 AND 300;', hints: ['BETWEEN 150 AND 300'] },
-    { id: 'Q3', title: '1 排序 · 电影院', prompt: '<b>电影院</b>（movies）：片长最长的 3 部电影。输出 <code>title, length_min</code>，从长到短。',
+    { id: 'Q3', les: 'a', title: '1 排序 · 电影院', prompt: '<b>电影院</b>（movies）：片长最长的 3 部电影。输出 <code>title, length_min</code>，从长到短。',
       cols: 'title, length_min', ordered: true, ref: 'SELECT title, length_min FROM movies ORDER BY length_min DESC LIMIT 3;', hints: ['ORDER BY length_min DESC LIMIT 3'] },
-    { id: 'Q4', title: '2 JOIN · 共享单车', prompt: '<b>共享单车</b>（rides、riders、stations）：现在还在骑的人（end_time 为空）和出发站名。输出 <code>name, station, start_time</code>。',
+    { id: 'Q4', les: 'b', title: '2 JOIN · 共享单车', prompt: '<b>共享单车</b>（rides、riders、stations）：现在还在骑的人（end_time 为空）和出发站名。输出 <code>name, station, start_time</code>。',
       cols: 'name, station, start_time', ref: 'SELECT ri.name, s.name AS station, r.start_time FROM rides r JOIN riders ri ON ri.rider_id = r.rider_id JOIN stations s ON s.station_id = r.start_station_id WHERE r.end_time IS NULL;',
       hints: ['rides → riders，rides → stations（start_station_id）', 'WHERE r.end_time IS NULL'] },
-    { id: 'Q5', title: '2 JOIN · 酒店', prompt: '<b>酒店</b>（guests、reservations、rooms、hotels）：客人 Priya Sen 的所有预订（包括取消的）。输出 <code>hotel, room_no, check_in, status</code>，其中 hotel 是酒店名。',
+    { id: 'Q5', les: 'b', title: '2 JOIN · 酒店', prompt: '<b>酒店</b>（guests、reservations、rooms、hotels）：客人 Priya Sen 的所有预订（包括取消的）。输出 <code>hotel, room_no, check_in, status</code>，其中 hotel 是酒店名。',
       cols: 'hotel, room_no, check_in, status', ref: "SELECT h.name AS hotel, rm.room_no, r.check_in, r.status FROM reservations r JOIN guests g ON g.guest_id = r.guest_id JOIN rooms rm ON rm.room_id = r.room_id JOIN hotels h ON h.hotel_id = rm.hotel_id WHERE g.name = 'Priya Sen';",
       hints: ['预订 → 客人（按名字筛）；预订 → 房间 → 酒店', "WHERE g.name = 'Priya Sen'"] },
-    { id: 'Q6', title: '2 JOIN · 电影院', prompt: '<b>电影院</b>（tickets、showtimes、movies、seats）：交易 3 买的票：电影、座位、价格。输出 <code>title, row_label, seat_no, price</code>。',
+    { id: 'Q6', les: 'b', title: '2 JOIN · 电影院', prompt: '<b>电影院</b>（tickets、showtimes、movies、seats）：交易 3 买的票：电影、座位、价格。输出 <code>title, row_label, seat_no, price</code>。',
       cols: 'title, row_label, seat_no, price', ref: 'SELECT m.title, se.row_label, se.seat_no, t.price FROM tickets t JOIN showtimes st ON st.show_id = t.show_id JOIN movies m ON m.movie_id = st.movie_id JOIN seats se ON se.seat_id = t.seat_id WHERE t.transaction_id = 3;',
       hints: ['票 → 场次 → 电影；票 → 座位'] },
-    { id: 'Q7', title: '2 LEFT JOIN · 电影院', prompt: '<b>电影院</b>（movies、showtimes）：每部电影排了几场，一场没排的显示 0。输出 <code>title, shows</code>。',
+    { id: 'Q7', les: 'b', title: '2 LEFT JOIN · 电影院', prompt: '<b>电影院</b>（movies、showtimes）：每部电影排了几场，一场没排的显示 0。输出 <code>title, shows</code>。',
       cols: 'title, shows', ref: 'SELECT m.title, COUNT(st.show_id) AS shows FROM movies m LEFT JOIN showtimes st ON st.movie_id = m.movie_id GROUP BY m.movie_id, m.title;',
       hints: ['从 movies 出发 LEFT JOIN', 'COUNT(st.show_id)，不是 COUNT(*)'] },
-    { id: 'Q8', title: '2 ON 还是 WHERE · 共享单车', prompt: '<b>共享单车</b>（stations、rides）：每个车站最近 30 天（<code>start_time ≥ 2026-10-05</code>）作为出发站的次数，0 次的也列出。输出 <code>name, rides</code>。',
+    { id: 'Q8', les: 'b', title: '2 ON 还是 WHERE · 共享单车', prompt: '<b>共享单车</b>（stations、rides）：每个车站最近 30 天（<code>start_time ≥ 2026-10-05</code>）作为出发站的次数，0 次的也列出。输出 <code>name, rides</code>。',
       cols: 'name, rides', ref: "SELECT s.name, COUNT(r.ride_id) AS rides FROM stations s LEFT JOIN rides r ON r.start_station_id = s.station_id AND r.start_time >= '2026-10-05' GROUP BY s.station_id, s.name;",
       hints: ['时间条件写在 ON 里', 'COUNT(r.ride_id)'] },
-    { id: 'Q9', title: '3 分组 · 图书馆', prompt: '<b>图书馆</b>（copies、books）：每个分馆、每种类型各有几个副本。输出 <code>branch, genre, copies</code>。',
+    { id: 'Q9', les: 'c', title: '3 分组 · 图书馆', prompt: '<b>图书馆</b>（copies、books）：每个分馆、每种类型各有几个副本。输出 <code>branch, genre, copies</code>。',
       cols: 'branch, genre, copies', ref: 'SELECT c.branch, b.genre, COUNT(*) AS copies FROM copies c JOIN books b ON b.book_id = c.book_id GROUP BY c.branch, b.genre;',
       hints: ['按两列分组：GROUP BY c.branch, b.genre'] },
-    { id: 'Q10', title: '3 HAVING · 共享单车', prompt: '<b>共享单车</b>（rides、stations）：作为出发站至少 7 次的车站。输出 <code>name, rides</code>。',
+    { id: 'Q10', les: 'c', title: '3 HAVING · 共享单车', prompt: '<b>共享单车</b>（rides、stations）：作为出发站至少 7 次的车站。输出 <code>name, rides</code>。',
       cols: 'name, rides', ref: 'SELECT s.name, COUNT(*) AS rides FROM rides r JOIN stations s ON s.station_id = r.start_station_id GROUP BY s.station_id, s.name HAVING COUNT(*) >= 7;',
       hints: ['HAVING COUNT(*) >= 7'] },
-    { id: 'Q11', title: '3 COUNT DISTINCT · 电影院', prompt: '<b>电影院</b>（customers、transactions、tickets、showtimes）：每位顾客看过几部不同的电影。输出 <code>name, movies</code>。',
+    { id: 'Q11', les: 'c', title: '3 COUNT DISTINCT · 电影院', prompt: '<b>电影院</b>（customers、transactions、tickets、showtimes）：每位顾客看过几部不同的电影。输出 <code>name, movies</code>。',
       cols: 'name, movies', ref: 'SELECT c.name, COUNT(DISTINCT st.movie_id) AS movies FROM customers c JOIN transactions tr ON tr.customer_id = c.customer_id JOIN tickets t ON t.transaction_id = tr.transaction_id JOIN showtimes st ON st.show_id = t.show_id GROUP BY c.customer_id, c.name;',
       hints: ['顾客 → 交易 → 票 → 场次', 'COUNT(DISTINCT st.movie_id)'] },
-    { id: 'Q12', title: '3 条件计数 · 酒店', prompt: '<b>酒店</b>（reservations、guests）：每位客人一共几个预订、其中几个取消、取消率百分之几（保留 1 位小数）。输出 <code>name, total, cancelled, pct</code>。',
+    { id: 'Q12', les: 'c', title: '3 条件计数 · 酒店', prompt: '<b>酒店</b>（reservations、guests）：每位客人一共几个预订、其中几个取消、取消率百分之几（保留 1 位小数）。输出 <code>name, total, cancelled, pct</code>。',
       cols: 'name, total, cancelled, pct', ref: "SELECT g.name, COUNT(*) AS total, SUM(r.status = 'cancelled') AS cancelled, ROUND(100.0 * SUM(r.status = 'cancelled') / COUNT(*), 1) AS pct FROM reservations r JOIN guests g ON g.guest_id = r.guest_id GROUP BY g.guest_id, g.name;",
       hints: ["SUM(r.status = 'cancelled')", '比率：100.0 * 取消数 / COUNT(*)，再 ROUND(…, 1)'] },
-    { id: 'Q13', title: '3 平均时长 · 共享单车', prompt: '<b>共享单车</b>（rides）：会员（member）和日票（day_pass）各骑了几次、平均每次几分钟（保留 1 位小数）。只算已经结束的骑行。输出 <code>pass_type, rides, avg_min</code>。',
+    { id: 'Q13', les: 'c', title: '3 平均时长 · 共享单车', prompt: '<b>共享单车</b>（rides）：会员（member）和日票（day_pass）各骑了几次、平均每次几分钟（保留 1 位小数）。只算已经结束的骑行。输出 <code>pass_type, rides, avg_min</code>。',
       cols: 'pass_type, rides, avg_min', ref: 'SELECT pass_type, COUNT(*) AS rides, ROUND(AVG((julianday(end_time) - julianday(start_time)) * 24 * 60), 1) AS avg_min FROM rides WHERE end_time IS NOT NULL GROUP BY pass_type;',
       hints: ['WHERE end_time IS NOT NULL', '分钟：(julianday(end_time) - julianday(start_time)) * 24 * 60'] },
-    { id: 'Q14', title: '3 平均 · 酒店', prompt: '<b>酒店</b>（reservations、rooms、room_types）：每种房型的平均每晚成交价（<code>nightly_rate</code>，不算取消，保留 2 位小数）。输出 <code>name, avg_rate</code>。',
+    { id: 'Q14', les: 'c', title: '3 平均 · 酒店', prompt: '<b>酒店</b>（reservations、rooms、room_types）：每种房型的平均每晚成交价（<code>nightly_rate</code>，不算取消，保留 2 位小数）。输出 <code>name, avg_rate</code>。',
       cols: 'name, avg_rate', ref: "SELECT rt.name, ROUND(AVG(r.nightly_rate), 2) AS avg_rate FROM reservations r JOIN rooms rm ON rm.room_id = r.room_id JOIN room_types rt ON rt.type_id = rm.type_id WHERE r.status <> 'cancelled' GROUP BY rt.type_id, rt.name;",
       hints: ['预订 → 房间 → 房型', "WHERE r.status <> 'cancelled'"] },
-    { id: 'Q15', title: '4 NOT IN · 酒店', prompt: '<b>酒店</b>（guests、reservations）：从来没有取消过预订的客人。输出 <code>name</code>。',
+    { id: 'Q15', les: 'd', title: '4 NOT IN · 酒店', prompt: '<b>酒店</b>（guests、reservations）：从来没有取消过预订的客人。输出 <code>name</code>。',
       cols: 'name', ref: "SELECT name FROM guests WHERE guest_id NOT IN (SELECT guest_id FROM reservations WHERE status = 'cancelled');",
       hints: ["NOT IN (SELECT guest_id FROM reservations WHERE status = 'cancelled')"] },
-    { id: 'Q16', title: '4 NOT EXISTS · 共享单车', prompt: '<b>共享单车</b>（riders、repair_reports）：从来没报过修的骑手。注意报修表里有一条 rider_id 是 NULL。输出 <code>name</code>。',
+    { id: 'Q16', les: 'd', title: '4 NOT EXISTS · 共享单车', prompt: '<b>共享单车</b>（riders、repair_reports）：从来没报过修的骑手。注意报修表里有一条 rider_id 是 NULL。输出 <code>name</code>。',
       cols: 'name', ref: 'SELECT ri.name FROM riders ri WHERE NOT EXISTS (SELECT 1 FROM repair_reports rr WHERE rr.rider_id = ri.rider_id);',
       hints: ['NOT IN 遇到 NULL 会一行不剩', 'NOT EXISTS (SELECT 1 FROM repair_reports rr WHERE rr.rider_id = ri.rider_id)'] },
-    { id: 'Q17', title: '4 标量子查询 · 电影院', prompt: '<b>电影院</b>（tickets、showtimes、movies）：平均票价高于全部票平均价的电影。输出 <code>title, avg_price</code>（保留 2 位小数）。',
+    { id: 'Q17', les: 'd', title: '4 标量子查询 · 电影院', prompt: '<b>电影院</b>（tickets、showtimes、movies）：平均票价高于全部票平均价的电影。输出 <code>title, avg_price</code>（保留 2 位小数）。',
       cols: 'title, avg_price', ref: 'SELECT m.title, ROUND(AVG(t.price), 2) AS avg_price FROM tickets t JOIN showtimes st ON st.show_id = t.show_id JOIN movies m ON m.movie_id = st.movie_id GROUP BY m.movie_id, m.title HAVING AVG(t.price) > (SELECT AVG(price) FROM tickets);',
       hints: ['HAVING AVG(t.price) > (SELECT AVG(price) FROM tickets)'] },
-    { id: 'Q18', title: '4 EXISTS · 图书馆', prompt: '<b>图书馆</b>（members、loans）：现在手上有没还的书的读者，每人只出现一次。输出 <code>name</code>。',
+    { id: 'Q18', les: 'd', title: '4 EXISTS · 图书馆', prompt: '<b>图书馆</b>（members、loans）：现在手上有没还的书的读者，每人只出现一次。输出 <code>name</code>。',
       cols: 'name', ref: 'SELECT m.name FROM members m WHERE EXISTS (SELECT 1 FROM loans l WHERE l.member_id = m.member_id AND l.return_date IS NULL);',
       hints: ['EXISTS (… WHERE l.member_id = m.member_id AND l.return_date IS NULL)', '用 JOIN 的话要加 DISTINCT'] },
-    { id: 'Q19', title: '5 按月 · 共享单车', prompt: '<b>共享单车</b>（rides）：2026 年每个月的骑行次数。输出 <code>month, rides</code>（month 形如 2026-03），按月份排序。',
+    { id: 'Q19', les: 'e', title: '5 按月 · 共享单车', prompt: '<b>共享单车</b>（rides）：2026 年每个月的骑行次数。输出 <code>month, rides</code>（month 形如 2026-03），按月份排序。',
       cols: 'month, rides', ordered: true, ref: "SELECT strftime('%Y-%m', start_time) AS month, COUNT(*) AS rides FROM rides WHERE start_time >= '2026-01-01' GROUP BY month ORDER BY month;",
       hints: ["strftime('%Y-%m', start_time)", "WHERE start_time >= '2026-01-01'"] },
-    { id: 'Q20', title: '5 晚数 · 酒店', prompt: '<b>酒店</b>（reservations）：住 7 晚及以上的预订（不算取消）。输出 <code>res_id, check_in, check_out, nights</code>。',
+    { id: 'Q20', les: 'e', title: '5 晚数 · 酒店', prompt: '<b>酒店</b>（reservations）：住 7 晚及以上的预订（不算取消）。输出 <code>res_id, check_in, check_out, nights</code>。',
       cols: 'res_id, check_in, check_out, nights', ref: "SELECT res_id, check_in, check_out, julianday(check_out) - julianday(check_in) AS nights FROM reservations WHERE status <> 'cancelled' AND julianday(check_out) - julianday(check_in) >= 7;",
       hints: ['julianday(check_out) - julianday(check_in)', 'WHERE 里不能用别名 nights，把表达式再写一遍'] },
-    { id: 'Q21', title: '5 最近一次 · 共享单车', prompt: '<b>共享单车</b>（riders、rides）：每个骑手最近一次出发的时间。输出 <code>name, last_ride</code>。',
+    { id: 'Q21', les: 'e', title: '5 最近一次 · 共享单车', prompt: '<b>共享单车</b>（riders、rides）：每个骑手最近一次出发的时间。输出 <code>name, last_ride</code>。',
       cols: 'name, last_ride', ref: 'SELECT ri.name, MAX(r.start_time) AS last_ride FROM riders ri JOIN rides r ON r.rider_id = ri.rider_id GROUP BY ri.rider_id, ri.name;',
       hints: ['MAX(r.start_time)：日期文本最大的就是最近的'] },
-    { id: 'Q22', title: '5 重叠 · 酒店', prompt: '<b>酒店</b>（rooms、reservations）：Riverfront（<code>hotel_id = 1</code>）哪些房间 <b>11 月 20 日入住、23 日退房</b>整段都空着？取消的预订不占房。输出 <code>room_no</code>。',
+    { id: 'Q22', les: 'e', title: '5 重叠 · 酒店', prompt: '<b>酒店</b>（rooms、reservations）：Riverfront（<code>hotel_id = 1</code>）哪些房间 <b>11 月 20 日入住、23 日退房</b>整段都空着？取消的预订不占房。输出 <code>room_no</code>。',
       cols: 'room_no', ref: "SELECT room_no FROM rooms rm WHERE rm.hotel_id = 1 AND NOT EXISTS (SELECT 1 FROM reservations r WHERE r.room_id = rm.room_id AND r.status <> 'cancelled' AND r.check_in < '2026-11-23' AND '2026-11-20' < r.check_out);",
       hints: ['重叠：r.check_in < 新退房日 AND 新入住日 < r.check_out', '「整段都空」= 不存在重叠的有效预订：NOT EXISTS'] },
-    { id: 'Q23', title: '5 每组第一 · 酒店', prompt: '<b>酒店</b>（reservations、rooms、hotels、room_types）：每家酒店收入最高的房型（不算取消；收入 = nightly_rate × 晚数）。输出 <code>hotel, type, revenue</code>。',
+    { id: 'Q23', les: 'e', title: '5 每组第一 · 酒店', prompt: '<b>酒店</b>（reservations、rooms、hotels、room_types）：每家酒店收入最高的房型（不算取消；收入 = nightly_rate × 晚数）。输出 <code>hotel, type, revenue</code>。',
       cols: 'hotel, type, revenue', ref: "SELECT hotel, type, revenue FROM (SELECT h.name AS hotel, rt.name AS type, SUM(r.nightly_rate * (julianday(r.check_out) - julianday(r.check_in))) AS revenue, ROW_NUMBER() OVER (PARTITION BY h.hotel_id ORDER BY SUM(r.nightly_rate * (julianday(r.check_out) - julianday(r.check_in))) DESC) AS rn FROM reservations r JOIN rooms rm ON rm.room_id = r.room_id JOIN hotels h ON h.hotel_id = rm.hotel_id JOIN room_types rt ON rt.type_id = rm.type_id WHERE r.status <> 'cancelled' GROUP BY h.hotel_id, h.name, rt.type_id, rt.name) WHERE rn = 1;",
       hints: ['先按酒店 + 房型分组算收入', 'ROW_NUMBER() OVER (PARTITION BY h.hotel_id ORDER BY 收入 DESC)，外层 WHERE rn = 1'] },
-    { id: 'Q24', dml: true, title: '6 UPDATE · 共享单车', prompt: '<b>共享单车</b>（rides）：骑行 36 结束了，停在车站 3，时间 2026-11-04 09:00。只改这一次骑行，而且只在它还没结束时才改。',
+    { id: 'Q24', les: 'f', dml: true, title: '6 UPDATE · 共享单车', prompt: '<b>共享单车</b>（rides）：骑行 36 结束了，停在车站 3，时间 2026-11-04 09:00。只改这一次骑行，而且只在它还没结束时才改。',
       cols: '检查：所有骑行的 ride_id, end_station_id, end_time', check: 'SELECT ride_id, end_station_id, end_time FROM rides ORDER BY ride_id;',
       ref: "UPDATE rides SET end_station_id = 3, end_time = '2026-11-04 09:00' WHERE ride_id = 36 AND end_time IS NULL;",
       hints: ['UPDATE … SET 两列 … WHERE ride_id = 36 AND end_time IS NULL'] },
-    { id: 'Q25', dml: true, title: '6 INSERT · 酒店', prompt: '<b>酒店</b>（reservations）：客人 7 订 Riverfront 301 号房（<code>room_id = 7</code>），12 月 1 日入住、12 月 3 日退房，每晚 159，状态 booked，下单日 2026-11-04。<code>res_id</code> 让数据库自动生成。',
+    { id: 'Q25', les: 'f', dml: true, title: '6 INSERT · 酒店', prompt: '<b>酒店</b>（reservations）：客人 7 订 Riverfront 301 号房（<code>room_id = 7</code>），12 月 1 日入住、12 月 3 日退房，每晚 159，状态 booked，下单日 2026-11-04。<code>res_id</code> 让数据库自动生成。',
       cols: '检查：客人 7 的所有预订', check: 'SELECT guest_id, room_id, check_in, check_out, nightly_rate, status, booked_on FROM reservations WHERE guest_id = 7 ORDER BY check_in;',
       ref: "INSERT INTO reservations (guest_id, room_id, check_in, check_out, nightly_rate, status, booked_on) VALUES (7, 7, '2026-12-01', '2026-12-03', 159, 'booked', '2026-11-04');",
       hints: ['写清列名，不写 res_id', "VALUES (7, 7, '2026-12-01', '2026-12-03', 159, 'booked', '2026-11-04')"] },
-    { id: 'Q26', dml: true, title: '6 DELETE · 电影院', prompt: '<b>电影院</b>（tickets）：交易 30 退掉场次 12356 座位 3 的那张票（真实系统里更常见的是改状态，这里练 DELETE）。',
+    { id: 'Q26', les: 'f', dml: true, title: '6 DELETE · 电影院', prompt: '<b>电影院</b>（tickets）：交易 30 退掉场次 12356 座位 3 的那张票（真实系统里更常见的是改状态，这里练 DELETE）。',
       cols: '检查：场次 12356 剩下的票', check: 'SELECT ticket_id, transaction_id, seat_id FROM tickets WHERE show_id = 12356 ORDER BY ticket_id;',
       ref: 'DELETE FROM tickets WHERE transaction_id = 30 AND show_id = 12356 AND seat_id = 3;',
       hints: ['DELETE FROM tickets WHERE … 三个条件同时满足'] },
-    { id: 'Q27', dml: true, title: '6 事务 · 共享单车', prompt: '<b>共享单车</b>（repair_reports、bikes）：车 13 修好了。把它所有还没解决的报修记为 2026-11-04 09:00 解决，并把车 13 的状态改回 ok。两步放进一个事务。',
+    { id: 'Q27', les: 'f', dml: true, title: '6 事务 · 共享单车', prompt: '<b>共享单车</b>（repair_reports、bikes）：车 13 修好了。把它所有还没解决的报修记为 2026-11-04 09:00 解决，并把车 13 的状态改回 ok。两步放进一个事务。',
       cols: '检查：每辆车的状态和未解决的报修数', check: 'SELECT b.bike_id, b.status, (SELECT COUNT(*) FROM repair_reports r WHERE r.bike_id = b.bike_id AND r.resolved_at IS NULL) AS open_reports FROM bikes b ORDER BY b.bike_id;',
       ref: "BEGIN;\nUPDATE repair_reports SET resolved_at = '2026-11-04 09:00' WHERE bike_id = 13 AND resolved_at IS NULL;\nUPDATE bikes SET status = 'ok' WHERE bike_id = 13;\nCOMMIT;",
       hints: ['BEGIN; 两句 UPDATE; COMMIT;', '报修那句要加 resolved_at IS NULL'] },
@@ -14347,9 +14393,9 @@ function render() {
   const main = $('#main');
   main.innerHTML = '';
   main.className = 'v-' + ui.view;
-  if (['chapter', 'lesson', 'practice', 'boss', 'sheet'].includes(ui.view) && !CH(ui.ch)) ui.view = 'home';
+  if (['chapter', 'lesson', 'practice', 'boss', 'sheet', 'read'].includes(ui.view) && !CH(ui.ch)) ui.view = 'home';
   if (ui.view === 'sheet' && !CH(ui.ch).sheet) ui.view = 'chapter';
-  ({ home: renderHome, chapter: renderChapter, lesson: renderRunner, boss: renderRunner, mix: renderRunner, practice: renderPractice, review: renderReview, exam: renderExam, sheet: renderSheet })[ui.view](main);
+  ({ home: renderHome, chapter: renderChapter, lesson: renderRunner, boss: renderRunner, mix: renderRunner, practice: renderPractice, review: renderReview, exam: renderExam, sheet: renderSheet, read: renderRead })[ui.view](main);
   refreshHeader();
 }
 
@@ -14367,7 +14413,7 @@ function renderHome(main) {
       <div class="hh-stats"><span><b>${done}</b> / ${total} 小课</span><span>${icon('star')}<b>${M.totalStars()}</b> 星</span><span>${icon('bolt')}<b>${streak()}</b> 天连续</span></div>
     </div>`;
   if (nx) {
-    const card = btn('continue', `<span class="cont-k">${done ? '继续学习' : '从这里开始'}</span><span class="cont-ch">第 ${nx.ch.no} 章 · ${esc(nx.ch.title)}</span><b class="cont-l">${esc(nx.l.title)}</b><span class="cont-m">${nx.l.min} 分钟 · ${nx.l.screens.length} 屏</span><span class="cont-go">${icon('play')}</span>`, () => go('lesson', { ch: nx.ch.id, les: nx.l.id, i: 0 }));
+    const card = btn('continue', `<span class="cont-k">${done ? '继续学习' : '从这里开始'}</span><span class="cont-ch">第 ${nx.ch.no} 章 · ${esc(nx.ch.title)}</span><b class="cont-l">${esc(nx.l.title)}</b><span class="cont-m">${nx.l.min} 分钟 · ${nx.l.screens.length} 屏</span><span class="cont-go">${icon('play')}</span>`, () => openLesson(nx.ch, nx.l.id));
     card.style.setProperty('--h', nx.ch.hue);
     hero.append(card);
   }
@@ -14434,7 +14480,7 @@ function renderChapter(main) {
       <div class="ch-ring"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15.5" class="ring-bg"/><circle cx="18" cy="18" r="15.5" class="ring-fg" style="stroke-dashoffset:${97.4 * (1 - p)}"/></svg><b>${pct(p)}</b></div></div>
     </div>`;
   $('[data-go]', hero).onclick = () => go('home');
-  const cta = btn('btn primary big', `${icon('play')}${M.lessonsDone(ch) ? (M.lessonsDone(ch) === ch.lessons.length ? '从头复习一遍' : `继续：${esc(nx.title)}`) : `开始第 1 课`}`, () => go('lesson', { ch: ch.id, les: nx.id, i: 0 }));
+  const cta = btn('btn primary big', `${icon('play')}${M.lessonsDone(ch) ? (M.lessonsDone(ch) === ch.lessons.length ? '从头复习一遍' : `继续：${esc(nx.title)}`) : `开始第 1 课`}`, () => openLesson(ch, nx.id));
   $('.ch-hero-in', hero).append(cta);
   main.append(hero);
   const body = el('div', 'ch-body wrap');
@@ -14443,7 +14489,7 @@ function renderChapter(main) {
   ch.lessons.forEach((l, i) => {
     const r = st.les[l.id];
     const nI = l.screens.filter(isInter).length;
-    const b = btn('lnode' + (r?.done ? ' done' : '') + (l === nx && !r?.done ? ' next' : ''), `<span class="ln-dot">${r?.done ? icon('check') : i + 1}</span><span class="ln-main"><b>${esc(l.title)}</b><span>${l.min} 分钟 · ${l.screens.length} 屏 · ${nI} 个互动</span></span><span class="ln-stars">${[0, 1, 2].map((k) => `<i class="${k < (r?.stars || 0) ? 'on' : ''}">${icon('star')}</i>`).join('')}</span>`, () => go('lesson', { ch: ch.id, les: l.id, i: 0 }));
+    const b = btn('lnode' + (r?.done ? ' done' : '') + (l === nx && !r?.done ? ' next' : ''), `<span class="ln-dot">${r?.done ? icon('check') : i + 1}</span><span class="ln-main"><b>${esc(l.title)}</b><span>${ch.read ? `一页读完${(ch.practice || []).some((p) => p.les === l.id) ? ` · 然后练 ${(ch.practice || []).filter((p) => p.les === l.id).length} 道题` : ' · 然后考一场模拟考试'}` : `${l.min} 分钟 · ${l.screens.length} 屏 · ${nI} 个互动`}</span></span>${ch.read ? '' : `<span class="ln-stars">${[0, 1, 2].map((k) => `<i class="${k < (r?.stars || 0) ? 'on' : ''}">${icon('star')}</i>`).join('')}</span>`}`, () => openLesson(ch, l.id));
     path.append(b);
   });
   body.append(path);
@@ -14469,6 +14515,130 @@ function renderChapter(main) {
   main.append(body);
 }
 
+/* ───────── reading view (chapters with `read: true`) ─────────
+   The whole lesson on one scrolling page: concepts and demos shown flat, questions shown with their answer,
+   only the SQL editors stay interactive. Same lesson data as the screen-by-screen runner. */
+function openLesson(ch, lesId) {
+  if (ch.read) go('read', { ch: ch.id, les: lesId });
+  else go('lesson', { ch: ch.id, les: lesId, i: 0 });
+}
+/* one-line reference SQL → one clause per line, so it reads without sideways scrolling */
+const sqlLines = (q) => (q.includes('\n') ? q : q.replace(/\s+(FROM|LEFT JOIN|JOIN|WHERE|GROUP BY|HAVING|ORDER BY|LIMIT)\s/g, '\n$1 ').replace(/\s+AND\s/g, '\n  AND '));
+const RD_TAG = { idea: '用法', vs: '对比', list: '要点', quiz: '例子', predict: '易错', fill: '例子', order: '顺序', sort: '分类', match: '对照', sql: '例子', code: '逐行看', flow: '流程', grid: '对照表', er: '表结构', rows: '一步步看', join: 'JOIN 演示' };
+function rdBlock(s, ch) {
+  const b = el('section', 'rd-b rd-' + s.t);
+  const head = (t) => `${RD_TAG[s.t] ? `<span class="rd-tag">${RD_TAG[s.t]}</span>` : ''}${t ? `<h3>${esc(t)}</h3>` : ''}`;
+  const steps = (frames) => `<ol class="rd-steps">${frames.map((f) => `<li>${f.text}</li>`).join('')}</ol>`;
+  const answer = (html) => `<div class="rd-ans">${icon('check')}<div>${html}</div></div>`;
+  const ctx = { ch: ch.id, seed: ch.db, done: () => {}, stars: null };
+  switch (s.t) {
+    case 'hook':
+      b.innerHTML = `<p class="rd-hook">${s.big}${s.sub ? `<span>${s.sub}</span>` : ''}</p>`;
+      break;
+    case 'idea': case 'vs': case 'list': case 'recap': case 'join': {
+      b.innerHTML = head(s.t === 'recap' ? '这一课的要点' : s.title);
+      const inner = el('div');
+      SCR[s.t](s, inner, ctx);
+      b.append(inner);
+      break;
+    }
+    case 'code': {
+      const lines = s.code.split('\n');
+      const pick = (n) => (n.lines ? (n.lines.length === 2 && n.lines[1] > n.lines[0] + 1 ? Array.from({ length: n.lines[1] - n.lines[0] + 1 }, (_, k) => n.lines[0] + k) : n.lines) : [n.line]);
+      b.innerHTML = head(s.title) + codeBlock(s.code, s.lang || 'sql') +
+        `<ul class="rd-notes">${s.notes.map((n) => `<li><code>${esc(pick(n).map((k) => (lines[k] || '').trim()).filter(Boolean).join('  ·  ').slice(0, 70))}</code><span>${n.text}</span></li>`).join('')}</ul>`;
+      break;
+    }
+    case 'flow':
+      b.innerHTML = head(s.title) + `<div class="rd-flow">${s.nodes.map((n, i) => `<span class="rd-node ${cat(i)}">${icon(n.icon || 'arrow')}<b>${esc(n.label)}</b>${n.sub ? `<i>${esc(n.sub)}</i>` : ''}</span>`).join('<span class="rd-arrow">→</span>')}</div>` + steps(s.frames);
+      break;
+    case 'grid': {
+      let cells = null;
+      s.frames.forEach((f) => { if (f.cells) cells = f.cells; });
+      const cl = s.frames.find((f) => f.colLabels)?.colLabels || s.colLabels;
+      const rl = s.frames.find((f) => f.rowLabels)?.rowLabels || s.rowLabels;
+      b.innerHTML = head(s.title) + staticTable(['', ...(cl || cells[0].map((_, i) => i))], cells.map((r, i) => [rl ? rl[i] : i, ...r]), 'rd-grid') + steps(s.frames);
+      break;
+    }
+    case 'er': {
+      b.innerHTML = head(s.title);
+      const inner = el('div');
+      SCR.er(Object.assign({}, s, { frames: null }), inner);
+      b.append(inner);
+      if (s.frames) b.insertAdjacentHTML('beforeend', steps(s.frames));
+      break;
+    }
+    case 'rows':
+      b.innerHTML = head(s.title) + (s.sql ? codeBlock(s.sql, 'sql') : '') + staticTable(s.cols, s.rows.map((r) => r.v), 'mini') + steps(s.frames);
+      break;
+    case 'quiz': case 'predict':
+      b.innerHTML = head(s.title) + (s.t === 'predict' ? codeBlock(s.code, s.lang || 'sql') : '') + `<div class="q">${s.q || '运行结果是？'}</div>` +
+        (s.t === 'quiz' && s.code ? codeBlock(s.code, s.lang || 'sql') : '') + dataTables(s) + answer(`<b>${esc(s.opts[s.a])}</b><p>${s.why || ''}</p>`);
+      break;
+    case 'fill': {
+      const filled = s.tpl.replace(/\{(\d)\}/g, (_, k) => `\u0001${s.blanks[+k].a[0]}\u0002`);
+      const html = esc(filled).replace(/\u0001/g, '<mark class="rd-fill">').replace(/\u0002/g, '</mark>');
+      b.innerHTML = head(s.title) + `<div class="q">${s.q}</div>` + dataTables(s) + `<pre class="code"><code>${html}</code></pre>` + (s.why ? answer(`<p>${s.why}</p>`) : '');
+      break;
+    }
+    case 'order':
+      b.innerHTML = head(s.title) + `<div class="q">${s.q}</div><ol class="rd-order">${s.parts.map((p) => `<li><code>${esc(p)}</code></li>`).join('')}</ol>` + (s.why ? answer(`<p>${s.why}</p>`) : '');
+      break;
+    case 'sort':
+      b.innerHTML = head(s.title) + `<div class="q">${s.q}</div><div class="rd-buckets">${s.buckets.map((bk, i) => `<div class="rd-bucket ${cat(i)}"><b>${esc(bk)}</b><ul>${s.items.filter((it) => it[1] === i).map((it) => `<li>${esc(it[0])}</li>`).join('')}</ul></div>`).join('')}</div>` + (s.why ? answer(`<p>${s.why}</p>`) : '');
+      break;
+    case 'match':
+      b.innerHTML = head(s.title) + `<div class="q">${s.q}</div><div class="rd-pairs">${s.pairs.map(([a, c], i) => `<div class="rd-pair ${cat(i)}"><span>${esc(a)}</span><span class="rd-arrow">→</span><code>${esc(c)}</code></div>`).join('')}</div>` + (s.why ? answer(`<p>${s.why}</p>`) : '');
+      break;
+    case 'sql':
+      // reading = examples only; writing it yourself happens in the practice at the end
+      b.innerHTML = head(s.title) + `<div class="q">${s.task}</div>` + codeBlock(sqlLines(s.check || s.sql || ''), 'sql') +
+        (s.hint ? `<div class="note tip"><span class="note-tag">要点</span><div>${esc(s.hint)}</div></div>` : '');
+      break;
+    default: {
+      const inner = el('div');
+      SCR[s.t] && SCR[s.t](s, inner, ctx);
+      b.append(inner);
+    }
+  }
+  return b;
+}
+function renderRead(main) {
+  const ch = CH(ui.ch);
+  const les = ch.lessons.find((l) => l.id === ui.les) || ch.lessons[0];
+  const li = ch.lessons.indexOf(les);
+  setHue(ch.hue);
+  const wrap = el('div', 'wrap rd');
+  wrap.innerHTML = `<div class="rd-top"><button type="button" class="crumb">${icon('back')}第 ${ch.no} 章 · ${esc(ch.title)}</button>
+    <nav class="rd-tabs" aria-label="本章各课">${ch.lessons.map((l, i) => `<button type="button" data-l="${l.id}" class="${l === les ? 'on' : ''} ${chs(ch.id).les[l.id]?.done ? 'done' : ''}">${i + 1}. ${esc(l.title)}</button>`).join('')}</nav>
+    <h1>${esc(les.title)}</h1></div>`;
+  $('.crumb', wrap).onclick = () => go('chapter', { ch: ch.id });
+  $$('[data-l]', wrap).forEach((b) => (b.onclick = () => go('read', { ch: ch.id, les: b.dataset.l })));
+  les.screens.forEach((s) => wrap.append(rdBlock(s, ch)));
+  const nx = ch.lessons[li + 1];
+  const finish = btn('btn primary big', `${icon('check')}学完了${nx ? `，下一课：${esc(nx.title)}` : '，回到本章'}`, () => {
+    const st = chs(ch.id);
+    const prev = st.les[les.id];
+    st.les[les.id] = { done: true, stars: Math.max(prev?.stars || 0, 3), at: Date.now(), n: (prev?.n || 0) + 1 };
+    const nn = ch.lessons.find((l) => !st.les[l.id]?.done);
+    S.last = { ch: ch.id, les: nn ? nn.id : les.id };
+    save();
+    Sound.play('done');
+    if (nx) go('read', { ch: ch.id, les: nx.id });
+    else { confetti(ch.hue); go('chapter', { ch: ch.id }); }
+  });
+  const end = el('div', 'rd-end');
+  // pure practice for this lesson: exercises tagged with `les`, else the whole chapter's practice
+  const mine = (ch.practice || []).filter((p) => p.les === les.id);
+  if (mine.length) end.append(btn('btn primary big', `${icon('code')}练这一课：${mine.length} 道题`, () => go('practice', { ch: ch.id, ex: mine[0].id })));
+  else end.append(btn('btn primary big', `${icon('clock')}去模拟考试练一场`, () => exOpenList()));
+  finish.className = 'btn big';
+  end.prepend(el('p', 'rd-end-t', mine.length ? '读完就直接做题：只给题目，写完自动判分，答案要你点了才显示。' : '读完就去练：挑一道模拟考试题，用这一课的模板答一遍。'));
+  end.append(finish);
+  wrap.append(end);
+  main.append(wrap);
+}
+
 /* ───────── one-page template sheet (chapters with `sheet`) ─────────
    [slot] in a `say` line or in `code` is shown as a blank to fill with the prompt's own words */
 function renderSheet(main) {
@@ -14492,7 +14662,7 @@ function renderSheet(main) {
   wrap.append(list);
   const row = el('div', 'btnrow');
   const first = ch.lessons[0];
-  row.append(btn('btn primary', `${icon('play')}从第 1 课开始学`, () => go('lesson', { ch: ch.id, les: first.id, i: 0 })), btn('btn', `${icon('clock')}拿模板去模拟考试`, () => exOpenList()));
+  row.append(btn('btn primary', `${icon('play')}从第 1 课开始学`, () => openLesson(ch, first.id)), btn('btn', `${icon('clock')}拿模板去模拟考试`, () => exOpenList()));
   wrap.append(row);
   main.append(wrap);
 }
