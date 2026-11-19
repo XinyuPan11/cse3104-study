@@ -11018,7 +11018,7 @@ window.CHAPTERS.push({
             else J.push({ k: 'j0_' + id, v: [id, title, null], mid: id, title, miss: true });
           });
           const keys = (f) => J.filter(f).map((r) => r.k);
-          const all = (fn) => Object.fromEntries(J.map((r) => [r.k, fn(r)]));
+          const all = (fn) => Object.fromEntries(J.map((r) => [r.k, fn(r)]).filter(([, v]) => v));
           const miss = 'j0_8';
           const count = (id) => ST.filter((s) => s[1] === id).length;
           return {
@@ -11056,11 +11056,50 @@ window.CHAPTERS.push({
           sql: '-- 从 movies 出发 LEFT JOIN showtimes，再分组计数\nSELECT m.title\nFROM movies m;',
           check: 'SELECT m.title, COUNT(st.show_id) AS shows FROM movies m LEFT JOIN showtimes st ON st.movie_id = m.movie_id GROUP BY m.movie_id, m.title;',
           hint: 'FROM movies m LEFT JOIN showtimes st ON st.movie_id = m.movie_id GROUP BY m.movie_id, m.title' },
-        { t: 'quiz', q: '<b>共享单车</b>：每个车站最近 30 天（<code>start_time ≥ 2026-10-05</code>）作为出发站的骑行次数，<b>0 次的车站也要列出</b>。Soulard Market 最近 30 天一次都没有。哪句能把它留下来？',
+        { t: 'quiz', q: '<b>共享单车</b>：要统计<b>每个车站</b>从 2026-10-05 起（含这天）一共出发了几次骑行。6 个车站<b>都要出现</b>，没有的写 0。<br>' +
+            '已知 <b>Soulard Market</b> 只在 <b>2026-06-27</b> 出发过 1 次，不在这段时间里，所以结果里应该有一行 <b>Soulard Market · 0</b>。<br>' +
+            '下面 A、B 只差一处：日期条件写在 <code>WHERE</code> 里，还是写在 <code>ON</code> 里。<b>哪一句的结果里有 Soulard Market · 0？</b>',
           code: "-- A\nSELECT s.name, COUNT(r.ride_id) AS rides\nFROM stations s\nLEFT JOIN rides r ON r.start_station_id = s.station_id\nWHERE r.start_time >= '2026-10-05'\nGROUP BY s.station_id, s.name;\n\n-- B\nSELECT s.name, COUNT(r.ride_id) AS rides\nFROM stations s\nLEFT JOIN rides r ON r.start_station_id = s.station_id\n                 AND r.start_time >= '2026-10-05'\nGROUP BY s.station_id, s.name;", lang: 'sql',
           opts: ['A', 'B', '两个都能', '两个都不能'], a: 1,
-          why: 'A 把条件写在 WHERE：Soulard 那一行的 r.start_time 是 NULL，被 WHERE 扔掉了，LEFT JOIN 白做。B 把条件写在 ON 里：只决定「哪些骑行配得上」，车站本身一个不少。<b>LEFT JOIN 右表的条件写在 ON 里。</b>' },
-        { t: 'sql', title: 'ON 里的条件 · 共享单车', task: '<b>共享单车</b>：每个车站最近 30 天（<code>start_time ≥ 2026-10-05</code>）作为出发站的骑行次数，0 次的车站也要列出。输出 <code>name, rides</code>。',
+          why: 'A 的结果只有 5 行，<b>Soulard Market 不见了</b>：LEFT JOIN 先给 Soulard 配上了它 6 月 27 日那次骑行，接着 WHERE 检查日期，2026-06-27 早于 10-05，就把这一行删掉，Soulard 一行都不剩。<br>' +
+            'B 把日期写进 ON：6 月那次骑行<b>配不上</b>，Soulard 一次都没配上，LEFT JOIN 照样保留它，右边填 NULL，<code>COUNT(r.ride_id)</code> 数出 0。下面的动画一步一步演示。<br><b>LEFT JOIN 时，右表的条件写在 ON 里。</b>' },
+        (() => {
+          // step-by-step A vs B on the real bikeshare data, following Union Station (control) and Soulard Market
+          const J = [
+            { k: 'a9', v: ['Union Station', 9, '2026-04-18 11:10'] }, { k: 'a20', v: ['Union Station', 20, '2026-07-25 18:30'] },
+            { k: 'a30', v: ['Union Station', 30, '2026-10-20 17:45'] }, { k: 'a17', v: ['Soulard Market', 17, '2026-06-27 19:00'] },
+            { k: 'b30', v: ['Union Station', 30, '2026-10-20 17:45'] }, { k: 'b0', v: ['Soulard Market', null, null] },
+          ];
+          const R = [
+            { k: 'rA5', v: ['Union Station', 1] }, { k: 'rA6', v: ['Soulard Market', '（没有这一行）'] },
+            { k: 'rB5', v: ['Union Station', 1] }, { k: 'rB6', v: ['Soulard Market', 0] },
+          ];
+          return {
+            t: 'rows', play: true, auto: false, interval: 3000, title: '一步一步看：日期条件写在 WHERE（A）和 ON（B）的区别',
+            intro: '只盯两个车站：<b>Union Station</b>（3 次骑行，用来对照）和 <b>Soulard Market</b>（只有 6 月 1 次）。其他车站道理一样。数据就是题目里的真实数据。',
+            sql: "-- A\nSELECT s.name, COUNT(r.ride_id) AS rides\nFROM stations s\nLEFT JOIN rides r ON r.start_station_id = s.station_id\nWHERE r.start_time >= '2026-10-05'\nGROUP BY s.station_id, s.name;\n\n-- B\nSELECT s.name, COUNT(r.ride_id) AS rides\nFROM stations s\nLEFT JOIN rides r ON r.start_station_id = s.station_id\n                 AND r.start_time >= '2026-10-05'\nGROUP BY s.station_id, s.name;",
+            cols: ['s.station_id', 's.name'],
+            rows: [[1, 'Delmar Loop'], [2, 'Danforth Campus'], [3, 'Forest Park North'], [4, 'Central West End'], [5, 'Union Station'], [6, 'Soulard Market']].map((v) => ({ k: 'st' + v[0], v })),
+            frames: [
+              { text: '起点：stations 有 6 个车站，题目要求<b>每一个都出现</b>。正确答案里应该有 <b>Union Station · 1</b>（10/20 那次）和 <b>Soulard Market · 0</b>。', lines: [2, 9],
+                hl: { st5: 'focus', st6: 'focus' }, badge: { st5: '对照', st6: '主角' } },
+              { text: '先看 <b>A</b>。它的 ON 只按车站配：Union Station 配上 3 次骑行，Soulard Market 配上它 6 月那 1 次。<br><b>注意：Soulard 是配上了的，不是 NULL。</b>', lines: [3],
+                cols: ['s.name', 'r.ride_id', 'r.start_time'], rows: J, show: ['a9', 'a20', 'a30', 'a17'], hl: { a9: 'new', a20: 'new', a30: 'new', a17: 'new' } },
+              { text: 'A 的 <b>WHERE r.start_time &gt;= \'2026-10-05\'</b>：拼好以后，一行一行检查日期。', lines: [4],
+                hl: { a9: 'fail', a20: 'fail', a30: 'pass', a17: 'fail' }, badge: { a9: '4/18 ✗', a20: '7/25 ✗', a30: '10/20 ✓', a17: '6/27 ✗' } },
+              { text: '不满足的行被删掉。Union Station 还剩 1 行；<b>Soulard Market 唯一的那一行也被删了</b>，它在表里一行都不剩。', lines: [4], show: ['a30'] },
+              { text: 'A 分组计数：Union Station · 1，对。<b>Soulard Market 根本不在结果里</b>，错。A 一共只有 5 行，LEFT JOIN 白做了。', lines: [5, 1],
+                cols: ['name', 'rides'], rows: R, show: ['rA5', 'rA6'], hl: { rA5: 'pass', rA6: 'fail' }, badge: { rA5: '1 ✓', rA6: '消失了 ✗' } },
+              { text: '再看 <b>B</b>：日期写进 <b>ON</b>，配对时<b>车站和日期都要满足</b>才算配上。Union Station 只有 10/20 那次配上；Soulard 6 月那次<b>配不上</b>，它一次都没配上，LEFT JOIN 保留它，右边填 <span class="null">NULL</span>。', lines: [10, 11],
+                cols: ['s.name', 'r.ride_id', 'r.start_time'], rows: J, show: ['b30', 'b0'], hl: { b30: 'new', b0: 'warn' }, badge: { b30: '10/20 ✓', b0: '没配上 → NULL' } },
+              { text: 'B 没有 WHERE，不会再删行。分组后 <b>COUNT(r.ride_id)</b>：Union Station 数到 1；Soulard 那行是 NULL，不数，得 <b>0</b>。', lines: [12, 8],
+                cols: ['name', 'rides'], rows: R, show: ['rB5', 'rB6'], hl: { rB5: 'pass', rB6: 'pass' }, badge: { rB5: '1 ✓', rB6: '0 ✓' } },
+              { text: '区别就一句：<b>WHERE 删的是拼好以后的整行</b>，车站跟着一起没了；<b>ON 里的条件只决定哪些骑行配得上</b>，左表的车站一个都不会少。所以 LEFT JOIN 时，右表的条件写在 ON 里。', lines: [10, 11],
+                hl: { rB6: 'pass' }, badge: { rB6: '0 ✓' } },
+            ],
+          };
+        })(),
+        { t: 'sql', title: 'ON 里的条件 · 共享单车', task: '<b>共享单车</b>：<b>每个车站</b>从 2026-10-05 起（<code>start_time &gt;= \'2026-10-05\'</code>）一共出发了几次骑行。6 个车站都要出现，没有的写 0。输出 <code>name, rides</code>。',
           sql: 'SELECT s.name, COUNT(r.ride_id) AS rides\nFROM stations s\nLEFT JOIN rides r ON r.start_station_id = s.station_id\n',
           check: "SELECT s.name, COUNT(r.ride_id) AS rides FROM stations s LEFT JOIN rides r ON r.start_station_id = s.station_id AND r.start_time >= '2026-10-05' GROUP BY s.station_id, s.name;",
           hint: "AND r.start_time >= '2026-10-05' 接在 ON 后面，然后 GROUP BY s.station_id, s.name" },
@@ -11236,7 +11275,7 @@ window.CHAPTERS.push({
     { id: 'Q7', les: 'b', title: '2 LEFT JOIN · 电影院', prompt: '<b>电影院</b>（movies、showtimes）：每部电影排了几场，一场没排的显示 0。输出 <code>title, shows</code>。',
       cols: 'title, shows', ref: 'SELECT m.title, COUNT(st.show_id) AS shows FROM movies m LEFT JOIN showtimes st ON st.movie_id = m.movie_id GROUP BY m.movie_id, m.title;',
       hints: ['从 movies 出发 LEFT JOIN', 'COUNT(st.show_id)，不是 COUNT(*)'] },
-    { id: 'Q8', les: 'b', title: '2 ON 还是 WHERE · 共享单车', prompt: '<b>共享单车</b>（stations、rides）：每个车站最近 30 天（<code>start_time ≥ 2026-10-05</code>）作为出发站的次数，0 次的也列出。输出 <code>name, rides</code>。',
+    { id: 'Q8', les: 'b', title: '2 ON 还是 WHERE · 共享单车', prompt: '<b>共享单车</b>（stations、rides）：<b>每个车站</b>从 2026-10-05 起（<code>start_time &gt;= \'2026-10-05\'</code>）一共出发了几次骑行。6 个车站都要出现，没有的写 0。输出 <code>name, rides</code>。',
       cols: 'name, rides', ref: "SELECT s.name, COUNT(r.ride_id) AS rides FROM stations s LEFT JOIN rides r ON r.start_station_id = s.station_id AND r.start_time >= '2026-10-05' GROUP BY s.station_id, s.name;",
       hints: ['时间条件写在 ON 里', 'COUNT(r.ride_id)'] },
     { id: 'Q9', les: 'c', title: '3 分组 · 图书馆', prompt: '<b>图书馆</b>（copies、books）：每个分馆、每种类型各有几个副本。输出 <code>branch, genre, copies</code>。',
