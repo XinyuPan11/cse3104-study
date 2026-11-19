@@ -11005,6 +11005,53 @@ window.CHAPTERS.push({
           code: "SELECT m.title, COUNT(*) AS shows\nFROM movies m\nLEFT JOIN showtimes st ON st.movie_id = m.movie_id\nWHERE m.title = 'Mickey 17'\nGROUP BY m.title;", lang: 'sql', run: true,
           opts: ['0', '1', 'NULL', '报错'], a: 1,
           why: 'LEFT JOIN 给 Mickey 17 留了一行（右边全是 NULL），COUNT(*) 数的是行数，所以是 1。改成 <code>COUNT(st.show_id)</code> 才是 0。' },
+        (() => {
+          // step-by-step demo of the LEFT JOIN + GROUP BY + COUNT query below, on the real cinema data
+          const MV = [[1, 'Superman'], [2, 'The Hobbit'], [3, 'Inside Out 2'], [4, 'Twisters'], [5, 'Deadpool & Wolverine'], [6, 'Wicked'], [7, 'Nosferatu'], [8, 'Mickey 17']];
+          const ST = [[12341, 2, '2025-04-30 18:00'], [12342, 3, '2025-06-14 13:00'], [12343, 1, '2025-07-12 19:00'], [12344, 5, '2025-07-26 21:00'], [12345, 4, '2025-07-31 20:30'], [12346, 3, '2025-08-01 14:00'],
+            [12347, 6, '2025-12-20 19:00'], [12348, 7, '2026-01-09 21:30'], [12349, 1, '2026-03-14 19:00'], [12350, 2, '2026-05-02 18:00'], [12351, 4, '2026-06-20 20:00'], [12352, 6, '2026-10-31 19:30'],
+            [12353, 1, '2026-10-31 19:30'], [12354, 1, '2026-10-31 19:30'], [12355, 1, '2026-11-04 21:00'], [12356, 2, '2026-11-06 19:00'], [12357, 6, '2026-11-06 19:00'], [12358, 5, '2026-11-07 21:00']];
+          const J = [];
+          MV.forEach(([id, title]) => {
+            const mine = ST.filter((s) => s[1] === id);
+            if (mine.length) mine.forEach((s) => J.push({ k: 'j' + s[0], v: [id, title, s[0]], mid: id, title }));
+            else J.push({ k: 'j0_' + id, v: [id, title, null], mid: id, title, miss: true });
+          });
+          const keys = (f) => J.filter(f).map((r) => r.k);
+          const all = (fn) => Object.fromEntries(J.map((r) => [r.k, fn(r)]));
+          const miss = 'j0_8';
+          const count = (id) => ST.filter((s) => s[1] === id).length;
+          return {
+            t: 'rows', play: true, auto: false, interval: 2600, title: '一步一步看：每部电影排了几场（含 0 场）',
+            intro: '按 <b>播放</b> 自动走，或者用 <b>›</b> 一步一步点。数据就是题目里的真实数据。',
+            sql: 'SELECT m.title, COUNT(st.show_id) AS shows\nFROM movies m\nLEFT JOIN showtimes st ON st.movie_id = m.movie_id\nGROUP BY m.movie_id, m.title;',
+            cols: ['m.movie_id', 'm.title'],
+            rows: MV.map(([id, t]) => ({ k: 'mv' + id, v: [id, t] })),
+            frames: [
+              { text: '① <b>FROM movies m</b>：8 部电影。题目要「每部电影」都出现，所以从 movies 出发，它在 LEFT JOIN 的<b>左边</b>，一部都不会丢。', line: 1, hl: { mv8: 'focus' }, badge: { mv8: '记住它' } },
+              { text: '② 右表 <b>showtimes</b>：18 行，每行是<b>一场</b>。看 st.movie_id 那一列：只有 1–7，<b>没有 8</b>（Mickey 17 一场都没排）。', line: 2,
+                cols: ['st.show_id', 'st.movie_id', 'starts_at'], rows: ST.map((s) => ({ k: 's' + s[0], v: s })) },
+              { text: '③ <b>LEFT JOIN … ON st.movie_id = m.movie_id</b>：拿 Superman（movie_id = 1）去 showtimes 找 movie_id = 1 的行，找到 <b>5 场</b>，拼成 5 行。', line: 2,
+                cols: ['m.movie_id', 'm.title', 'st.show_id'], rows: J.map(({ k, v }) => ({ k, v })), show: keys((r) => r.mid === 1),
+                hl: all((r) => (r.mid === 1 ? 'new' : '')), badge: all((r) => (r.mid === 1 ? '1 = 1 ✓' : '')) },
+              { text: '其余电影一样配：The Hobbit 3 场、Inside Out 2 2 场 …… Nosferatu 1 场。一部电影有几场，就拼出几行。', line: 2,
+                show: keys((r) => !r.miss), hl: all((r) => (r.mid > 1 && !r.miss ? 'new' : '')), badge: all((r) => (r.mid > 1 && !r.miss ? `${r.mid} = ${r.mid} ✓` : '')) },
+              { text: 'Mickey 17（movie_id = 8）在 showtimes 里<b>一行都找不到</b>。因为是 <b>LEFT JOIN</b>，它还是留下，右边的 st.show_id 填 <span class="null">NULL</span>。现在一共 19 行。<br>如果写普通 JOIN，这一行会被丢掉，后面就没法显示 0。', line: 2,
+                show: null, hl: { [miss]: 'warn' }, badge: { [miss]: '没配上 → NULL' } },
+              { text: '④ <b>GROUP BY m.movie_id, m.title</b>：同一部电影的行进同一个桶。桶右边的数字是桶里的<b>行数</b>：注意 Mickey 17 的桶里也有 <b>1 行</b>（就是那行 NULL）。', line: 3,
+                group: all((r) => r.title), hl: { [miss]: 'warn' } },
+              { text: '⑤ <b>COUNT(st.show_id)</b>：在每个桶里数 st.show_id <b>不是 NULL</b> 的行。Superman 桶 5 个，Mickey 17 桶里只有一个 NULL，<b>不数</b>，所以是 0。', line: 0,
+                hl: all((r) => (r.miss ? 'warn' : 'pass')), badge: all((r) => (r.miss ? 'NULL 不数' : '+1')) },
+              { text: '⑥ 每个桶压成一行，输出 title 和 shows。8 部电影都在，Mickey 17 是 <b>0</b>，和题目要的一样。', line: 0,
+                cols: ['title', 'shows'], rows: MV.map(([id, t]) => ({ k: 'g' + id, v: [t, count(id)] })), group: null, show: null,
+                hl: { g8: 'pass' }, badge: { g8: '0 ✓' } },
+              { text: '对比：如果写成 <b>COUNT(*)</b>，数的是桶里的<b>行数</b>。Mickey 17 的桶里有 1 行（NULL 那行），就会变成 <b>1</b>，错了。', line: 0,
+                vals: { g8: ['Mickey 17', 1] }, hl: { g8: 'fail' }, badge: { g8: 'COUNT(*) → 1 ✗' } },
+              { text: '所以要数<b>右表的列</b>：<code>COUNT(st.show_id)</code>。一句话：<b>LEFT JOIN 留下它，COUNT(右表列) 数出 0。</b>', line: 0,
+                vals: { g8: ['Mickey 17', 0] }, hl: { g8: 'pass' }, badge: { g8: '0 ✓' } },
+            ],
+          };
+        })(),
         { t: 'sql', title: 'LEFT JOIN · 电影院', task: '<b>电影院</b>：每部电影排了几场，<b>一场都没排的也要列出来（显示 0）</b>。输出 <code>title, shows</code>。',
           sql: '-- 从 movies 出发 LEFT JOIN showtimes，再分组计数\nSELECT m.title\nFROM movies m;',
           check: 'SELECT m.title, COUNT(st.show_id) AS shows FROM movies m LEFT JOIN showtimes st ON st.movie_id = m.movie_id GROUP BY m.movie_id, m.title;',
@@ -13558,7 +13605,7 @@ SCR.rows = (s, b) => {
     st.render(keys.map((k) => ({ k, v: (c.vals && c.vals[k]) || byK.get(k).v, st: f.hl && f.hl[k], badge: f.badge && f.badge[k] })), { group: c.group, dimCols: c.dimCols || [] });
     if (sqlEl) { const ls = f.lines || (f.line != null ? [f.line] : []); $$('.ln', sqlEl).forEach((l, j) => l.classList.toggle('on', ls.includes(j))); }
     return f.text;
-  }, { auto: true, interval: 1700 });
+  }, { auto: s.auto !== false, interval: s.interval || 1700 });
 };
 
 /* ── join: nested-loop animation over two small tables ── */
@@ -14718,6 +14765,14 @@ function rdBlock(s, ch) {
       break;
     }
     case 'rows':
+      if (s.play) {
+        // animated step-by-step version (same player as the card lessons)
+        b.innerHTML = head(s.title) + (s.intro ? `<p>${s.intro}</p>` : '');
+        const inner = el('div', 'rd-play');
+        SCR.rows(s, inner);
+        b.append(inner);
+        break;
+      }
       b.innerHTML = head(s.title) + (s.sql ? codeBlock(s.sql, 'sql') : '') + staticTable(s.cols, s.rows.map((r) => r.v), 'mini') + steps(s.frames);
       break;
     case 'quiz': case 'predict':
