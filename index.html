@@ -1202,6 +1202,64 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
 .ex-filter.on { background: oklch(95% 0.07 90); }
 @media (max-width: 860px) { .ex-filter { white-space: nowrap; margin: 0; } }
 
+/* 三人 · 四词 · 三问 · 五规 (formula card on the c16 sheet) */
+.fm { margin-top: 10px; display: grid; gap: 14px; }
+.fm-mn { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; font: 800 clamp(24px, 4vw, 34px)/1.1 var(--display); }
+.fm-mn b:nth-of-type(1) { color: oklch(52% 0.17 250); }
+.fm-mn b:nth-of-type(2) { color: oklch(50% 0.15 150); }
+.fm-mn b:nth-of-type(3) { color: oklch(58% 0.17 55); }
+.fm-mn b:nth-of-type(4) { color: oklch(50% 0.18 300); }
+.fm-mn i { font-style: normal; color: var(--muted); }
+.fm-lead { margin: 0; line-height: 1.7; }
+.fm-themes { display: flex; flex-wrap: wrap; gap: 6px; }
+.fm-w { display: inline-block; padding: 3px 10px; border-radius: 99px; font-weight: 700; font-size: 14px; line-height: 1.5; }
+.fm-p { background: oklch(93% 0.05 250); color: oklch(40% 0.15 250); }
+.fm-c { background: oklch(93% 0.06 150); color: oklch(38% 0.12 150); }
+.fm-i { background: oklch(93% 0.07 60); color: oklch(45% 0.14 55); }
+.fm-e { background: oklch(92% 0.06 300); color: oklch(40% 0.17 300); }
+.fm-q { background: oklch(93% 0.05 350); color: oklch(42% 0.15 350); }
+.fm-t { background: oklch(93% 0.005 250); color: oklch(40% 0.01 250); }
+.fm-sent { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 6px; padding: 14px; border-radius: 14px; background: var(--surface); border: 1.5px solid var(--line); font-size: 15px; }
+.fm-op { color: var(--muted); font-weight: 600; }
+.fm-step { border-radius: 14px; background: var(--surface); border: 1.5px solid var(--line); padding: 12px 14px; }
+.fm-sh { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-bottom: 8px; }
+.fm-sh b { font-size: 18px; }
+.fm-n { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: oklch(var(--Lm) var(--Cm) var(--h)); color: #fff; font: 700 14px var(--mono); }
+.fm-to { color: var(--muted); font-size: 13.5px; }
+.fm-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px 18px; }
+.fm-k { font-size: 12.5px; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
+.fm-ppl { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: 14px; }
+.fm-ppl li { display: grid; grid-template-columns: 82px minmax(0, 1fr); gap: 8px; align-items: baseline; }
+.fm-ppl span { font-size: 12px; font-weight: 700; text-align: center; padding: 2px 6px; border-radius: 6px; background: oklch(93% 0.05 250); color: oklch(40% 0.15 250); }
+.fm-words { display: flex; flex-wrap: wrap; gap: 6px; }
+.fm-how { margin: 8px 0 0; font-size: 14px; line-height: 1.6; }
+.fm-why { margin: 10px 0 0; padding: 8px 12px; border-radius: 10px; background: oklch(var(--Ls) var(--Cs) var(--h)); font-size: 13.5px; line-height: 1.65; }
+.fm-qs { display: grid; gap: 8px; }
+.fm-qq { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 4px 14px; align-items: baseline; font-size: 14px; padding: 6px 0; border-bottom: 1px dashed var(--line); }
+.fm-qq:last-child { border-bottom: 0; }
+.fm-tables { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin-bottom: 10px; }
+.fm-tb { border-radius: 10px; padding: 8px 10px; border-left: 5px solid; display: grid; gap: 2px; color: oklch(25% 0.02 250); }
+.fm-tb b { font: 700 14px var(--mono); }
+.fm-tb code { font-size: 12px; color: inherit; white-space: normal; background: none; padding: 0; }
+.fm-role { font-size: 11px; font-weight: 700; }
+.fm-bp { background: oklch(96% 0.025 250); border-color: oklch(60% 0.15 250); } .fm-bp .fm-role { color: oklch(45% 0.15 250); }
+.fm-bc { background: oklch(96% 0.03 150); border-color: oklch(58% 0.13 150); } .fm-bc .fm-role { color: oklch(42% 0.12 150); }
+.fm-bi { background: oklch(96% 0.035 60); border-color: oklch(68% 0.15 55); } .fm-bi .fm-role { color: oklch(48% 0.14 55); }
+.fm-be { background: oklch(96% 0.03 300); border-color: oklch(55% 0.17 300); } .fm-be .fm-role { color: oklch(45% 0.17 300); }
+.fm-bq { background: oklch(96% 0.025 350); border-color: oklch(60% 0.15 350); } .fm-bq .fm-role { color: oklch(45% 0.15 350); }
+.fm-bx { background: oklch(96% 0.004 250); border-color: oklch(70% 0.01 250); } .fm-bx .fm-role { color: var(--muted); }
+.fm-rules { margin: 0; padding-left: 22px; display: grid; gap: 10px; font-size: 14px; }
+.fm-rules li > b { display: block; }
+.fm-eg { display: block; margin-top: 2px; font: 12.5px/1.5 var(--mono); color: oklch(45% 0.12 300); }
+.fm-rw { display: block; margin-top: 2px; color: var(--muted); font-size: 13px; }
+.fm-say { padding: 10px 14px; border-radius: 14px; background: var(--surface); border: 1.5px dashed var(--line); }
+.fm-say p { margin: 4px 0; font-style: italic; line-height: 1.55; }
+@media (max-width: 560px) { .fm-qq { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .fm-p, :root:not([data-theme="light"]) .fm-c, :root:not([data-theme="light"]) .fm-i, :root:not([data-theme="light"]) .fm-e, :root:not([data-theme="light"]) .fm-q, :root:not([data-theme="light"]) .fm-t { filter: brightness(.85) saturate(1.1); }
+  :root:not([data-theme="light"]) .fm-tb { filter: brightness(.9); }
+}
+
 </style>
 <header class="top" id="top"></header>
 <main id="main"><div class="wrap" style="padding-block:40px">加载中…</div></main>
@@ -10434,45 +10492,77 @@ window.CHAPTERS.push({
         'How long does a [event] last? What happens if it is late or cancelled?',
         'Can people [wait in line / cancel]? Should we keep that history?',
         'Roughly how many [people], [items] and [events] per day?'] },
-    { h: '三步公式：拿到任何主题都能套', time: '使用者 → 技术 → 表，先在脑子里过一遍',
-      do: ['<b>总公式</b>：几乎所有主题都是 <b>谁（人）+ 对什么（目录 / 实物）+ 做了什么（事件）+ 什么时候、什么状态（时间 / status）</b>。第 1 步把它说出来，第 2 步问它多大、敏不敏感，第 3 步一个名词一张表。',
-        '<b>第 1 步 · 使用者 = 三类人</b>：① 用的人（谁来借 / 买 / 订 / 申请）② 干活的人（谁处理、审批、操作）③ 看数字的人（谁看报表做决定）。有健康、钱、成绩这类敏感数据，再加 ④ 合规和安全的人。',
-        '<b>第 1 步 · 业务名词 = 动词变名词</b>：把题目里的动词圈出来，每个动词变成一个事件名词（borrow → loan，buy → ticket，book → reservation，ride → ride，apply → application），再找它涉及的人和东西，分进 人 person / 目录 catalog / 实物 item / 事件 event（+ 排队 queue）。',
-        '<b>第 2 步 · 技术 = 三个问题</b>：① 是不是很多小的增删改、关系清楚？（几乎总是）→ <b>PostgreSQL</b> ② 报表重不重、数据会不会很大？→ 先同一个库，变大了<b>每晚同步到数据仓库</b> ③ 有没有敏感数据？→ <b>权限、加密、访问记录</b>。规模数字直接用提问时教授给的。',
-        '<b>第 3 步 · 表 = 人表 + 目录表 + 实物表 + 每个事件一张表</b>，再逐条过 5 条规则：',
-        '① 每张表一个 <code>xxx_id</code> 主键',
-        '② 事件表 = <b>谁 + 什么 + 什么时候 + 状态（+ 钱）</b>，谁和什么用外键',
-        '③ 一个东西「有好几份 / 好几次」→ 拆成目录和实物两张表（books / copies，movies / showtimes，room_types / rooms）',
-        '④ 「现在是否……」从事件推：结束时间 <code>IS NULL</code> 或 status',
-        '⑤ 多对多加中间表；不删行，改 status',
-        '<b>最后</b>：拿 user story 一条条走 JOIN，走不通就是缺列或缺表。',
-        '<b>口诀</b>：人分三类（用的、干活的、看数字的）· 动词变事件 · 事件四要素（谁、什么、何时、状态）· 多份就拆 · 现在看 NULL 或 status，不删改状态。'],
-      say: ['The users are [people], who [do x]; [staff], who [handle y]; and [managers], who look at reports on [z].',
-        'The key nouns are [person], [catalog], [item], and the events [event] and [event].',
-        "It's transactional data with clear relationships, so I'd use PostgreSQL. At about [volume] a day it's small, so reports can run on the same database at first; if they grow, I'd copy the data nightly into a data warehouse.",
-        "Since it holds [sensitive data], I'd restrict access by role, encrypt it, and keep an audit log."] },
-    { h: '试一遍：没见过的主题（外卖平台）', time: '3 分钟搭出来',
-      do: ['<b>动词</b>：下单、配送、评价 → 事件 <b>order、delivery、review</b>',
-        '<b>人</b>：顾客（用的）、骑手和餐厅（干活的）、平台运营（看数字的）；有地址和电话 → 要做权限控制',
-        '<b>目录</b>：菜单 menu_items；<b>实物</b>：没有一份一份的实物（菜做出来就卖了），所以这题不拆',
-        '<b>技术</b>：交易型 → PostgreSQL；订单量大、要按小时分析 → 每晚同步到数据仓库',
-        '<b>对 5 条规则</b>：① 都有主键 ② orders 有谁、什么、何时、状态 ③ 不需要拆 ④ 还在送 = <code>delivered_at IS NULL</code> ⑤ 一单多道菜用 order_items，<code>price_paid</code> 记成交价，菜单改价不影响历史订单'],
-      code: `-- 人
-customers   (customer_id PK, name, phone, address)
-couriers    (courier_id PK, name)
-restaurants (restaurant_id PK, name, area)
--- 目录
-menu_items  (item_id PK, restaurant_id FK, name, price)
--- 事件（status: placed / delivered / cancelled）
-orders      (order_id PK, customer_id FK, restaurant_id FK,
-             placed_at, status)
--- 多对多：一单多道菜，记下成交价
-order_items (order_id FK, item_id FK, qty, price_paid)
--- 事件：delivered_at IS NULL = 还在送
-deliveries  (delivery_id PK, order_id FK, courier_id FK,
-             picked_up_at, delivered_at)
--- 事件
-reviews     (review_id PK, order_id FK, stars, comment)` },
+    { h: '三步公式：三人 · 四词 · 三问 · 五规', time: '选一个主题，看同一个公式怎么填',
+      formula: {
+        // one row per theme; role letters: p 人 person, c 目录 catalog, i 实物 item, e 事件 event, q 排队 queue, x 其他
+        themes: [
+          { id: 'library', name: '图书馆', verb: '借', p: '读者 members', c: '书目 books', i: '副本 copies', e: '借阅 loans', t: '借出日 · 到期日 · 归还日', q: '预约 holds',
+            users: ['读者：查书、借书、预约', '图书管理员：借出、归还、处理过期', '管理层：哪类书最热门、该多买哪本'],
+            q2: '每天几百次借阅，很小 → 报表先在同一个库跑', q3: '只有姓名和联系方式 → 按角色控制谁能看就够了',
+            tables: [['p', 'members', 'member_id PK, name, email'], ['c', 'books', 'book_id PK, title, author, genre'], ['i', 'copies', 'copy_id PK, book_id FK, branch'],
+              ['e', 'loans', 'loan_id PK, member_id FK, copy_id FK, checkout_date, due_date, return_date'], ['q', 'holds', 'hold_id PK, book_id FK, member_id FK, placed_at, status']],
+            r3: 'books / copies：同一本书有好几本副本', r4: 'return_date IS NULL = 还没还', r5: 'holds.status：waiting → fulfilled，不删行',
+            say: ['The users are members, who search and borrow books; librarians, who check books in and out; and managers, who look at what is popular.',
+              'The key nouns are members, books, copies, and the events loans and holds.',
+              'I separate books from copies, loans is my fact table, and a copy is out when its loan has no return date.'] },
+          { id: 'cinema', name: '电影院', verb: '买', p: '观众 customers', c: '电影 movies', i: '场次 + 座位 showtimes + seats', e: '票 tickets', t: '开场时间 · 购买时间', q: '',
+            users: ['观众：查场次、选座、买票', '售票员和影院经理：卖票、排片', '高管和分析师：哪些电影最卖座、上座率'],
+            q2: '几家影院、很多场次，报表要按电影、按月汇总 → 先同库，变大了每晚同步到仓库', q3: '有顾客联系方式；付款交给支付系统，自己不存卡号',
+            tables: [['p', 'customers', 'customer_id PK, name, email'], ['c', 'movies', 'movie_id PK, title, genre, rating'], ['i', 'showtimes', 'show_id PK, movie_id FK, screen_id FK, starts_at'],
+              ['i', 'seats', 'seat_id PK, screen_id FK, row_label, seat_no'], ['e', 'transactions', 'transaction_id PK, customer_id FK, purchased_at'],
+              ['e', 'tickets', 'ticket_id PK, transaction_id FK, show_id FK, seat_id FK, ticket_type, price']],
+            r3: 'movies / showtimes：一部电影放很多场', r4: '某场某座在 tickets 里有一行 = 已卖出；starts_at 晚于现在 = 还没开场', r5: '一笔付款买多张票 → transactions + tickets；UNIQUE(show_id, seat_id) 防止一座卖两次',
+            say: ['The users are customers, who buy tickets; box-office staff and theater managers; and executives, who look at which movies sell best.',
+              'The key nouns are customers, movies, showtimes and seats, and the events transactions and tickets.',
+              'I separate movies from showtimes, tickets is my fact table, and the price is stored on each ticket.'] },
+          { id: 'hotel', name: '连锁酒店', verb: '订', p: '客人 guests', c: '房型 room_types', i: '房间 rooms', e: '订单 reservations', t: '入住日 · 退房日 · 状态', q: '',
+            users: ['客人：查空房、订房、取消', '前台：办入住、退房', '收益经理和高管：入住率、各房型收入、取消率'],
+            q2: '40 家酒店、每天几千个新订单，报表很重 → 业务用 PostgreSQL，报表每晚同步到仓库', q3: '有客人姓名和联系方式 → 权限控制；付款不归我们管',
+            tables: [['p', 'guests', 'guest_id PK, name, email, phone'], ['x', 'hotels', 'hotel_id PK, name, city'], ['c', 'room_types', 'type_id PK, name, beds, base_rate'],
+              ['i', 'rooms', 'room_id PK, hotel_id FK, type_id FK, room_no'], ['e', 'reservations', 'res_id PK, guest_id FK, room_id FK, check_in, check_out, nightly_rate, status']],
+            r3: 'room_types / rooms：同一种房型有很多间', r4: "status <> 'cancelled' 且日期重叠 = 这间房那几天被占了", r5: "取消改 status = 'cancelled'；成交价 nightly_rate 存在订单上",
+            say: ['The users are guests, who book and cancel; front-desk staff, who check people in and out; and revenue managers, who watch occupancy and revenue.',
+              'The key nouns are guests, hotels, room types, rooms, and the event reservations.',
+              'I separate room types from rooms, reservations is my fact table, and I store the rate the guest was quoted on the reservation.'] },
+          { id: 'bikeshare', name: '共享单车', verb: '骑', p: '骑车人 riders', c: '车型 bike_models', i: '车 bikes', e: '骑行 rides', t: '出发时间 · 还车时间', q: '',
+            users: ['骑车人：找车、借车、还车、报修', '运营调度和维修技师：调车、修车', '城市规划和分析师：热门站点、每月骑行量'],
+            q2: '夏天一天最多 15000 次骑行 → 业务用 PostgreSQL，路线和月度报表放到仓库', q3: '有姓名和联系方式 → 权限控制；付款是别的系统',
+            tables: [['p', 'riders', 'rider_id PK, name, email, pass_type'], ['x', 'stations', 'station_id PK, name, neighborhood'], ['c', 'bike_models', 'model_id PK, name, kind'],
+              ['i', 'bikes', 'bike_id PK, model_id FK, dock_id FK, status'], ['e', 'rides', 'ride_id PK, rider_id FK, bike_id FK, start_station_id FK, start_time, end_station_id FK, end_time']],
+            r3: 'bike_models / bikes：同一种车型有很多辆', r4: 'end_time IS NULL = 还在骑', r5: '坏车改 bikes.status，不删；报修填上 resolved_at 就算修好',
+            say: ['The users are riders, who unlock and return bikes; operations and mechanics, who move and fix bikes; and planners, who look at trips by station and month.',
+              'The key nouns are riders, stations, bike models, bikes, and the event rides.',
+              'rides is my fact table, and a ride is still in progress when its end time is null.'] },
+          { id: 'gym', name: '健身房约课', verb: '约', p: '会员 members', c: '课程 class_types', i: '一节课 sessions', e: '预约 bookings', t: '上课时间 · 状态', q: '候补 waitlist',
+            users: ['会员：看课表、约课、取消、排候补', '前台和教练：签到、看自己的课上有谁', '门店经理和管理层：出勤率、哪些课坐不满'],
+            q2: '三家门店，量很小 → 一个 PostgreSQL 就够，报表同库跑', q3: '只有会员联系方式 → 按角色控制谁能看',
+            tables: [['p', 'members', 'member_id PK, name, email'], ['c', 'class_types', 'class_type_id PK, name, level, duration_min'], ['i', 'sessions', 'session_id PK, class_type_id FK, room_id FK, instructor_id FK, starts_at, capacity'],
+              ['e', 'bookings', 'booking_id PK, session_id FK, member_id FK, booked_at, status'], ['q', 'waitlist', 'waitlist_id PK, session_id FK, member_id FK, joined_at, status']],
+            r3: 'class_types / sessions：同一门课一周上好几次', r4: "status = 'booked' 的才占名额；剩余 = capacity - 预约数", r5: '取消改 status；候补的人从 waiting 改成 promoted',
+            say: ['The users are members, who book and cancel classes; front-desk staff and instructors; and studio managers, who look at attendance.',
+              'The key nouns are members, class types, sessions, and the events bookings and waitlist.',
+              'I separate class types from sessions, bookings is my fact table, and cancelling changes the status instead of deleting the row.'] },
+          { id: 'internship', name: '实习网站', verb: '申请', p: '学生 students', c: '公司 companies', i: '职位 postings', e: '申请 applications', t: '申请时间 · 状态', q: '',
+            users: ['学生：找职位、收藏、申请、撤回', '招聘官：发职位、安排面试、发 offer', '就业中心：申请数排名、offer 率、热门技能'],
+            q2: '15000 个学生、忙的月份 2 万份申请 → PostgreSQL；报表多了同步到仓库', q3: '有学生个人信息 → 按角色控制谁能看',
+            tables: [['p', 'students', 'student_id PK, name, email, major'], ['c', 'companies', 'company_id PK, name, industry'], ['i', 'postings', 'posting_id PK, company_id FK, recruiter_id FK, title, deadline, status'],
+              ['e', 'applications', 'app_id PK, student_id FK, posting_id FK, applied_at, status'], ['x', 'posting_skills', 'posting_id FK, skill_id FK（中间表）']],
+            r3: 'companies / postings：一家公司发很多职位', r4: "status = 'open' 且 deadline 没过 = 还能申请", r5: '技能是多对多 → posting_skills、student_skills；撤回改 status',
+            say: ['The users are students, who search and apply; recruiters, who post jobs and run interviews; and the career center, which looks at offer rates.',
+              'The key nouns are students, companies, postings, skills, and the event applications.',
+              'applications is my fact table, and skills are many-to-many, so they get junction tables.'] },
+          { id: 'delivery', name: '外卖平台（没见过的）', verb: '点', p: '顾客 customers', c: '菜单 menu_items', i: '（没有一份一份的实物）', e: '订单 orders', t: '下单时间 · 送达时间 · 状态', q: '',
+            users: ['顾客：点餐、看配送进度、评价', '餐厅和骑手：接单、做菜、配送', '平台运营：哪个时段最忙、平均送多久'],
+            q2: '订单多、要按小时分析 → 业务用 PostgreSQL，报表每晚同步到仓库', q3: '有地址和电话 → 权限控制、加密',
+            tables: [['p', 'customers', 'customer_id PK, name, phone, address'], ['x', 'restaurants', 'restaurant_id PK, name, area'], ['c', 'menu_items', 'item_id PK, restaurant_id FK, name, price'],
+              ['e', 'orders', 'order_id PK, customer_id FK, restaurant_id FK, placed_at, status'], ['x', 'order_items', 'order_id FK, item_id FK, qty, price_paid（中间表）'],
+              ['e', 'deliveries', 'delivery_id PK, order_id FK, courier_id FK, picked_up_at, delivered_at']],
+            r3: '这题没有「一个东西多份」，所以不拆，规则 ③ 跳过', r4: 'delivered_at IS NULL = 还在送', r5: '一单多道菜 → order_items；price_paid 记成交价，菜单改价不影响历史',
+            say: ['The users are customers, who order food; restaurants and couriers, who prepare and deliver it; and the operations team, who look at delivery times.',
+              'The key nouns are customers, restaurants, menu items, and the events orders and deliveries.',
+              'orders is my fact table, order_items links orders to menu items, and an order is still on its way when delivered_at is null.'] },
+        ],
+      } },
     { h: '使用者和名词', time: '3–5 分钟',
       do: ['说出 3–4 类使用者 <b>stakeholders</b>，每类一句「他要干什么」', '把题目里的业务名词 <b>business nouns</b> 念一遍，它们就是候选表', '把名词分进 4 种角色（有排队再加第 5 种）：',
         '<b>人 person</b>：用系统的人（members、customers）→ 维度表 <b>dimension table</b>',
@@ -15691,6 +15781,61 @@ Reply with only a JSON object: {"score": integer 0-100 (mostly the share of chec
 
 /* ───────── one-page template sheet (chapters with `sheet`) ─────────
    [slot] in a `say` line or in `code` is shown as a blank to fill with the prompt's own words */
+/* 三人 · 四词 · 三问 · 五规: one formula, refilled for whichever theme is picked.
+   Colors are the same everywhere: 人 person (blue) / 目录 catalog (green) / 实物 item (orange) / 事件 event (purple) / 时间·状态 (gray). */
+const FM_ROLE = { p: ['人', 'person'], c: ['目录', 'catalog'], i: ['实物', 'item'], e: ['事件', 'event'], q: ['排队', 'queue'], x: ['其他', 'other'] };
+function formulaCard(F) {
+  const box = el('div', 'fm');
+  const chip = (r, text) => `<span class="fm-w fm-${r}">${esc(text)}</span>`;
+  const draw = () => {
+    const T = F.themes.find((t) => t.id === ui.fmTheme) || F.themes[0];
+    const ev = T.tables.find((t) => t[0] === 'e' && T.e.includes(t[1])) || T.tables.find((t) => t[0] === 'e');
+    box.innerHTML = `
+      <div class="fm-mn"><b>三人</b><i>·</i><b>四词</b><i>·</i><b>三问</b><i>·</i><b>五规</b></div>
+      <p class="fm-lead">任何主题都是同一句话：<b>谁</b> 对 <b>什么</b> 做了一件 <b>事</b>，在 <b>什么时候</b>、是 <b>什么状态</b>。三步就是把这句话说出来、问清楚、变成表。选一个主题，看公式怎么填：</p>
+      <div class="fm-themes" role="group" aria-label="选主题">${F.themes.map((t) => `<button type="button" class="chip-btn${t === T ? ' on' : ''}" data-t="${t.id}" aria-pressed="${t === T}">${esc(t.name)}</button>`).join('')}</div>
+      <div class="fm-sent">${chip('p', T.p)}<span class="fm-op">${esc(T.verb)}</span>${chip('c', T.c)}<span class="fm-op">→</span>${chip('i', T.i)}<span class="fm-op">留下</span>${chip('e', T.e)}<span class="fm-op">记下</span>${chip('t', T.t)}</div>
+
+      <section class="fm-step">
+        <div class="fm-sh"><span class="fm-n">1</span><b>三人四词</b><span class="fm-to">→ 使用者和业务名词</span></div>
+        <div class="fm-grid">
+          <div><div class="fm-k">三人：谁用这个系统</div>
+            <ol class="fm-ppl"><li><span>用的人</span>${esc(T.users[0])}</li><li><span>干活的人</span>${esc(T.users[1])}</li><li><span>看数字的人</span>${esc(T.users[2])}</li></ol></div>
+          <div><div class="fm-k">四词：题目里的名词分四类</div>
+            <div class="fm-words">${chip('p', '人 · ' + T.p)}${chip('c', '目录 · ' + T.c)}${chip('i', '实物 · ' + T.i)}${chip('e', '事件 · ' + T.e)}${T.q ? chip('q', '排队 · ' + T.q) : ''}</div>
+            <p class="fm-how"><b>怎么找：</b>先圈题目里的<b>动词</b>（${esc(T.verb)}），它就是<b>事件</b>；再问「谁${esc(T.verb)}？」得到<b>人</b>，「${esc(T.verb)}什么？」得到<b>目录 / 实物</b>。</p></div>
+        </div>
+        <p class="fm-why"><b>为什么：</b>三类人对应三类需求（日常操作、处理流程、看报表），教授后面问的每个需求都属于其中一类。四类名词正好变成四类表：人、目录、实物不常变，是<b>维度表 dimension</b>；事件一直增长，是<b>事实表 fact</b>。</p>
+      </section>
+
+      <section class="fm-step">
+        <div class="fm-sh"><span class="fm-n">2</span><b>三问</b><span class="fm-to">→ 技术选择</span></div>
+        <div class="fm-qs">
+          <div class="fm-qq"><b>① 天天有很多小的增删改，表之间关系清楚吗？</b><span>几乎总是「是」 → <b>关系型数据库 PostgreSQL</b></span></div>
+          <div class="fm-qq"><b>② 报表重不重、数据会不会很大？</b><span>${esc(T.q2)}</span></div>
+          <div class="fm-qq"><b>③ 有没有敏感数据？</b><span>${esc(T.q3)}</span></div>
+        </div>
+        <p class="fm-why"><b>为什么：</b>① 增删改要一起成功或一起失败（事务），表靠外键连着，这正是关系型数据库擅长的。② 报表要扫很多行，会和日常操作抢资源，量大时分开放。③ 泄露会出事的数据，要说清楚谁能看、怎么保护、谁看过有记录。规模数字直接用你提问时教授给的。</p>
+      </section>
+
+      <section class="fm-step">
+        <div class="fm-sh"><span class="fm-n">3</span><b>五规</b><span class="fm-to">→ 表设计：四词各变成表，再过 5 条规则</span></div>
+        <div class="fm-tables">${T.tables.map(([r, name, cols]) => `<div class="fm-tb fm-b${r}"><span class="fm-role">${FM_ROLE[r][0]} ${FM_ROLE[r][1]}</span><b>${esc(name)}</b><code>${esc(cols)}</code></div>`).join('')}</div>
+        <ol class="fm-rules">
+          <li><b>每张表一个主键</b> <code>xxx_id</code><span class="fm-eg">${esc(T.tables.map((t) => (t[2].match(/^(\w+) PK/) || [])[1]).filter(Boolean).join('、'))}</span><span class="fm-rw">别的表要靠它指向这一行（外键）。</span></li>
+          <li><b>事件 = 谁 + 什么 + 何时 + 状态</b><span class="fm-eg">${esc(ev[1])}：${esc(ev[2])}</span><span class="fm-rw">报表几乎都是在数事件：谁做了多少、什么最热门、哪段时间最多。</span></li>
+          <li><b>多份就拆：目录一张，实物一张</b><span class="fm-eg">${esc(T.r3)}</span><span class="fm-rw">不拆的话，书名、片名要存好几遍，改一处漏一处就对不上（更新异常）。</span></li>
+          <li><b>「现在怎样」看 NULL 或 status</b><span class="fm-eg">${esc(T.r4)}</span><span class="fm-rw">不另存一个「是否借出」的标志，否则它和事件表可能对不上。</span></li>
+          <li><b>多对多加中间表；不删行，改状态</b><span class="fm-eg">${esc(T.r5)}</span><span class="fm-rw">一格只放一个值；保留历史，才能算取消率、等了多久。</span></li>
+        </ol>
+      </section>
+
+      <div class="fm-say"><span class="mini-h">照着说（${esc(T.name)}）</span>${T.say.map((x) => `<p>${esc(x)}</p>`).join('')}</div>`;
+    $$('[data-t]', box).forEach((b) => (b.onclick = () => { ui.fmTheme = b.dataset.t; saveUI(); draw(); }));
+  };
+  draw();
+  return box;
+}
 function renderSheet(main) {
   const ch = CH(ui.ch);
   setHue(ch.hue);
@@ -15707,6 +15852,7 @@ function renderSheet(main) {
       ${sec.do ? `<ul class="sh-do">${sec.do.map((x) => `<li>${x}</li>`).join('')}</ul>` : ''}
       ${sec.say ? `<div class="sh-say"><span class="mini-h">照着说</span>${sec.say.map((x) => `<p>${slot(esc(x))}</p>`).join('')}</div>` : ''}
       ${sec.code ? `<pre class="code sh-code"><code>${slot(hl(sec.code))}</code></pre>` : ''}`;
+    if (sec.formula) c.append(formulaCard(sec.formula));
     list.append(c);
   });
   wrap.append(list);
