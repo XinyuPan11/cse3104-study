@@ -1128,6 +1128,68 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
 .ex-mine pre { white-space: pre-wrap; font: 13.5px/1.55 var(--mono); background: var(--surface-2); padding: 8px 10px; border-radius: 10px; margin: 4px 0 10px; }
 .ex-refmodel { margin-top: 10px; }
 
+/* ───────── 标准答卷 (model answers) ───────── */
+.ans-link { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; gap: 12px; align-items: center; width: 100%; margin: 14px 0 0; text-align: left; padding: 14px 16px; border-radius: 16px; border: 2px solid var(--c); background: var(--c-soft); color: var(--ink); font: inherit; cursor: pointer; }
+.ans-link .sc-ico { background: var(--surface); }
+.ans-link:hover { box-shadow: var(--shadow); }
+.ans-top h1 { margin: 0 0 6px; font-size: clamp(24px, 3.4vw, 32px); }
+.ans-top h1 .muted { font-size: .55em; font-weight: 600; }
+.ans-top p { margin: 0 0 14px; color: var(--muted); line-height: 1.7; }
+.ans-top .ico { width: 15px; vertical-align: -2px; }
+.ans-tabs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-bottom: 12px; }
+.ans-tab { display: flex; flex-direction: column; gap: 2px; text-align: left; padding: 10px 12px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; cursor: pointer; border-left: 6px solid var(--c); }
+.ans-tab span { font-size: 12px; color: var(--muted); }
+.ans-tab.on { border-color: var(--c); background: color-mix(in srgb, var(--c) 14%, var(--surface)); }
+.ans-toc { position: sticky; top: calc(var(--hdr, 56px) + 4px); z-index: 5; display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; margin: 0 -8px 12px; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px); border-radius: 14px; }
+.ans-toc .chip-btn { font-size: 12px; padding: 5px 10px; }
+.ans-prompt { border: 1.5px solid var(--line); border-radius: 14px; padding: 4px 14px; background: var(--surface); margin-bottom: 8px; }
+.ans-prompt summary { cursor: pointer; padding: 8px 0; font-weight: 700; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.ans-prompt summary .ico { width: 16px; }
+.ans-prompt p, .ans-prompt li { line-height: 1.65; }
+.ans-sec { margin: 26px 0 0; padding-top: 4px; }
+.ans-sec h2 { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 4px; font-size: 21px; }
+.ans-n { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--c); color: var(--c-ink); font: 700 15px var(--mono); }
+.ans-h-en { font: 600 13px var(--mono); color: var(--c-strong); background: var(--c-soft); padding: 3px 9px; border-radius: 99px; }
+.ans-tip { color: var(--muted); font-size: 14px; margin: 0 0 10px; }
+.ans-say { margin: 10px 0; border-radius: 14px; overflow: hidden; border: 1.5px solid color-mix(in srgb, var(--c) 45%, var(--line)); }
+.ans-en { position: relative; padding: 12px 14px 12px 52px; background: color-mix(in srgb, var(--c) 16%, var(--surface)); font-size: 16px; line-height: 1.65; }
+.ans-en > div + div, .ans-zh > div + div { margin-top: 8px; }
+.ans-zh { padding: 10px 14px 12px 52px; background: var(--surface); color: var(--muted); font-size: 14.5px; line-height: 1.7; }
+.ans-who { display: inline-block; font: 700 11px var(--mono); letter-spacing: .04em; text-transform: uppercase; color: var(--c-strong); margin-bottom: 2px; }
+.ans-play { position: absolute; left: 10px; top: 12px; width: 32px; height: 32px; border-radius: 50%; border: 0; background: var(--c); color: var(--c-ink); display: grid; place-items: center; cursor: pointer; }
+.ans-play .ico { width: 16px; }
+.ans-play.on { animation: pop .6s infinite alternate; }
+.ans-prof { margin: 10px 0 0; padding: 10px 14px; border-radius: 14px; background: var(--surface); border: 1.5px dashed var(--line); line-height: 1.6; }
+.ans-prof .ans-who { color: var(--muted); }
+.ans-pzh { color: var(--muted); font-size: 14px; margin-top: 2px; }
+.ans-qa { margin: 0 0 16px; }
+.ans-qa .ans-say { margin-top: 8px; }
+.ans-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0; }
+.ans-chips .mini-h { width: 100%; margin: 0; }
+.ans-chips span { font-size: 13px; padding: 4px 10px; border-radius: 99px; background: var(--c-soft); }
+.ans-ents { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; margin: 6px 0 12px; }
+.ans-ent { border: 1.5px solid var(--line); border-radius: 12px; padding: 10px; background: var(--surface); }
+.ans-ent > b { font: 700 14px var(--mono); color: var(--c-strong); display: block; margin-bottom: 6px; }
+.ans-ent > div { display: flex; flex-wrap: wrap; gap: 4px; }
+.ans-col { font: 12.5px var(--mono); padding: 2px 7px; border-radius: 6px; background: var(--code-bg); display: inline-flex; gap: 4px; align-items: center; }
+.ans-col i { font-style: normal; font-size: 10px; font-weight: 700; padding: 0 4px; border-radius: 4px; }
+.ans-col.pk i:first-of-type { background: var(--gold); color: oklch(20% 0.02 80); }
+.ans-col.fk i:last-of-type { background: var(--c); color: var(--c-ink); }
+.ans-why li { margin: 6px 0; line-height: 1.65; }
+.ans-q { border: 1.5px solid var(--line); border-radius: 16px; padding: 12px 14px; margin: 0 0 14px; background: color-mix(in srgb, var(--surface) 70%, var(--bg)); }
+.ans-qh { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.ans-qn { font: 700 13px var(--mono); background: var(--c); color: var(--c-ink); padding: 2px 8px; border-radius: 8px; }
+.ans-star { font-size: 12px; font-weight: 700; color: oklch(45% 0.13 70); background: color-mix(in srgb, var(--gold) 30%, var(--surface)); padding: 2px 8px; border-radius: 99px; }
+.ans-spec { font-size: 13.5px; color: var(--muted); margin: 8px 0 0; }
+.ans-q .code, .ans-q pre { margin-top: 8px; }
+.ans-end { margin: 28px 0 10px; }
+@media (max-width: 560px) {
+  .ans-en { padding-left: 14px; padding-top: 50px; }
+  .ans-zh { padding-left: 14px; }
+  .ans-toc { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .ans-toc .chip-btn { flex: none; }
+}
+
 </style>
 <header class="top" id="top"></header>
 <main id="main"><div class="wrap" style="padding-block:40px">加载中…</div></main>
@@ -11578,6 +11640,70 @@ window.MOCKS.push({
     { q: 'What were the five most common routes over the last year?', zh: '过去一年最常见的五条路线', ordered: true, spec: '过去一年 = start_time ≥ 2025-11-04，只算已经还车（有终点站）的骑行；起点和终点是同一个站也算一条路线。输出 <code>from_station, to_station, rides</code>：起点站名、终点站名、骑了几次。按 rides 从多到少排，相同先按 from_station、再按 to_station 字母顺序；只要前 5 行', sql: "SELECT a.name AS from_station, b.name AS to_station, COUNT(*) AS rides\nFROM rides r\nJOIN stations a ON a.station_id = r.start_station_id\nJOIN stations b ON b.station_id = r.end_station_id\nWHERE r.start_time >= '2025-11-04'\n  AND r.end_station_id IS NOT NULL\nGROUP BY a.station_id, a.name, b.station_id, b.name\nORDER BY rides DESC, from_station, to_station\nLIMIT 5;", note: '正在骑的 3 次骑行没有终点，要排除。这里 JOIN 终点站其实也会把它们去掉，但写明白更稳：只按 id 分组又不过滤的话，会多出一条「Delmar Loop → NULL」，3 次，挤进前五。Forest Park North 绕一圈回到原点也是正常路线，它和 Central West End → Union Station 都是 5 次，要有第二排序。第 5 名其实有两条路线并列（各 2 次），LIMIT 5 只留下一条。' },
     { q: 'How long is the average ride for members compared with day-pass riders?', zh: '会员和日票用户的平均骑行时长', exam: true, spec: '按骑行当时的身份（member / day_pass）每组一行，输出 <code>pass_type, rides, avg_minutes</code>：身份、骑行次数、平均骑了几分钟（保留 1 位小数）。过去一年 = start_time ≥ 2025-11-04，只算已经结束的骑行', sql: "SELECT r.pass_type, COUNT(*) AS rides,\n       ROUND(AVG((julianday(r.end_time) - julianday(r.start_time)) * 24 * 60), 1) AS avg_minutes\nFROM rides r\nWHERE r.end_time IS NOT NULL\n  AND r.start_time >= '2025-11-04'\nGROUP BY r.pass_type;", note: '按 <code>rides.pass_type</code> 分组，不是 <code>riders.pass_type</code>：Dev Raman 10 月才升级成会员，用他现在的身份算，之前 3 次日票骑行就被记成了会员。正在骑的 3 次没有结束时间，要排除。还要留意 ride 28：日票用户把车留了一夜，骑了 25.5 小时，这一条就把日票平均从约 39 分钟拉到约 146 分钟。可以另外报中位数，或者把超过 24 小时的骑行单独列出来。' },
   ],
+  /* bilingual model answer for the 「标准答卷」 page: what to say, in exam order (en = say this, zh = what it means) */
+  answer: {
+    open: {
+      en: "Thanks. Let me make sure I understand the scope first. The city runs a bike-share program, and the new app needs two things: day-to-day operations like finding bikes and free docks, starting and ending rides, and reporting broken bikes, and reports on how the system is used. Before I design anything, I have a few quick questions.",
+      zh: '谢谢。我先确认一下范围：城市在运营共享单车，新 app 要两样东西：日常操作（找车、找空桩、借车还车、报修），和系统使用情况的报表。开始设计之前，我想先问几个问题。',
+    },
+    clarifyZh: [
+      '问：系统有多大？｜答：一个城市。大约 300 个站点、4,000 辆车，夏天旺季一天最多 15,000 次骑行。',
+      '问：日票用户有账号吗，还是任何人走过去就能骑？｜答：所有人都通过 app 骑车，所以我们总是知道骑车人是谁。会员一年付一次费；日票用户一次付一天的钱。',
+      '问：日票用户以后能变成会员吗？｜答：能，这种情况经常发生。',
+      '问：车会不会没人骑也在站点之间移动？｜答：会。调度车把车从满的站搬到空的站，大多在夜里。',
+      '问：车有不同种类吗？｜答：有普通车和电动车，每种都有几个车型。',
+      '问：一次骑行必须在车桩结束吗？｜答：是的。车卡进任何一个站的空桩，骑行才结束。',
+      '问：我们也要处理付款吗？｜答：不用，账单是另一个团队的系统。专注在站点、单车和骑行上。',
+    ],
+    people: {
+      en: "The main users are riders, both annual members and day-pass riders, who find bikes and free docks, start and end rides, see their history and report broken bikes; operations staff, who watch for empty stations, full stations and bikes that haven't come back; mechanics, who work through repair reports and need to know where each broken bike is; and city planners and analysts, who look at busy stations, popular routes, monthly ridership and ride length. The key business nouns are station, dock, bike, bike model, rider, membership and day pass, ride, repair report and rebalancing.",
+      zh: '主要使用者有四类：骑车人，包括年度会员和日票用户（找车、找空桩、借车还车、看记录、报修）；运营调度（看哪里没车、哪里桩满了、哪些车没还回来）；维修技师（处理报修，要知道每辆坏车在哪）；城市规划和数据分析师（看热门站点、热门路线、每月骑行量和骑行时长）。关键的业务名词是：站点、车桩、单车、车型、骑车人、会员和日票、骑行、报修、调度搬车。',
+    },
+    tech: {
+      en: "This is transactional data with clear relationships, and starting or ending a ride changes several rows at once, so I'd use a relational database such as PostgreSQL, with transactions. One city with 15,000 rides on a busy day is a few million rides a year, which PostgreSQL handles fine. But rides only grows, and the city wants reports over a whole year, so I'd copy the data every night into a data warehouse, so heavy reports never slow down unlocking and returning bikes. Rider names and emails are personal data, so analysts should work with rider_id, and access to the riders table should be limited. Payments are another team's system, so we don't store any card data.",
+      zh: '这是关系清楚的交易型数据，而且借车、还车一次要改好几行，所以用关系型数据库，比如 PostgreSQL，用事务。一个城市、旺季一天 15,000 次骑行，一年就是几百万行，PostgreSQL 完全够用。但 rides 只增不减，城市又要看一整年的报表，所以每晚把数据同步到数据仓库，这样大报表不会拖慢借车和还车。骑车人的姓名和邮箱是个人数据，分析师应该只用 rider_id，riders 表的访问要限制。付款是另一个团队的系统，所以我们不存任何银行卡数据。',
+    },
+    walk: {
+      en: "I'll start with the dimension tables. stations has one row per station: name, neighborhood, and lat and lon for the map. docks has one row per dock, with station_id, dock_no and an in_service flag for broken docks. A station's capacity is just its number of docks, so I don't store it twice. bike_models has one row per model, with kind, classic or electric, and bikes has one row per physical bike, so model details are stored once. bikes has model_id, a status of ok, broken or retired, and dock_id, which is where the bike is right now. dock_id is NULL while the bike is being ridden or is in the shop, and it's UNIQUE, so one dock holds at most one bike. I keep the location on bikes because vans move bikes, so I can't work it out from rides. riders has one row per rider, with pass_type for their current pass.\nThen the fact tables. rides has one row per ride: bike_id, rider_id, pass_type, start_station_id, start_time, end_station_id and end_time. When a ride starts I insert the row with the end columns NULL, and when the bike is docked I fill them in, in the same transaction that updates bikes.dock_id. The pass_type on rides is the pass the rider had at the time of the ride, so a rider who upgrades later doesn't change old reports. repair_reports has one row per report: bike_id, the rider_id who reported it, which can be NULL for a mechanic's inspection, reported_at, problem and resolved_at. A NULL resolved_at means still open, and I also set bikes.status to broken so nobody can take that bike.",
+      zh: '先说维度表。stations 一个站一行：站名、街区，还有地图用的 lat 和 lon。docks 一个桩一行，有 station_id、dock_no，还有 in_service 标出坏掉的桩。站的容量就是桩的个数，所以不另存一遍。bike_models 一个车型一行，kind 是 classic 或 electric；bikes 一辆实体车一行，这样车型信息只存一次。bikes 有 model_id、status（ok、broken 或 retired），还有 dock_id，就是车现在停在哪。车正在被骑或在维修站时 dock_id 是 NULL，而且它是 UNIQUE，一个桩最多停一辆车。位置存在 bikes 上，是因为调度车会搬车，没法从 rides 推出来。riders 一个骑车人一行，pass_type 是他现在的身份。\n再说事实表。rides 一次骑行一行：bike_id、rider_id、pass_type、start_station_id、start_time、end_station_id、end_time。借车时 INSERT 一行，终点那两列先是 NULL；还车时再填上，和更新 bikes.dock_id 放在同一个事务里。rides 上的 pass_type 是骑行当时的身份，所以骑车人以后升级，旧报表不会变。repair_reports 一次报修一行：bike_id、报修的 rider_id（技师巡检发现的就是 NULL）、reported_at、problem、resolved_at。resolved_at 为 NULL 表示还没修好，同时把 bikes.status 改成 broken，没人能借走这辆车。',
+    },
+    probes: [
+      { en: "I look at bikes.dock_id for bike 1 and join docks to get the station: right now it's in a dock at Delmar Loop. No, I can't use rides alone. Its last ride ended at Danforth Campus, but a van moved it, and rebalancing doesn't create a ride. That's exactly why the current location lives on bikes.",
+        zh: '看 bike 1 的 bikes.dock_id，JOIN docks 拿到站点：它现在停在 Delmar Loop 的一个桩上。不能只靠 rides。它最后一次骑行停在 Danforth Campus，但调度车把它搬走了，搬车不会产生骑行记录。这正是「车现在在哪」存在 bikes 上的原因。' },
+      { en: "It's a normal rides row with bike_id, rider_id, pass_type, start_station_id and start_time filled in, and end_station_id and end_time still NULL. That bike's dock_id is also NULL. When the rider docks it, I update the ride to set end_station_id and end_time, and update bikes to set dock_id to the new dock, both in one transaction.",
+        zh: '它是 rides 里普通的一行：bike_id、rider_id、pass_type、start_station_id、start_time 都填好了，end_station_id 和 end_time 还是 NULL。这辆车的 dock_id 也是 NULL。骑车人还车时，UPDATE 这次骑行填上 end_station_id 和 end_time，再 UPDATE bikes 把 dock_id 设成新的桩，两条放在一个事务里。' },
+      { en: "The dock is not free, because a bike is physically in it: a row in bikes points at that dock_id. But the bike is not available, because available means docked and status = 'ok'. At Delmar Loop, bike 3 takes up a dock, but nobody can ride it. So free docks and available bikes are two separate queries, not capacity minus bikes.",
+        zh: '这个桩不算空，因为上面确实停着车：bikes 里有一行指向这个 dock_id。但这辆车也不算可借，因为可借 = 停在桩上并且 status = \'ok\'。Delmar Loop 的 bike 3 就占着一个桩，却没人能骑。所以空桩和可借的车是两个独立的查询，不能用「容量减车数」。' },
+      { en: "They stay in the day-pass group. I group by rides.pass_type, which is saved when each ride starts, not riders.pass_type, which is only the current pass. It's like storing the price on an order. For example, Dev Raman became a member in October, but his earlier rides still count as day-pass rides.",
+        zh: '它们还算在日票那一组。按 rides.pass_type 分组，它是每次借车时存下来的；而不是 riders.pass_type，那只是现在的身份。就像订单里要存成交价一样。比如 Dev Raman 10 月才成为会员，但他之前的骑行仍然算日票。' },
+      { en: "Capacity comes from the docks table: it's the number of docks at that station. I don't store it as a column on stations, so the two can't disagree. When a dock breaks, I set in_service to 0. The row stays for history, but it no longer counts as a free dock, so riders aren't sent there to return a bike.",
+        zh: '容量来自 docks 表：就是这个站有几个桩。不在 stations 上存一列，这样两边不会对不上。桩坏了，就把 in_service 设成 0。这一行留着做历史，但不再算空桩，app 就不会让骑车人去那里还车。' },
+      { en: "That's fine. repair_reports has one row per report, so the bike simply gets two rows, both with resolved_at NULL, and bikes.status is already broken after the first one. The mechanics list groups by bike, so the bike shows up once with a count of two. When it's fixed, I set resolved_at on both reports and status back to ok.",
+        zh: '没问题。repair_reports 一次报修一行，这辆车就有两行，resolved_at 都是 NULL；第一次报修后 bikes.status 已经是 broken 了。技师的清单按车分组，这辆车只出现一次，报修数是 2。修好以后，两条报修都填上 resolved_at，status 改回 ok。' },
+      { en: "No. bikes.dock_id has a UNIQUE constraint, so the database rejects a second bike with the same dock_id. NULL is allowed many times, which is what we want for bikes that are out on rides or in the shop. And because ending a ride updates rides and bikes in one transaction, the two never get out of step.",
+        zh: '不会。bikes.dock_id 有 UNIQUE 约束，第二辆车用同一个 dock_id 时数据库会拒绝。NULL 可以出现很多次，这正好用在正在骑或在维修站的车上。而且还车时 rides 和 bikes 在同一个事务里更新，两边不会不一致。' },
+      { en: "bike_models already has a kind column, so I'd add 'scooter' to the allowed kinds, and maybe rename bikes to vehicles. If scooters don't use docks, a ride can't end at a dock, so I'd add end lat and lon to rides, and a current lat and lon to the vehicle. Reports that join stations would then need a LEFT JOIN, or scooters reported separately.",
+        zh: 'bike_models 已经有 kind 列，所以在允许的种类里加上 \'scooter\'，也许把 bikes 改名成 vehicles。如果滑板车不用车桩，骑行就不会在桩上结束，那就在 rides 上加终点的 lat 和 lon，在车辆上加当前的 lat 和 lon。JOIN stations 的报表就要改成 LEFT JOIN，或者把滑板车单独统计。' },
+    ],
+    queries: [
+      { en: "Everything is on stations, so I select station_id, name, neighborhood, lat and lon from stations, ordered by name.", zh: '全都在 stations 上，所以从 stations 选 station_id、name、neighborhood、lat、lon，按 name 排序。' },
+      { en: "I start from bikes, join docks on dock_id, then stations for the name, and bike_models for the kind. Bikes out on a ride have a NULL dock_id, so the inner join drops them. I keep status = 'ok', group by station, count the rows for bikes, use SUM(kind = 'electric') for e-bikes, and order by station name.", zh: '从 bikes 出发，按 dock_id JOIN docks，再 JOIN stations 拿站名，JOIN bike_models 拿种类。正在骑的车 dock_id 是 NULL，普通 JOIN 自然排除了。保留 status = \'ok\'，按站分组，行数就是车数，SUM(kind = \'electric\') 是电动车数，按站名排序。' },
+      { en: "I start from docks, join stations, and LEFT JOIN bikes on dock_id. A free dock is one where no bike matched, so bike_id IS NULL, and it has to be in service, in_service = 1. Then I group by station, count, and order by free_docks descending, then name.", zh: '从 docks 出发，JOIN stations，再 LEFT JOIN bikes（按 dock_id）。空桩就是没有匹配到车的桩，也就是 bike_id IS NULL，而且要在用，in_service = 1。然后按站分组计数，按 free_docks 从多到少、再按站名排序。' },
+      { en: "I start from rides with rider_id = 1, join stations for the start station, and LEFT JOIN stations again for the end station, so the ride still in progress isn't dropped. Minutes is end_time minus start_time with julianday, times 24 times 60, rounded, and it's NULL for the open ride. I order by start_time descending.", zh: '从 rides 出发，rider_id = 1，JOIN stations 拿起点站，再 LEFT JOIN 一次 stations 拿终点站，这样正在骑的那次不会丢。分钟数是用 julianday 算 end_time 减 start_time，乘 24 乘 60 再四舍五入，正在骑的那次是 NULL。按 start_time 从新到旧排。' },
+      { en: "Two updates in one transaction. First, UPDATE rides SET end_station_id = 5 and end_time = '2026-11-04 09:05' WHERE bike_id = 4 AND end_time IS NULL, so I only close the open ride, not bike 4's older rides. Then UPDATE bikes SET dock_id = 16 WHERE bike_id = 4.", zh: '一个事务里两条 UPDATE。先 UPDATE rides，SET end_station_id = 5、end_time = \'2026-11-04 09:05\'，WHERE bike_id = 4 AND end_time IS NULL，这样只结束正在进行的那次，不会改到 bike 4 以前的骑行。再 UPDATE bikes SET dock_id = 16 WHERE bike_id = 4。' },
+      { en: "Also two steps in one transaction. I INSERT a row into repair_reports with bike_id 10, rider_id 3, reported_at and the problem, leaving resolved_at NULL. Then I UPDATE bikes SET status = 'broken' WHERE bike_id = 10, so it stops counting as available, even though it still takes up its dock.", zh: '也是一个事务里两步。先 INSERT 一行到 repair_reports：bike_id 10、rider_id 3、reported_at 和 problem，resolved_at 留空。再 UPDATE bikes SET status = \'broken\' WHERE bike_id = 10，这样它不再算可借的车，虽然它还占着桩。' },
+      { en: "I start from repair_reports where resolved_at IS NULL, join bikes, then LEFT JOIN docks and stations, so a bike that isn't docked still shows up. I group by bike, take MIN(reported_at) as first_report and COUNT(*) as reports, show the station name or 'not docked' with COALESCE, and order by first_report.", zh: '从 repair_reports 出发，只要 resolved_at IS NULL 的，JOIN bikes，再 LEFT JOIN docks 和 stations，这样不在桩上的车也会出现。按车分组，MIN(reported_at) 是 first_report，COUNT(*) 是报修数，用 COALESCE 显示站名或 \'not docked\'，按 first_report 排序。' },
+      { en: "I start from rides where end_time IS NULL, so only bikes still out, and start_time is before 9 a.m. yesterday, '2026-11-03 09:00'. I join riders for name and email, and stations for the start station. hours_out is now minus start_time in hours, rounded to one decimal, and I order by start_time.", zh: '从 rides 出发，end_time IS NULL，也就是还没还的车，并且 start_time 早于昨天早上 9 点，\'2026-11-03 09:00\'。JOIN riders 拿姓名和邮箱，JOIN stations 拿起点站。hours_out 是现在减 start_time 的小时数，保留 1 位小数，按 start_time 排序。' },
+      { en: "Just rides. I keep start_time from '2025-11-01' up to, but not including, '2026-11-01', take the month as the first seven characters with substr, group by month, count, and order by month. A month with no rides won't appear; to show a zero I'd need a months table and a LEFT JOIN.", zh: '只用 rides。保留 start_time 从 \'2025-11-01\' 起、小于 \'2026-11-01\' 的，用 substr 取前 7 个字符当月份，按月份分组计数，按月份排序。没有骑行的月份不会出现；要显示 0，得有一张月份表再 LEFT JOIN。' },
+      { en: "Pick-ups are in start_station_id and drop-offs are in end_station_id, so I stack them with UNION ALL: start stations of rides that started in October, and end stations of rides that ended in October, using >= October 1 and < November 1. Then I join stations, group by station, count the visits, and order by visits descending, then name.", zh: '借出在 start_station_id，还入在 end_station_id，所以用 UNION ALL 把它们叠成一列：10 月开始的骑行取起点站，10 月结束的骑行取终点站，条件用 >= 10 月 1 日并且 < 11 月 1 日。然后 JOIN stations，按站分组数次数，按 visits 从多到少、再按站名排序。' },
+      { en: "I start from rides with start_time >= '2025-11-04' and end_station_id IS NOT NULL, and join stations twice, once for the start and once for the end. I group by start and end station, count, order by rides descending with the station names as tie-breakers, and LIMIT 5.", zh: '从 rides 出发，start_time >= \'2025-11-04\' 并且 end_station_id IS NOT NULL，JOIN 两次 stations，一次拿起点、一次拿终点。按起点站和终点站分组计数，按 rides 从多到少排，相同的再按站名排，LIMIT 5。' },
+      { en: "Only rides. I keep finished rides, end_time IS NOT NULL, from the last year, and group by rides.pass_type, the pass at the time of the ride, not the rider's current pass. I count the rides and average end_time minus start_time in minutes, rounded to one decimal. I'd also mention that one overnight day-pass ride pulls the average way up, so a median is worth showing too.", zh: '只用 rides。保留已经结束的骑行（end_time IS NOT NULL）、过去一年的，按 rides.pass_type 分组，也就是骑行当时的身份，而不是骑车人现在的身份。数骑行次数，算 end_time 减 start_time 的平均分钟数，保留 1 位小数。我还会提一句：有一次日票骑行过了一夜，把平均值拉高很多，所以最好也给出中位数。' },
+    ],
+    close: {
+      en: "To sum up: five dimension tables, stations, docks, bike_models, bikes and riders, and two fact tables, rides and repair_reports. Bike models are split from physical bikes, and a station's capacity comes from its docks. Where a bike is right now lives in bikes.dock_id, which is UNIQUE, an open ride has NULL end columns, and starting or ending a ride updates rides and bikes in one transaction. rides keeps the pass type at the time of the ride, and repairs are their own rows with resolved_at, plus a broken status on the bike, so nothing is deleted. Every report is a GROUP BY on rides joined to stations, and as rides grow I'd move reporting to a nightly data warehouse.",
+      zh: '总结一下：五张维度表 stations、docks、bike_models、bikes、riders，两张事实表 rides、repair_reports。车型和实体单车分开，站的容量来自桩的个数。车现在在哪存在 bikes.dock_id 上，它是 UNIQUE；正在骑的骑行终点列为 NULL；借车、还车在一个事务里同时更新 rides 和 bikes。rides 存骑行当时的身份；报修是单独的行，用 resolved_at 记录，车上再标 broken，什么都不删。所有报表都是 rides JOIN stations 再 GROUP BY；骑行量变大以后，把报表挪到每晚同步的数据仓库。',
+    },
+  },
 });
 
 /* Full mock interview: movie theater ticketing (the course's second official practice prompt, reworded).
@@ -11672,6 +11798,69 @@ window.MOCKS.push({
     { q: 'Show the net revenue for each genre over the last year.', zh: '过去一年各类型的收入', spec: '输出 <code>genre, revenue</code>；过去一年同上', sql: "SELECT m.genre, SUM(t.price) AS revenue\nFROM tickets t\nJOIN showtimes s ON s.show_id = t.show_id\nJOIN movies m ON m.movie_id = s.movie_id\nWHERE s.starts_at >= '2025-11-04' AND s.starts_at < '2026-11-04'\nGROUP BY m.genre\nORDER BY revenue DESC;" },
     { q: 'Walk me through selling seat A4 for showing 12356 to customer 1.', zh: '把场次 12356 的 A4 座卖给顾客 1', spec: '新建一笔交易（顾客 1，2026-11-04 10:00），再卖出 A4（seat_id 4）一张成人票（14）', check: 'SELECT t.seat_id, t.ticket_type, t.price, x.customer_id FROM tickets t JOIN transactions x ON x.transaction_id = t.transaction_id WHERE t.show_id = 12356 ORDER BY t.seat_id;', dml: true, sql: "BEGIN;\nINSERT INTO transactions (customer_id, purchased_at) VALUES (1, '2026-11-04 10:00');\nINSERT INTO tickets (transaction_id, show_id, seat_id, ticket_type, price)\nVALUES (last_insert_rowid(), 12356, 4, 'adult', 14);\nCOMMIT;", note: 'A4 是 Loop Cinema 1 号厅的 seat_id 4。如果这一场的 A4 已经卖了，UNIQUE (show_id, seat_id) 会让第二条 INSERT 报错，事务回滚，交易也不会留下。' },
   ],
+  /* bilingual model answer for the 「标准答卷」 page: what to say, in exam order (en = say this, zh = what it means) */
+  answer: {
+    open: {
+      en: "Thanks. Let me make sure I understand the scope first. A theater chain sells tickets for showings of movies, one seat per ticket, and it must never sell the same seat twice for the same showing. It also wants reports on which movies and genres are most popular. Before I design anything, I have a few quick questions.",
+      zh: '谢谢。我先确认一下范围：一家连锁影院卖电影场次的票，一张票一个座位，同一场的同一个座位绝不能卖两次。它还想要报表，看哪些电影和类型最受欢迎。开始设计之前，我想先问几个问题。',
+    },
+    clarifyZh: [
+      '问：是一栋楼，还是好几家影院、每家有好几个厅？｜答：好几家影院，每家有好几个厅。',
+      '问：一次购买能包含不同场次的票吗？｜答：你会怎么选？这对你的表有什么影响？（考官把问题抛回给你。）',
+      '问：票价会不一样吗，比如儿童或长者？｜答：会：有成人票、儿童票和长者票。',
+      '问：同一部电影能同时在两个厅放吗？｜答：能。大片经常这样。',
+      '问：我们知道每张票是谁买的吗？｜答：假设每次购买都是一个已知的顾客。',
+      '问：「5 月 1 日到 8 月 1 日」包括 8 月 1 日吗？｜答：问得好。告诉我你怎么假设。',
+    ],
+    people: {
+      en: "The main users are customers, who look up movies and showtimes, pick seats and buy tickets; sales clerks, who sell tickets at the counter; theater managers, who schedule showings and watch how full they are; and executives and analysts, who want to know which movies and genres are most popular and earn the most. The key business nouns are movie, showing or showtime, location, screen, seat, ticket, transaction, and genre and rating.",
+      zh: '主要使用者有：观众（查电影和场次、选座、买票）；售票员（在柜台卖票）；影院经理（排片、看上座率）；高管和数据分析师（想知道哪些电影、哪些类型最受欢迎、最赚钱）。关键的业务名词是：电影、放映场次、影院、影厅、座位、票、交易（一次购买），还有类型和分级。',
+    },
+    tech: {
+      en: "Selling tickets is transactional, and the rule about one seat per showing has to be enforced safely, so I'd use a relational database such as PostgreSQL, with a unique constraint and transactions. For a chain with several locations, the reports can start on the same database, maybe on a read replica. If ticket volume and reporting grow, I'd copy the data every night into a data warehouse, so the popularity reports never slow down ticket sales. Customer names, emails and phone numbers are personal data, so I'd limit who can read the customers table, and I wouldn't store card numbers at all.",
+      zh: '卖票是交易型操作，「一场一个座位只卖一次」这条规则必须安全地保证，所以用关系型数据库，比如 PostgreSQL，靠唯一约束和事务。几家影院的规模，报表一开始可以在同一个库上跑，也可以放在只读副本上。票量和报表变多以后，每晚把数据同步到数据仓库，这样热门度报表不会拖慢卖票。顾客的姓名、邮箱、电话是个人信息，所以要限制谁能读 customers 表，银行卡号根本不存。',
+    },
+    walk: {
+      en: "I'll start with the dimension tables. movies has one row per movie: title, genre, rating and length_min. showtimes has one row per showing, with movie_id, screen_id and starts_at, so one movie can have many showings, even on two screens at the same time. locations has the name and address of each building, and screens has location_id and screen_no. I split them so the address is stored once, not once per screen. seats belongs to a screen, with row_label and seat_no, because seats are fixed in the room. customers has name, email and phone.\nThen the fact tables. transactions has one row per purchase: customer_id and purchased_at. tickets has one row per ticket: transaction_id, show_id, seat_id, ticket_type and price. I put show_id on the ticket, not the transaction, so one purchase can include different showings, and so I can add UNIQUE (show_id, seat_id), which lets the database itself stop a double sale. The price is stored on each ticket, because adult, child and senior prices differ and can change; the order total is just the sum. Open seats and percent sold are computed from seats and tickets, not stored.",
+      zh: '先说维度表。movies 一部电影一行：title、genre、rating、length_min。showtimes 一场放映一行，有 movie_id、screen_id、starts_at，所以一部电影可以放很多场，甚至同一时间在两个厅放。locations 存每栋影院的名字和地址，screens 有 location_id 和 screen_no。两张表分开，地址只存一次，而不是每个厅存一遍。seats 属于影厅，有 row_label 和 seat_no，因为座位在厅里是固定的。customers 存 name、email、phone。\n再说事实表。transactions 一次购买一行：customer_id 和 purchased_at。tickets 一张票一行：transaction_id、show_id、seat_id、ticket_type、price。show_id 放在票上而不是交易上，这样一单可以买不同场次，而且可以加 UNIQUE (show_id, seat_id)，让数据库自己挡住重复卖票。票价存在每张票上，因为成人、儿童、长者价格不同，还会调价；订单总价就是加起来。空座和上座率都从 seats 和 tickets 算出来，不另外存。',
+    },
+    probes: [
+      { en: "That's why movies and showtimes are separate tables. The movie's title, genre and rating are stored once in movies, and each showing is one row in showtimes with movie_id, screen_id and starts_at. So a movie that plays thirty times a week is one movie row and thirty showtime rows.",
+        zh: '这正是 movies 和 showtimes 分开的原因。片名、类型、分级在 movies 里只存一次，每一场是 showtimes 里的一行，有 movie_id、screen_id、starts_at。一部电影一周放三十场，就是一行电影加三十行场次。' },
+      { en: "That's exactly the problem I avoided. In my design, locations holds the building with its name and address, and screens holds each screen with a location_id. So a building with eight screens has its address stored once, and if it changes, I update one row.",
+        zh: '这正是我避开的问题。我的设计里，locations 存影院本身（名字、地址），screens 每个厅一行，带 location_id。所以一栋楼有八个厅，地址也只存一次，地址改了只更新一行。' },
+      { en: "I let the database enforce it. tickets has both show_id and seat_id, and I add UNIQUE (show_id, seat_id). If two clerks try to sell the same seat at the same time, the second INSERT fails, and its transaction rolls back.",
+        zh: '交给数据库保证。tickets 上同时有 show_id 和 seat_id，再加 UNIQUE (show_id, seat_id)。两个售票员同时卖同一个座位，第二条 INSERT 会失败，它的事务回滚。' },
+      { en: "Yes, in my design. show_id lives on the ticket, not on the transaction, so one transaction can hold tickets for different showings. If show_id were on the transaction instead, one purchase could only be for one showing.",
+        zh: '在我的设计里可以。show_id 在票上而不是交易上，所以一笔交易可以包含不同场次的票。如果 show_id 放在交易上，一次购买就只能买一场。' },
+      { en: "Yes. Each showing is its own row in showtimes, with its own screen_id. Two rows can have the same movie_id and the same starts_at with different screens, and nothing in the model blocks that.",
+        zh: '可以。每一场是 showtimes 里单独的一行，有自己的 screen_id。两行可以有相同的 movie_id 和 starts_at、不同的厅，模型里没有任何东西挡住。' },
+      { en: "The price lives on each ticket, along with ticket_type, adult, child or senior. It's the price at the moment of sale, so when prices change later, old tickets keep what was actually paid. I don't store a total on the transaction, because it can be summed from the tickets and two copies could disagree.",
+        zh: '票价存在每张票上，旁边还有 ticket_type（成人、儿童、长者）。它是卖出那一刻的价格，以后调价，旧票还保留实际付的钱。交易上不存总价，因为可以从票上加出来，存两份可能对不上。' },
+      { en: "I find the showing's screen, take all seats on that screen, and remove the seats that already have a ticket for that same showing, with NOT IN a subquery on tickets filtered by show_id. Nothing is stored as available; it's computed every time.",
+        zh: '找到这一场所在的厅，取这个厅的全部座位，再去掉这一场已经有票的座位：NOT IN 一个按 show_id 过滤的 tickets 子查询。没有存「可用」这种列，每次都是算出来的。' },
+    ],
+    queries: [
+      { en: "Movies are one row each in movies, so it's just SELECT title FROM movies. If you mean only movies that still have showings, I'd join showtimes and keep starts_at from today on.", zh: '电影在 movies 里一部一行，所以直接 SELECT title FROM movies。如果你指的是还有场次的电影，就 JOIN showtimes，只留 starts_at 从今天起的。' },
+      { en: "Same table, with a filter on genre: WHERE genre = 'Superhero', in single quotes. In the app, the genre would be a parameter.", zh: '同一张表，按类型过滤：WHERE genre = \'Superhero\'，用单引号。在应用里，类型会是一个参数。' },
+      { en: "I start from showtimes, join movies to filter on the title The Hobbit, and join screens and locations to get the screen number and the location name. Then I order by starts_at.", zh: '从 showtimes 出发，JOIN movies 按片名 The Hobbit 过滤，再 JOIN screens 和 locations 拿厅号和影院名。最后按 starts_at 排序。' },
+      { en: "Same joins: showtimes to movies, screens and locations. The filter is starts_at = '2026-10-31 19:30', and I return the title, location and screen number. The same movie can show up twice, on two screens.", zh: '同样的 JOIN：showtimes 连 movies、screens、locations。条件是 starts_at = \'2026-10-31 19:30\'，输出片名、影院和厅号。同一部电影可能出现两次，在两个厅。' },
+      { en: "I start from showtimes with show_id 12356 and join seats on screen_id to get every seat in that screen. Then I drop the seats with NOT IN a subquery of tickets where show_id = 12356, so only this showing's sold seats are removed.", zh: '从 showtimes 里 show_id = 12356 这一场出发，按 screen_id JOIN seats 拿到这个厅的全部座位。再用 NOT IN 去掉 tickets 里 show_id = 12356 的座位，只排除这一场已卖的。' },
+      { en: "Seats belong to a screen, so it's COUNT(*) FROM seats WHERE screen_id = 3.", zh: '座位属于影厅，所以是 COUNT(*) FROM seats WHERE screen_id = 3。' },
+      { en: "show_id is on the ticket, so no join is needed: COUNT(*) FROM tickets WHERE show_id = 12345.", zh: '票上就有 show_id，不用 JOIN：COUNT(*) FROM tickets WHERE show_id = 12345。' },
+      { en: "Two counts. On top, the tickets for show 12353. On the bottom, the seats in that showing's screen, by joining seats to showtimes on screen_id. I multiply by 100.0 so it's not integer division, and ROUND to one decimal.", zh: '两个计数。分子是 12353 这一场的票数；分母是这一场所在厅的座位数，seats 按 screen_id JOIN showtimes。乘 100.0 避免整数除法，再 ROUND 保留一位小数。' },
+      { en: "I start from movies and LEFT JOIN showtimes and tickets, so a movie with no sales still shows up with zero. I count t.ticket_id, group by movie, and order by tickets descending, then by title.", zh: '从 movies 出发，LEFT JOIN showtimes 和 tickets，这样一张票都没卖的电影也会显示 0。COUNT(t.ticket_id)，按电影分组，按票数从多到少，再按片名排。' },
+      { en: "I start from tickets, join showtimes and movies, filter on title = 'Superman', and SUM(t.price). Summing on tickets avoids double counting a transaction total.", zh: '从 tickets 出发，JOIN showtimes 和 movies，过滤 title = \'Superman\'，再 SUM(t.price)。在票上求和，避免把交易总价重复计算。' },
+      { en: "I include August 1. I go from tickets to showtimes to movies, keep starts_at >= '2025-05-01' and < '2025-08-02', group by genre, count tickets, and order from most to least.", zh: '我把 8 月 1 日算在内。tickets → showtimes → movies，保留 starts_at >= \'2025-05-01\' 且 < \'2025-08-02\'，按 genre 分组数票，从多到少排。' },
+      { en: "Same joins, but I keep starts_at from 2025-11-04 up to, but not including, today, 2026-11-04, so pre-sold future showings don't count. I group by movie, count tickets, order by tickets descending then title, and LIMIT 10.", zh: '同样的 JOIN，但只留 starts_at 从 2025-11-04 到今天 2026-11-04（不含今天），这样预售的未来场次不算。按电影分组数票，按票数从多到少、再按片名排，LIMIT 10。' },
+      { en: "Same joins and the same last-year window on starts_at, but I group by genre and SUM(t.price) instead of counting. Then order by revenue, descending.", zh: '同样的 JOIN、同样按 starts_at 取过去一年，但按 genre 分组，用 SUM(t.price) 而不是计数。再按收入从多到少排。' },
+      { en: "In one transaction: first I INSERT a row into transactions for customer 1 with purchased_at. Then I INSERT a ticket with that new transaction_id, show 12356, seat_id 4, adult, price 14, and COMMIT. If A4 is already sold for that showing, the UNIQUE (show_id, seat_id) makes the ticket insert fail, and the whole transaction rolls back.", zh: '放在一个事务里：先在 transactions 插一行（顾客 1，purchased_at）。再插一张票：用新的 transaction_id、场次 12356、seat_id 4、成人票、价格 14，然后 COMMIT。如果这一场的 A4 已经卖了，UNIQUE (show_id, seat_id) 会让插票失败，整个事务回滚。' },
+    ],
+    close: {
+      en: "To sum up: the dimension tables are movies, showtimes, locations, screens, seats and customers, and the fact tables are transactions and tickets. Movies and showtimes are split, and locations and screens are split, so nothing is stored twice. A ticket is one seat for one showing, and UNIQUE (show_id, seat_id) stops double sales; the price is stored on the ticket. Every report starts from tickets, joins showtimes and movies, then filters by starts_at and groups. If volume grows, I'd move reporting to a nightly data warehouse.",
+      zh: '总结一下：维度表是 movies、showtimes、locations、screens、seats、customers，事实表是 transactions 和 tickets。电影和场次分开、影院和影厅分开，所以没有东西重复存。一张票 = 一个座位 + 一场放映，UNIQUE (show_id, seat_id) 防止重复卖票；票价存在票上。所有报表都从 tickets 出发，JOIN showtimes 和 movies，再按 starts_at 过滤、分组。量变大以后，把报表挪到每晚同步的数据仓库。',
+    },
+  },
 });
 
 /* Full mock interview: fitness studio chain class bookings (original practice scenario).
@@ -11966,6 +12155,86 @@ window.MOCKS.push({
     { q: 'Which sessions last month ran below half full?', zh: '上个月不到半满的课', exam: true, spec: '输出 <code>session_id, class, starts_at, attended, capacity</code>；上个月 = starts_at ≥ 2026-10-01 且 &lt; 2026-11-01；attended = 这节课 status 为 attended 的人数；列出 attended 严格小于 capacity 一半的课（一个人都没来的也要列出）', sql: "SELECT s.session_id, ct.name AS class, s.starts_at,\n       COUNT(b.booking_id) AS attended, s.capacity\nFROM sessions s\nJOIN class_types ct ON ct.class_type_id = s.class_type_id\nLEFT JOIN bookings b ON b.session_id = s.session_id AND b.status = 'attended'\nWHERE s.starts_at >= '2026-10-01' AND s.starts_at < '2026-11-01'\nGROUP BY s.session_id, ct.name, s.starts_at, s.capacity\nHAVING 2 * COUNT(b.booking_id) < s.capacity;", note: "① 一个人都没来的课最该被找出来。session 6 没有任何预约，普通 JOIN 会把它丢掉；把 <code>b.status = 'attended'</code> 写在 WHERE 里也一样，3 行只剩 2 行。条件要写在 LEFT JOIN 的 ON 里，再用 <code>COUNT(b.booking_id)</code>。② 小心整数除法：<code>COUNT(…) / s.capacity &lt; 0.5</code> 是两个整数相除，没坐满的课都得 0，结果会列出 9 节课。写成 <code>2 * COUNT(…) &lt; s.capacity</code>，或者先乘 1.0。③「不到一半」不含正好一半：session 9 是 3 ÷ 6，写成 <code>&lt;=</code> 会多出它。④ 10 月 31 日那节 HIIT 也在结果里，用 BETWEEN 会漏掉。结果三节全是 HIIT：这本身就是值得报告的发现。" },
     { q: "What is each member's no-show rate for last month?", zh: '上个月每位会员的爽约率', ordered: true, spec: '输出 <code>name, no_show_rate</code>；上个月（同上）；no_show_rate = no_show ÷ (attended + no_show) × 100，保留 1 位小数；只列上个月有 attended 或 no_show 记录的会员；按 no_show_rate 从高到低，相同按 name', sql: "SELECT m.name,\n       ROUND(100.0 * SUM(b.status = 'no_show') / COUNT(*), 1) AS no_show_rate\nFROM bookings b\nJOIN members m ON m.member_id = b.member_id\nJOIN sessions s ON s.session_id = b.session_id\nWHERE b.status IN ('attended', 'no_show')\n  AND s.starts_at >= '2026-10-01' AND s.starts_at < '2026-11-01'\nGROUP BY m.member_id, m.name\nORDER BY no_show_rate DESC, m.name;", note: '取消不等于爽约：提前取消，名额还能给别人。把取消也当成「没来」，Milo Sandoval（两次取消、一次爽约、一次到场）会变成 75.0，排到第一；正确的第一是 Faye Moreau（66.7）。又是整数除法：要写 <code>100.0 *</code>。有 7 个人都是 0.0，所以第二排序（姓名）一定要有。' },
   ],
+  /* bilingual model answer for the 「标准答卷」 page: what to say, in exam order (en = say this, zh = what it means) */
+  answer: {
+    open: {
+      en: "Thanks. Let me make sure I understand the scope first. A small chain of fitness studios needs a system to schedule classes, take bookings, handle cancellations and waitlists, and check people in. Management also wants attendance reports. Before I design anything, I have a few quick questions.",
+      zh: '谢谢。我先确认一下范围：一个小型连锁健身工作室，需要一个系统来排课、约课、处理取消和候补、给会员签到。管理层还想要出勤方面的报表。开始设计之前，我想先问几个问题。',
+    },
+    clarifyZh: [
+      '问：有几家门店？每家有几个教室？｜答：现在三家，每家一到两个教室。他们打算再开新店。',
+      '问：同一种课一周会上很多次吗？｜答：会。比如 Vinyasa Yoga 一周上好几次，教室不同，教练也常常不同。',
+      '问：名额由什么决定：教室，还是这节课？｜答：通常由教室决定：能放几辆单车或几张垫子。但教练可以把一节课的名额调低，比如新手工作坊。',
+      '问：一个会员可以先后有好几段会员资格吗？｜答：可以。每段会员资格有开始日期和结束日期。有人会让它过期，过一阵再回来；也有人在旧的到期前就续费。',
+      '问：会员取消预约会怎样？有截止时间或者罚款吗？｜答：开课前随时可以取消。迟取消罚款有更好，但不是必须。如果有候补名单，名额给等得最久的人。',
+      '问：一个会员能在同一节课订两个名额吗，比如帮朋友订？｜答：不能。每个会员每节课只能一个名额。带客人不在范围内。',
+      '问：出勤是指预约了的人，还是真正来了的人？｜答：好问题。你建议怎么算，为什么？（考官把问题抛回给你。）',
+    ],
+    people: {
+      en: "The main users are members, who look at the schedule, book classes, cancel and join waitlists; front-desk staff, who check people in and check if a membership is active; instructors, who see who is coming to their class; studio managers, who plan the schedule and look for busy hours and half-empty classes; and management and analysts, who want attendance rates, popular instructors and no-show rates. The key business nouns are studio, room, class type, session, instructor, member, membership, booking, waitlist, and check-in or no-show.",
+      zh: '主要使用者有：会员（看课表、约课、取消、排候补）；前台（签到、查会员资格是否有效）；教练（看自己的课上有谁）；门店经理（排课，找最忙的时段和坐不满的课）；管理层和分析师（看出勤率、热门教练、爽约率）。关键的业务名词是：门店、教室、课程类型、排好的一节课（session）、教练、会员、会员资格、预约、候补名单，以及签到或爽约。',
+    },
+    tech: {
+      en: "This is transactional data with clear relationships, and booking the last spot needs real transactions, so I'd use a relational database such as PostgreSQL. Three studios and a few hundred bookings a week is small, so the reports can run on the same database at first. If the chain grows to many studios, I'd copy the data every night into a data warehouse, so reports never slow down booking. Member names and emails are personal data, so I'd limit who can read them, and analysts can work with member_id instead.",
+      zh: '这是关系清楚的交易型数据，而且抢最后一个名额需要真正的事务，所以用关系型数据库，比如 PostgreSQL。三家门店、每周几百条预约，规模很小，一开始报表直接在同一个库上跑就行。如果连锁店开到很多家，就每晚把数据同步到数据仓库，这样报表不会拖慢约课。会员的姓名和邮箱是个人数据，要限制谁能看，分析师用 member_id 就够了。',
+    },
+    walk: {
+      en: "I'll start with the dimension tables. studios has one row per studio, and rooms has one row per room, with studio_id and its capacity, meaning how many bikes or mats it holds. class_types has one row per kind of class: name, level, duration_min and description. instructors and members are simple: an id, a name and an email. memberships is separate from members, one row per period, with plan, start_date and end_date, because one person can have several memberships over time. A membership is active on a day if any of their rows covers that day. Then sessions is the schedule: one row per scheduled class, with class_type_id, room_id, instructor_id, starts_at and capacity. I keep class_types and sessions separate, so a description is stored once, not once per class. Capacity is copied from the room onto the session, so an instructor can set it lower.\nThen the fact tables. bookings has one row per booking: session_id, member_id, booked_at and a status, which is booked, cancelled, attended or no_show. I never delete a cancelled booking, because we need that history for attendance and no-show rates. A UNIQUE constraint on session_id and member_id stops the same member from booking a class twice. Spots left is not stored; it's computed as capacity minus the bookings that are not cancelled. waitlist has one row per member waiting for a session, with joined_at to find who has waited the longest, and a status of waiting, promoted or left.",
+      zh: '先说维度表。studios 一家门店一行；rooms 一个教室一行，有 studio_id 和容量，也就是能放几辆单车或几张垫子。class_types 一种课一行：name、level、duration_min、description。instructors 和 members 很简单：id、姓名、邮箱。memberships 和 members 分开，一段会员资格一行，有 plan、start_date、end_date，因为一个人可以先后有好几段。某一天会员资格是否有效，就看他有没有任何一行包含这一天。然后 sessions 是课表：排好的一节课一行，有 class_type_id、room_id、instructor_id、starts_at 和 capacity。class_types 和 sessions 分开，课程介绍只存一次，而不是每节课存一遍。capacity 从教室抄到 session 上，这样教练可以把它调低。\n再说事实表。bookings 一次预约一行：session_id、member_id、booked_at 和 status，status 是 booked、cancelled、attended 或 no_show。取消的预约从不删行，因为算出勤率和爽约率需要这些历史。session_id 和 member_id 上有 UNIQUE 约束，挡住同一个会员把一节课订两次。剩余名额不存，而是算出来：capacity 减去没取消的预约数。waitlist 一个会员排一节课一行，有 joined_at 用来找等得最久的人，还有 status：waiting、promoted 或 left。',
+    },
+    probes: [
+      { en: "The description lives once in class_types: the name, level, duration and description. Tuesday's 6 p.m. class is one row in sessions, with the class_type_id, the room, the instructor, starts_at and capacity. So Vinyasa Yoga is one row in class_types and many rows in sessions.",
+        zh: '课程介绍只在 class_types 里存一次：课名、难度、时长、介绍。周二晚 6 点那节课是 sessions 里的一行，有 class_type_id、教室、教练、starts_at 和 capacity。所以 Vinyasa Yoga 在 class_types 里一行，在 sessions 里有很多行。' },
+      { en: "The room has a capacity, which is how many bikes or mats it holds. When we schedule a session, we copy that number into sessions.capacity, and the instructor can lower it. So for a cap of five in a room for six, the session just has capacity 5, and the room still says 6.",
+        zh: '教室有容量，就是能放几辆单车或几张垫子。排课时把这个数抄到 sessions.capacity，教练可以再调低。所以在 6 人的教室开 5 个名额，这节课的 capacity 就写 5，教室那里还是 6。' },
+      { en: "No. I update its status to cancelled. If I delete it, I lose the history: I can't count cancellations, I can't tell a cancellation from a no-show, and I couldn't charge a late-cancellation fee later. If we want that fee, I'd add a cancelled_at column.",
+        zh: '不删，把 status 改成 cancelled。删了就丢了历史：数不出取消次数，分不清取消和爽约，以后也没法收迟取消的费用。如果要收这个费用，再加一列 cancelled_at。' },
+      { en: "A UNIQUE constraint on session_id and member_id in bookings, so the database itself rejects a second row. The side effect is that if they cancel and want to book again, an INSERT would fail. So instead I update their existing row back to booked.",
+        zh: '在 bookings 上加 UNIQUE (session_id, member_id)，数据库自己就会拒绝第二行。副作用是：取消以后想再订，INSERT 会报错。所以改成把原来那一行 UPDATE 回 booked。' },
+      { en: "The spot goes to the member on the waitlist for that session with status waiting and the earliest joined_at. In one transaction I set the cancelled booking to cancelled, insert a new booking for that member, and set their waitlist row to promoted. Because I only pick rows that are still waiting, someone already promoted is never picked again, and the UNIQUE constraint on bookings would block a second booking anyway.",
+        zh: '名额给这节课候补里 status 为 waiting、joined_at 最早的那个会员。在一个事务里：把取消的预约改成 cancelled，给这个会员新增一条预约，再把他的候补记录改成 promoted。因为只挑还在 waiting 的行，已经转正的人不会被再选中；而且 bookings 上的 UNIQUE 约束也会挡住第二条预约。' },
+      { en: "Yes, it's active. The query doesn't look at just one row. It asks if there EXISTS any membership for that member where start_date is on or before today and end_date is on or after today. The June one fails that check, but the October one passes, so they are active.",
+        zh: '有效。查询不是随便看一行，而是问：这个会员是否存在（EXISTS）任何一段会员资格，start_date 不晚于今天，并且 end_date 不早于今天。六月那段不满足，但十月那段满足，所以有效。' },
+      { en: "Honestly, in this design a constraint can't stop it, because the spots are just a number, not rows. So the booking runs in one transaction: lock the session row, for example with SELECT ... FOR UPDATE, count the bookings that are not cancelled, and insert only if there is still room. The second person waits for the lock, sees the class is full, and goes to the waitlist. Another option is a spots table with one row per spot, or a bikes table with UNIQUE on session_id and bike_id, like seats in a cinema.",
+        zh: '老实说，在这个设计里约束挡不住，因为名额只是一个数字，不是一行一行的。所以约课要放在一个事务里：锁住这节课那一行，比如用 SELECT ... FOR UPDATE，数一下没取消的预约，还有空位才 INSERT。第二个人要等锁，等到时看到已经满了，就进候补名单。另一个办法是加一张 spots 表，每个名额一行；或者加 bikes 表，在 session_id 和 bike_id 上加 UNIQUE，就像电影院的座位。' },
+      { en: "Only bookings with an outcome: attended plus no_show. Cancelled bookings don't count, because the member gave the spot back. Bookings still marked booked are for classes that haven't happened yet. So the rate is attended divided by attended plus no_show.",
+        zh: '只算有结果的预约：attended 加 no_show。取消的不算，因为会员把名额还回去了；还是 booked 的，是还没上的课。所以出勤率 = attended ÷ (attended + no_show)。' },
+    ],
+    queries: [
+      { en: "Level is on class_types, so I select name and duration_min from class_types where level = 'Beginner'. I'd mention that 'All levels' classes could also count, but here I keep only Beginner.",
+        zh: "难度在 class_types 上，所以从 class_types 选 name 和 duration_min，WHERE level = 'Beginner'。我会提一句 'All levels' 的课也可以算，但这里只取 Beginner。" },
+      { en: "I start from sessions and join rooms and then studios, because the studio name is only reachable through the room. I also join class_types and instructors for the class and instructor names. I filter on studio name Riverside and starts_at from Monday November 2 up to, but not including, November 9, and order by starts_at, then room name.",
+        zh: '从 sessions 出发，JOIN rooms 再 JOIN studios，因为门店名只能经过教室才连得到。再 JOIN class_types 和 instructors 拿课名和教练名。过滤门店名为 Riverside，starts_at 从 11 月 2 日（周一）起，到 11 月 9 日之前（不含），按 starts_at 排序，再按教室名排。' },
+      { en: "I take the session's capacity and subtract a subquery that counts bookings for session 17 where status is not cancelled. Cancelled bookings don't take a spot, so the answer is 2.",
+        zh: '取这节课的 capacity，减去一个子查询：数 session 17 里 status 不是 cancelled 的预约。取消的预约不占名额，所以答案是 2。' },
+      { en: "I start from sessions for tomorrow, join class_types, rooms and studios, then LEFT JOIN bookings with status not cancelled in the ON clause, so classes with no bookings still show up. I group by session and compute capacity minus COUNT of booking_id, then order by starts_at.",
+        zh: '从明天的 sessions 出发，JOIN class_types、rooms、studios，再 LEFT JOIN bookings，并把 status 不是 cancelled 的条件写在 ON 里，这样没有预约的课也会出现。按 session 分组，算 capacity 减 COUNT(booking_id)，再按 starts_at 排序。' },
+      { en: "First I check there's a spot left, which there is. Then I insert a booking for session 17, member 11, with booked_at now and status booked, in the same transaction as the check. If the class were full, I'd insert a waiting row into waitlist instead.",
+        zh: '先确认还有名额，这节课还有。然后 INSERT 一条预约：session 17、会员 11、booked_at 为现在、status 为 booked，和前面的检查放在同一个事务里。如果课满了，就改为在 waitlist 里插入一行 waiting。' },
+      { en: "It's one transaction with three steps. First, update member 2's booking for session 19 only to cancelled. Second, insert a booking for the waitlist member on session 19 who is still waiting and has the earliest joined_at. Third, set that same waitlist row to promoted. I do the insert before the promotion, so both steps pick the same person.",
+        zh: '一个事务，三步。第一，只把会员 2 在 session 19 的预约改成 cancelled。第二，给 session 19 候补里还在 waiting、joined_at 最早的会员新增一条预约。第三，把这条候补记录改成 promoted。先 INSERT 再改 promoted，这样两步选中的是同一个人。' },
+      { en: "I update bookings to set status to attended where session_id is 16, member_id is 7 and status is booked. I need both ids, or I'd check them into other classes too. After class, any booking still marked booked for that session becomes no_show.",
+        zh: "UPDATE bookings，把 status 改成 attended，条件是 session_id = 16、member_id = 7、status = 'booked'。两个 id 都要写，不然会把他别的课也签到了。下课以后，这节课还是 booked 的预约改成 no_show。" },
+      { en: "I start from bookings for member 1 with status booked, join sessions and keep only starts_at after now. Then I join class_types for the class name and rooms and studios for the studio, and order by starts_at.",
+        zh: '从 bookings 出发，取会员 1、status 为 booked 的，JOIN sessions，只留 starts_at 晚于现在的。再 JOIN class_types 拿课名，JOIN rooms 和 studios 拿门店，按 starts_at 排序。' },
+      { en: "I select name and email from members where NOT EXISTS a membership row for that member with start_date on or before today and end_date on or after today. I use NOT EXISTS because someone with one expired and one active membership is still active.",
+        zh: '从 members 选 name 和 email，条件是 NOT EXISTS：不存在这个会员的任何一段会员资格，start_date 不晚于今天，并且 end_date 不早于今天。用 NOT EXISTS，是因为一段过期、一段有效的人仍然算有效。' },
+      { en: "I start from bookings, join sessions and class_types, and keep only attended and no_show bookings for sessions starting in October. I group by class type, and the rate is 100.0 times the number of attended divided by the count, rounded to one decimal. Then I order by rate descending, then class name.",
+        zh: '从 bookings 出发，JOIN sessions 和 class_types，只留十月开课、status 为 attended 或 no_show 的预约。按课程类型分组，出勤率 = 100.0 × attended 人数 ÷ 总数，保留 1 位小数。按 rate 从高到低，再按课名排。' },
+      { en: "I start from bookings with status attended, join sessions and instructors, and keep sessions that started last month. I group by instructor, count the rows, and order by that count descending, then by name.",
+        zh: '从 status 为 attended 的 bookings 出发，JOIN sessions 和 instructors，只留上个月开课的。按教练分组计数，按人数从多到少，再按姓名排。' },
+      { en: "I start from last month's sessions and LEFT JOIN bookings with status attended in the ON clause, so an hour with nobody attending still shows zero. I take the hour from starts_at with substr and cast it to an integer, group by hour, count booking_id, and order by that count descending, then by hour.",
+        zh: '从上个月的 sessions 出发，LEFT JOIN bookings，把 status = attended 写在 ON 里，这样没人来的时段也会以 0 出现。用 substr 从 starts_at 取出小时，再 CAST 成整数，按小时分组，数 booking_id，按人次从多到少，再按小时排。' },
+      { en: "I start from last month's sessions, join class_types, and LEFT JOIN bookings with status attended in the ON clause, so a class nobody came to still shows up. I group by session and keep the groups where two times the attended count is less than capacity, which avoids integer division.",
+        zh: '从上个月的 sessions 出发，JOIN class_types，再 LEFT JOIN bookings，把 status = attended 写在 ON 里，这样一个人都没来的课也会出现。按 session 分组，用 HAVING 留下 2 × 到场人数 < capacity 的，这样避开整数除法。' },
+      { en: "Same shape as the attendance rate, but grouped by member. I start from bookings, join members and sessions, keep attended and no_show bookings from last month, and compute 100.0 times the no_shows divided by the count, rounded to one decimal. I order by the rate descending, then by name.",
+        zh: '和出勤率的写法一样，只是按会员分组。从 bookings 出发，JOIN members 和 sessions，只留上个月 attended 和 no_show 的预约，算 100.0 × no_show 次数 ÷ 总数，保留 1 位小数。按爽约率从高到低，再按姓名排。' },
+    ],
+    close: {
+      en: "To sum up: the dimension tables are studios, rooms, class_types, instructors, members and memberships, sessions is the schedule that ties them together, and the fact tables are bookings and waitlist. Class types and sessions are separate, members and memberships are separate, and capacity lives on the session so it can be lower than the room. Bookings keep a status instead of being deleted, with a UNIQUE constraint per session and member, and spots left is computed, not stored. Every report starts from bookings or sessions, joins the dimensions, filters by status and date, and groups. If the chain grows a lot, I'd move reporting to a nightly data warehouse.",
+      zh: '总结一下：维度表是 studios、rooms、class_types、instructors、members 和 memberships，sessions 是把它们连起来的课表，事实表是 bookings 和 waitlist。课程类型和排好的课分开，会员和会员资格分开，名额记在 session 上，可以比教室容量小。预约用 status 记状态而不删行，每个会员每节课有 UNIQUE 约束，剩余名额是算出来的，不存。所有报表都是从 bookings 或 sessions 出发，JOIN 维度表，按 status 和日期过滤，再分组。如果连锁店扩张得很大，就把报表挪到每晚同步的数据仓库。',
+    },
+  },
 });
 
 /* Full mock interview: hospital admissions (the course's earlier example question, rebuilt from its requirements).
@@ -12050,6 +12319,61 @@ window.MOCKS.push({
     { q: 'Which doctors discharged patients who came back within 30 days?', zh: '出院后 30 天内病人又回来的出院医生', exam: true, spec: '输出医生 <code>name</code>，不重复，不限时间', sql: 'SELECT DISTINCT d.name\nFROM admissions a1\nJOIN admissions a2 ON a2.patient_id = a1.patient_id AND a2.admit_time > a1.discharge_time\nJOIN doctors d ON d.doctor_id = a1.discharge_doctor_id\nWHERE julianday(a2.admit_time) - julianday(a1.discharge_time) <= 30;', note: '要连的是<b>上一次</b>住院（a1）的出院医生。' },
     { q: 'How many ER admissions per month for the last five years?', zh: '五年来每月的 ER 入院次数', ordered: true, spec: '输出 <code>month, n</code>（month 形如 2026-10），只算 2021-10-28 及以后进 ER 的，按月份排序', sql: "SELECT strftime('%Y-%m', s.start_time) AS month, COUNT(*) AS n\nFROM unit_stays s\nJOIN units u ON u.unit_id = s.unit_id\nWHERE u.name = 'ER' AND s.start_time >= '2021-10-28'\nGROUP BY month\nORDER BY month;", note: '没人进 ER 的月份不会出现在结果里，画趋势图前要补 0。' },
   ],
+  /* bilingual model answer for the 「标准答卷」 page: what to say, in exam order (en = say this, zh = what it means) */
+  answer: {
+    open: {
+      en: "Thanks. Let me make sure I understand the scope first. The hospital registers patients, books outpatient appointments and procedures, and admits, transfers and discharges patients. It needs day-to-day operations for staff, and reports like the current census and 30-day readmissions. Before I design anything, I have a few quick questions.",
+      zh: '谢谢。我先确认一下范围：医院要登记病人、预约门诊和手术检查，还要收治、转科、出院。它需要给员工用的日常操作，以及在院人数、30 天再入院这样的报表。开始设计之前，我想先问几个问题。',
+    },
+    clarifyZh: [
+      '问：是一家医院，还是一个医院网络？｜答：现在只有一家医院。',
+      '问：一个病人可以住院不止一次吗？｜答：当然可以，有些病人会回来很多次。',
+      '问：每个手术或检查都属于某次住院吗？｜答：不是。门诊病人也会做手术和检查，但并没有住院。',
+      '问：历史数据保留多久？｜答：全部保留。有些报表要回看五年。',
+      '问：医院有多大？｜答：中等规模：几百张床，每周几百次入院。',
+    ],
+    people: {
+      en: "The main users are doctors and nurses, who admit, discharge and transfer patients and read their records; registration clerks and schedulers, who register patients and book appointments; and hospital administrators, who look at the census, readmission rates and monthly trends. Billing and compliance staff also use it, because medical records are protected health information. The key business nouns are patient, doctor, appointment, procedure, admission, discharge, transfer and unit, like the ER, the ICU or a regular floor.",
+      zh: '主要使用者有：医生和护士（收治、出院、转科、看病历）；挂号和排班人员（登记病人、约门诊）；医院管理层（看在院人数、再入院率和月度趋势）。收费和合规人员也会用，因为病历是受保护的健康信息。关键的业务名词是：病人、医生、门诊预约、手术检查、入院、出院、转科，以及科室，比如 ER、ICU 或普通病房。',
+    },
+    tech: {
+      en: "This is transactional data with clear relationships, so I'd use a relational database such as PostgreSQL. One mid-size hospital with a few hundred admissions a week is small, so at first the reports can run on the same database. If reports get heavy, like five-year trends, I'd copy the data every night into a data warehouse. And this is protected health information, so I'd give each role the minimum access it needs, encrypt the data, and log every access.",
+      zh: '这是关系清楚的交易型数据，所以用关系型数据库，比如 PostgreSQL。一家中等医院、每周几百次入院，规模很小，一开始报表直接在同一个库上跑就行。报表变重以后，比如五年趋势，每晚把数据同步到数据仓库。另外这是受保护的健康信息，所以每个角色只给最小权限，数据加密，每次访问都记日志。',
+    },
+    walk: {
+      en: "I'll start with the dimension tables. patients has one row per patient: patient_id, first_name, last_name and birth_date. doctors has doctor_id, name and specialty. units has one row per section, like ER, ICU or Floor 3. procedure_types has the name and cost of each kind of procedure, so they're stored once, not on every procedure row. I don't put admit or discharge dates on patients, because a patient can be admitted many times.\nThen the fact tables. appointments has one row per outpatient appointment, with patient_id, doctor_id, scheduled_at and a status. admissions has one row per stay: admit_time, admit_doctor_id and reason, then discharge_time and discharge_doctor_id on the same row. A patient is admitted right now when discharge_time IS NULL. unit_stays has one row for each time an admission is in a unit, with start_time and end_time, and the row with end_time IS NULL is where the patient is now. A transfer closes one stay and opens the next, in one transaction. procedures has patient_id, procedure_type_id, doctor_id, performed_at and an admission_id that can be null, so outpatient procedures fit too. Another option is one events table for all admits, transfers and discharges. It's simple to write, but asking who is admitted right now gets awkward, so I prefer this design.",
+      zh: '先说维度表。patients 一个病人一行：patient_id、first_name、last_name、birth_date。doctors 有 doctor_id、name、specialty。units 一个科室一行，比如 ER、ICU、Floor 3。procedure_types 存每种手术检查的名称和价格，只存一次，而不是每条 procedures 都存一遍。我不在 patients 上放入院、出院日期，因为一个病人可能住院很多次。\n再说事实表。appointments 一次门诊预约一行：patient_id、doctor_id、scheduled_at，还有 status。admissions 一次住院一行：admit_time、admit_doctor_id、reason，出院的 discharge_time、discharge_doctor_id 也在同一行。discharge_time IS NULL 就是现在还在院。unit_stays 是一次住院在某个科室的一段，有 start_time 和 end_time，end_time IS NULL 那段就是病人现在在哪。转科就是关一段、开一段，放进一个 transaction。procedures 有 patient_id、procedure_type_id、doctor_id、performed_at，还有一个可以为空的 admission_id，这样门诊的手术检查也能存。另一种做法是一张 events 表存所有入院、转科、出院，写入简单，但查「现在谁在院」很绕，所以我选现在这个设计。',
+    },
+    probes: [
+      { en: "Nothing changes on the patients row. We insert a new row in admissions with the new admit_time, admit_doctor_id and reason, and a new unit_stays row for the unit they arrive in. The old admission stays as it was, with its discharge_time, so we keep the full history and can compute readmissions.",
+        zh: 'patients 这一行不变。在 admissions 里插一行新的，有新的 admit_time、admit_doctor_id 和 reason，再为他到的科室插一条 unit_stays。上一次住院保持原样，带着它的 discharge_time，所以完整历史都在，也能算再入院。' },
+      { en: "I look in unit_stays for that patient's current admission and find the row where end_time IS NULL. Then I join units to get the name. There should be exactly one open stay per open admission, and the transfer transaction keeps it that way.",
+        zh: '在 unit_stays 里找这个病人当前住院的那一段，也就是 end_time IS NULL 的那一行，再 JOIN units 拿科室名。每个没出院的住院应该正好有一段打开的，转科的事务保证了这一点。' },
+      { en: "Two steps in one transaction. First I update the open unit_stays row for that admission, the one with end_time IS NULL, and set end_time to the transfer time. Then I insert a new unit_stays row with the ICU unit_id and the same time as start_time. Because it's one transaction, the patient is never in two units at once, or in none.",
+        zh: '一个事务里两步。先更新这次住院那条打开的 unit_stays（end_time IS NULL），把 end_time 设成转科时间。再插一条新的 unit_stays，unit_id 是 ICU，start_time 是同一个时间。因为在一个事务里，病人不会同时在两个科室，也不会哪都不在。' },
+      { en: "No. Outpatients have procedures too. That's why admission_id on procedures is nullable: if it's null, the procedure was outpatient. patient_id is always filled in, so we can still list all of a patient's procedures.",
+        zh: '不是。门诊病人也会做手术和检查。所以 procedures 上的 admission_id 可以为空：为空就是门诊做的。patient_id 一定有，所以仍然能列出一个病人所有的手术检查。' },
+      { en: "This is protected health information, so access should be least privilege. Doctors and nurses see the records of their patients, schedulers see registration and appointments, and administrators mostly see aggregate reports. I'd encrypt the data at rest and in transit, and keep an access log of who looked at which record.",
+        zh: '这是受保护的健康信息，所以按最小权限给。医生护士看自己病人的病历，排班人员看登记和预约，管理层主要看汇总报表。数据存储和传输都加密，并且记访问日志：谁看了哪份病历。' },
+      { en: "At first, yes. One mid-size hospital is small, and a query like the census is cheap. But the five-year reports scan a lot of history, so if they start to slow down the system the nurses use, I'd copy the data every night into a data warehouse or a read replica and run reports there.",
+        zh: '一开始可以。一家中等医院规模小，像在院人数这种查询很便宜。但五年的报表要扫很多历史，如果开始拖慢护士用的系统，就每晚把数据同步到数据仓库或只读副本，在那边跑报表。' },
+    ],
+    queries: [
+      { en: "I start from admissions, keep the rows where discharge_time IS NULL, and join patients to get patient_id, first_name and last_name.", zh: '从 admissions 出发，留下 discharge_time IS NULL 的行，再 JOIN patients 拿 patient_id、first_name、last_name。' },
+      { en: "The census is just a count of open admissions: SELECT COUNT(*) FROM admissions WHERE discharge_time IS NULL.", zh: '在院人数就是数没出院的住院：SELECT COUNT(*) FROM admissions WHERE discharge_time IS NULL。' },
+      { en: "I start from unit_stays, join admissions to filter on patient_id = 2, and join units for the name. The current section is the stay where end_time IS NULL.", zh: '从 unit_stays 出发，JOIN admissions 按 patient_id = 2 过滤，再 JOIN units 拿科室名。现在的科室就是 end_time IS NULL 的那一段。' },
+      { en: "I start from units and LEFT JOIN unit_stays with end_time IS NULL inside the ON clause, so empty units still show up with zero. Then I group by unit and count the stay_id values.", zh: '从 units 出发，LEFT JOIN unit_stays，把 end_time IS NULL 写在 ON 里，这样没人的科室也会显示 0。再按科室分组，数 stay_id。' },
+      { en: "In one transaction: I update the unit_stays row for admission 15 where end_time IS NULL and set end_time to 9 a.m. today. Then I insert a new unit_stays row for admission 15 with unit_id 3, Floor 3, and start_time 9 a.m. today, and commit.", zh: '在一个事务里：先更新住院 15 那条 end_time IS NULL 的 unit_stays，把 end_time 设成今天 9 点。再给住院 15 插一条新的 unit_stays，unit_id 是 3（Floor 3），start_time 是今天 9 点，然后 COMMIT。' },
+      { en: "I take patient 1's admissions, with admit_time as the time and the reason as the event, and UNION ALL with patient 1's procedures joined to procedure_types for the name. Then ORDER BY time DESC, so the newest is on top.", zh: '取病人 1 的住院，用 admit_time 当时间、reason 当事件，再 UNION ALL 病人 1 的手术检查（JOIN procedure_types 拿名称）。最后 ORDER BY time DESC，最新的在上面。' },
+      { en: "I self-join admissions: a1 is the earlier stay and a2 is a later stay of the same patient, admitted after a1's discharge_time. I keep a1 discharged in the last year and a gap of 30 days or less, then count the distinct a2 admissions.", zh: 'admissions 自连接：a1 是上一次住院，a2 是同一个病人在 a1 的 discharge_time 之后的那次。只留 a1 在过去一年出院、间隔不超过 30 天的，再数不重复的 a2。' },
+      { en: "Same self-join of admissions, with no date limit, and then I join doctors on a1's discharge_doctor_id, because we want the doctor who discharged the earlier stay. SELECT DISTINCT name, so each doctor shows once.", zh: '同样的 admissions 自连接，不限时间，再用 a1 的 discharge_doctor_id JOIN doctors，因为要的是上一次住院的出院医生。SELECT DISTINCT name，每个医生只出现一次。' },
+      { en: "I count entries into the ER, so I start from unit_stays and join units where name = 'ER'. I keep start_time in the last five years, group by the year and month of start_time, and order by month.", zh: '数的是进 ER 的次数，所以从 unit_stays 出发，JOIN units 并且 name = \'ER\'。只留五年内的 start_time，按 start_time 的年月分组，按月份排序。' },
+    ],
+    close: {
+      en: "To sum up: four dimension tables, patients, doctors, units and procedure_types, and four fact tables, appointments, admissions, unit_stays and procedures. History is stored as events, so a patient can have many admissions, and discharge_time IS NULL means admitted now. Where a patient is comes from the unit_stays row with end_time IS NULL, and a transfer is one transaction. Reports are joins and self-joins on admissions and unit_stays, then grouped. The data is PHI, so access is limited and logged, and if reports grow I'd move them to a nightly data warehouse.",
+      zh: '总结一下：四张维度表 patients、doctors、units、procedure_types，四张事实表 appointments、admissions、unit_stays、procedures。历史按事件存，一个病人可以住院很多次，discharge_time IS NULL 就是现在在院。病人在哪，看 end_time IS NULL 的那条 unit_stays，转科是一个事务。报表就是对 admissions 和 unit_stays 做 JOIN、自连接，再分组。数据是 PHI，所以权限受限并记日志；报表变大时，挪到每晚同步的数据仓库。',
+    },
+  },
 });
 
 /* Full mock interview: hotel chain room reservations (original practice scenario).
@@ -12260,6 +12584,70 @@ window.MOCKS.push({
     { q: "What share of last year's reservations were cancelled at each hotel?", zh: '去年各酒店的取消率', spec: '输出 <code>name, reservations, cancelled, cancel_pct</code>：check_in 在 2025 年的全部预订数、其中取消的数目、取消率（百分数，保留 1 位小数）', sql: "SELECT h.name, COUNT(*) AS reservations,\n       SUM(v.status = 'cancelled') AS cancelled,\n       ROUND(100.0 * SUM(v.status = 'cancelled') / COUNT(*), 1) AS cancel_pct\nFROM reservations v\nJOIN rooms r ON r.room_id = v.room_id\nJOIN hotels h ON h.hotel_id = r.hotel_id\nWHERE v.check_in >= '2025-01-01' AND v.check_in < '2026-01-01'\nGROUP BY h.hotel_id, h.name;", note: "<code>SUM(v.status = 'cancelled') / COUNT(*)</code> 是整数除以整数，SQLite 做的是整数除法，四家酒店全是 0（Airport 其实是 3 / 6 = 50%）。写 <code>100.0 *</code> 或者 CAST 成 REAL。这里分母要包括取消的预订，和其他报表正好相反。这个报表能算，前提是取消时只改 status、不删行。" },
     { q: 'What was the occupancy rate of each hotel last month, in October?', zh: '上个月（10 月）各酒店的入住率', exam: true, spec: '输出 <code>name, room_nights, occupancy_pct</code>：每家酒店 2026 年 10 月被占用的房晚数，以及入住率 = 100 × 房晚数 ÷（这家酒店的房间总数 × 31），保留 1 位小数。一晚算在它开始的那天，所以 10 月是 10 月 1 日晚到 10 月 31 日晚，共 31 晚；跨月的预订只算落在 10 月里的那几晚；取消的不算，已退房和正在住的都算', sql: "WITH oct AS (\n  SELECT r.hotel_id,\n         julianday(MIN(v.check_out, '2026-11-01')) - julianday(MAX(v.check_in, '2026-10-01')) AS nights\n  FROM reservations v\n  JOIN rooms r ON r.room_id = v.room_id\n  WHERE v.status <> 'cancelled'\n    AND v.check_in < '2026-11-01' AND v.check_out > '2026-10-01'\n),\ncap AS (\n  SELECT hotel_id, COUNT(*) AS rooms FROM rooms GROUP BY hotel_id\n)\nSELECT h.name, SUM(o.nights) AS room_nights,\n       ROUND(100.0 * SUM(o.nights) / (c.rooms * 31), 1) AS occupancy_pct\nFROM hotels h\nJOIN cap c ON c.hotel_id = h.hotel_id\nJOIN oct o ON o.hotel_id = h.hotel_id\nGROUP BY h.hotel_id, h.name, c.rooms;", note: "分三步。① 找出和 10 月有重叠的预订：<code>check_in &lt; '2026-11-01' AND check_out &gt; '2026-10-01'</code>。不加这个条件，别的月份的预订会算出负数。② 每条只算落在 10 月里的晚数：入住日不早于 10 月 1 日、退房日不晚于 11 月 1 日，再相减（SQLite 的两参数 MIN / MAX，PostgreSQL 写 LEAST / GREATEST）。Riverfront 9 月 29 日到 10 月 3 日那次只算 2 晚；Jonah 10 月 31 日入住、今天才退房，只算 1 晚；Lakeshore 9 月 26 日住到 10 月 1 日的那次一晚都不算。只按「check_in 在 10 月」算整段，Riverfront 会变成 23 晚（正确是 22），Lakeshore 变成 10 晚（正确是 13）。③ 房间数要单独算：JOIN 了预订以后再 COUNT 房间，只数得到 10 月有人住过的房（Riverfront 8 间只数到 5 间），Lakeshore 101 住过两次还会被数两次。julianday 相减得到的是小数，这里不会整数除法；如果你用 COUNT 数房晚，记得写 100.0。示例数据只有几十条预订，所以入住率很低。" },
   ],
+  answer: {
+    open: {
+      en: "Thanks. Let me make sure I understand the scope first. The chain has several hotels, each with rooms of a few types, and guests reserve a room for a range of dates. It needs day-to-day operations like booking, cancelling, check-in and check-out, plus reports on occupancy, revenue, length of stay and cancellations. Before I design anything, I have a few quick questions.",
+      zh: '谢谢。我先确认一下范围：连锁酒店有好几家酒店，每家有几种房型的房间，客人按一段日期订一间房。系统要支持日常操作（订房、取消、入住、退房），还要出入住率、收入、住宿晚数和取消情况的报表。开始设计之前，我想先问几个问题。',
+    },
+    clarifyZh: [
+      '问：连锁有多大？｜答：大约 40 家酒店，分布在十几个城市，每家 150 到 400 间房，全连锁每天几千条新预订。',
+      '问：客人订房时是挑一间具体的房，还是只选房型？｜答：只选房型。最后住哪一间由我们决定。你会怎么做，为什么？（考官把问题抛回给你。）',
+      '问：房价会随时间变吗？｜答：会。房价随季节和需求变化，客人按订房时报给他的每晚价格付钱。',
+      '问：一次预订能包括好几间房吗？｜答：有时一家人会一起订两间房。告诉我你会怎么假设。',
+      '问：下一位客人什么时候能入住这间房？｜答：下午 3 点入住，上午 11 点退房，所以上一位客人退房当天，房间就能给新客人。',
+      '问：每家酒店的房型都一样吗？｜答：基本一样。King、Double Queen 和 Suite 几乎每家都有，芝加哥那家还有一间 Penthouse。',
+      '问：我们要处理付款和积分吗？｜答：不用。账单和会员积分归别的团队管。专注在酒店、房间、客人和预订上。',
+    ],
+    people: {
+      en: "The main users are guests, who search hotels, check availability, book, cancel and see their trips; front-desk clerks, who see today's arrivals, check guests in and out, and move guests to another room when needed; hotel managers, who want to know how many rooms of each type they have; revenue managers, who look at occupancy, revenue by room type and pricing; and executives and analysts, who ask which hotels are most popular, how long people stay and how often they cancel. The key business nouns are hotel, room type, room, guest, reservation, room-night, nightly rate, status, and check-in and check-out.",
+      zh: '主要使用者有：客人（搜酒店、查空房、订房、取消、看自己的行程）；前台（看今天谁到店、办入住和退房、需要时给客人换房）；酒店经理（想知道每种房型有几间）；收益经理（看入住率、各房型收入、怎么定价）；高管和分析师（哪家酒店最受欢迎、平均住几晚、多常取消）。关键的业务名词是：酒店、房型、房间、客人、预订、房晚、每晚房价、状态，以及入住和退房。',
+    },
+    tech: {
+      en: "This is transactional data with clear relationships, and double booking must never happen, so I'd use a relational database such as PostgreSQL. A few thousand reservations a day is about a million rows a year, which PostgreSQL handles easily, and it has an exclusion constraint that can stop overlapping stays. Reports like monthly occupancy scan a lot of history, so I'd copy the data every night into a data warehouse, split into one row per room per night, so analytics never slow down bookings. Guest names, emails and phone numbers are personal data, so I'd limit who can read them and leave contact details out of the warehouse.",
+      zh: '这是关系清楚的交易型数据，而且绝不能重复订房，所以用关系型数据库，比如 PostgreSQL。每天几千条预订，一年大约一百万行，PostgreSQL 轻松应付，它还有排斥约束，可以挡住日期重叠的住宿。月度入住率这类报表要扫很多历史数据，所以每晚把数据同步到数据仓库，拆成「一间房一晚一行」，这样分析查询不会拖慢订房。客人的姓名、邮箱、电话是个人信息，所以要限制谁能读，联系方式也不放进数据仓库。',
+    },
+    walk: {
+      en: "I'll start with the dimension tables. hotels has one row per hotel: name, city and state. room_types has one row per type: name, beds, capacity and base_rate. rooms has one row per physical room: hotel_id, type_id, room_no and floor. I keep room types and rooms separate, so the price and capacity are stored once, not on every room. room_id is the primary key, and I add UNIQUE (hotel_id, room_no), because every hotel has a room 101. guests has one row per guest: name, email and phone.\nThen the fact table. reservations has one row per booking: guest_id, room_id, check_in, check_out, nightly_rate, status and booked_on. The dates are half-open, so the guest stays from the check_in night up to the night before check_out, and the room is free again on the check_out day. I don't store the number of nights, I compute it. nightly_rate is the price quoted at booking, so later rate changes don't rewrite past revenue. I assign a room_id at booking, which keeps availability checks simple, and the front desk can update it to move a guest. Cancel, check-in and check-out only change status, I never delete rows, so the cancellation rate and guest history are kept. A plain UNIQUE can't stop two stays that partly overlap, so I'd use a transaction or a PostgreSQL exclusion constraint for that.",
+      zh: '先说维度表。hotels 一家酒店一行：名称、城市、州。room_types 一种房型一行：名称、床型、可住人数、base_rate。rooms 一间实体房间一行：hotel_id、type_id、room_no、楼层。房型和房间分开，价格和人数只存一次，而不是每间房存一遍。room_id 做主键，再加 UNIQUE (hotel_id, room_no)，因为每家酒店都有 101 号房。guests 一位客人一行：姓名、邮箱、电话。\n再说事实表。reservations 一次预订一行：guest_id、room_id、check_in、check_out、nightly_rate、status、booked_on。日期是半开区间：客人从 check_in 那晚住到 check_out 前一晚，check_out 当天房间就空出来了。晚数不存，算出来。nightly_rate 是订房时报的价格，以后调价不会改掉历史收入。订房时就分配 room_id，这样查空房很简单，前台要换房就更新它。取消、入住、退房都只改 status，从不删行，这样取消率和客人历史都保留着。普通的 UNIQUE 挡不住部分重叠的两段住宿，所以要用事务或者 PostgreSQL 的排斥约束。',
+    },
+    probes: [
+      { en: "That's why I don't put them on rooms. Price and capacity live in room_types, so raising the King rate is a one-row update. If they were on every room, I'd have to update every King room, and missing one would leave the data inconsistent. Also, what the guest actually pays is stored as nightly_rate on the reservation, so past revenue doesn't change.",
+        zh: '所以我不把它们放在 rooms 上。价格和人数在 room_types 里，King 调价只改一行。如果存在每间房上，就要把每间 King 房都改一遍，漏一行数据就前后矛盾。而且客人实际付的价格存在预订的 nightly_rate 上，历史收入不会变。' },
+      { en: "Each room has its own room_id as the primary key, and room_no is only unique inside one hotel, with UNIQUE (hotel_id, room_no). So to find Riverfront's 101, I look it up by both the hotel and the room number. Every reservation points to room_id, so there's never any confusion.",
+        zh: '每间房有自己的 room_id 做主键，room_no 只在一家酒店里唯一：UNIQUE (hotel_id, room_no)。所以找 Riverfront 的 101，要同时按酒店和房号去查。每条预订都指向 room_id，所以不会混淆。' },
+      { en: "First I find that room's room_id by joining rooms to hotels on the hotel name and room_no '202'. Then I look for any reservation on that room that is not cancelled, where check_in is before November 23 and check_out is after November 20. If there's no such row, the room is free.",
+        zh: '先 rooms JOIN hotels，按酒店名和 room_no \'202\' 找到这间房的 room_id。再看这间房有没有没取消的预订，满足 check_in 早于 11 月 23 日、并且 check_out 晚于 11 月 20 日。没有这样的行，房间就是空的。' },
+      { en: "No. The dates are half-open, so the first guest's last night is the 19th. The overlap test uses strict less-than and greater-than: the existing check_out, the 20th, is not greater than the new check_in, the 20th, so it's not a conflict. That matches the rule that check-out is at 11 and check-in is at 3.",
+        zh: '不算。日期是半开区间，第一位客人最后一晚是 19 日。重叠判断用严格的小于和大于：已有的 check_out（20 日）并不大于新的 check_in（20 日），所以不冲突。这和 11 点退房、3 点入住的规则一致。' },
+      { en: "No, I don't delete it. I set status to cancelled. The availability check already ignores cancelled rows, so the room is free again. And the cancellation report still counts it. If I deleted it, the cancellation rate would always look like zero.",
+        zh: '不删，把 status 改成 cancelled。查空房时本来就忽略取消的行，所以房间自动空出来。取消率报表也还数得到它。如果删掉，取消率就永远是零。' },
+      { en: "A UNIQUE constraint won't work, because two stays can partly overlap with different check-in dates. I'd do the overlap check and the insert in one transaction, with the room locked, so the second clerk sees the first booking and gets zero rows. Even safer, in PostgreSQL I'd add an exclusion constraint on room_id and daterange(check_in, check_out), so the database itself rejects the overlap.",
+        zh: 'UNIQUE 约束不行，因为两段住宿可以入住日不同、只部分重叠。我会把查冲突和插入放进同一个事务，并锁住这间房，这样第二个前台会看到第一条预订，插入 0 行。更稳妥的是在 PostgreSQL 里加排斥约束（room_id 和 daterange(check_in, check_out)），让数据库自己拒绝重叠。' },
+      { en: "The nights are September 29 and 30 and October 1 and 2. The 3rd is check-out day, so it's not a night. So only October 1 and 2 count, which is two nights. In SQL I clip the stay to the month: the later of check_in and October 1, minus the earlier of check_out and November 1.",
+        zh: '住的几晚是 9 月 29、30 日和 10 月 1、2 日。3 日是退房日，不算一晚。所以只有 10 月 1 日和 2 日算进 10 月，共两晚。SQL 里把住宿裁到这个月：check_out 和 11 月 1 日取较早的，减去 check_in 和 10 月 1 日取较晚的。' },
+      { en: "Right now one reservation row is one room. I'd keep that, and add a bookings table with booking_id, guest_id and booked_on, and give reservations a booking_id foreign key. Each room still has its own row with its own room_id, dates and rate, so availability checks don't change. Payment itself belongs to the billing team, but they can total by booking_id.",
+        zh: '现在一条预订就是一间房。我保留这一点，再加一张 bookings 表（booking_id、guest_id、booked_on），给 reservations 加一个 booking_id 外键。每间房还是自己一行，有自己的 room_id、日期和价格，所以查空房不用改。付款归账单团队管，但他们可以按 booking_id 合计。' },
+    ],
+    queries: [
+      { en: "Room types don't belong to a hotel, rooms connect them. So I start from rooms, join room_types and hotels, filter on the hotel name Larkspur Lakeshore and capacity at least 4, use SELECT DISTINCT so each type shows once, and order by base_rate.", zh: '房型本身不属于哪家酒店，是房间把它们连起来。所以从 rooms 出发，JOIN room_types 和 hotels，过滤酒店名 Larkspur Lakeshore 和 capacity 至少 4，用 SELECT DISTINCT 让每种房型只出现一次，再按 base_rate 排序。' },
+      { en: "I start from rooms, join room_types, keep hotel_id = 1, group by the type, and COUNT(*) the rooms.", zh: '从 rooms 出发，JOIN room_types，保留 hotel_id = 1，按房型分组，COUNT(*) 数房间。' },
+      { en: "I start from reservations, join guests for the name and rooms for the room number and the hotel. I keep hotel_id = 1, check_in equal to today, and status not cancelled, so a guest who already checked in this morning still shows up.", zh: '从 reservations 出发，JOIN guests 拿姓名，JOIN rooms 拿房号和酒店。保留 hotel_id = 1、check_in 等于今天、status 不是 cancelled，这样早上已经办好入住的客人也会出现。' },
+      { en: "I start from reservations with guest_id = 3, check_in on or after today, and status not cancelled. I join rooms and hotels so I can show the hotel name next to the room number, because room numbers repeat across hotels. Then I order by check_in.", zh: '从 reservations 出发，guest_id = 3、check_in 不早于今天、status 不是 cancelled。JOIN rooms 和 hotels，把酒店名和房号一起显示，因为不同酒店有相同的房号。再按 check_in 排序。' },
+      { en: "I start from rooms joined to room_types, keep hotel_id = 1 and type King. Then NOT EXISTS a reservation on that room that isn't cancelled, with check_in before November 23 and check_out after November 20. Rooms with no bookings at all stay in the result.", zh: '从 rooms JOIN room_types 出发，保留 hotel_id = 1 且房型是 King。再用 NOT EXISTS：这间房没有一条没取消的预订满足 check_in 早于 11 月 23 日、check_out 晚于 11 月 20 日。完全没有预订的房间也会留在结果里。' },
+      { en: "I insert one row into reservations for guest 7, room 1, November 20 to 23, 169 a night, status booked, booked_on today. I write it as INSERT ... SELECT ... WHERE NOT EXISTS an overlapping, non-cancelled reservation on room 1, so if there's a conflict it inserts zero rows. With many clerks at once, I'd run it in a transaction or rely on the exclusion constraint.", zh: '在 reservations 里插入一行：客人 7、房间 1、11 月 20 日到 23 日、每晚 169、status 为 booked、booked_on 是今天。写成 INSERT … SELECT … WHERE NOT EXISTS（房间 1 上有重叠且没取消的预订），有冲突就插入 0 行。很多前台同时操作时，放进事务里，或者靠排斥约束。' },
+      { en: "I don't delete it. I UPDATE reservations SET status = 'cancelled' WHERE res_id = 45 AND status = 'booked'. The status check stops me from cancelling a stay that already started, and the room becomes free automatically because availability ignores cancelled rows.", zh: '不删。UPDATE reservations SET status = \'cancelled\' WHERE res_id = 45 AND status = \'booked\'。检查 status 是为了不把已经开始的住宿改成取消；查空房会忽略取消的行，所以房间自动空出来。' },
+      { en: "Her reservation today is 35, so I UPDATE reservations SET status = 'checked_in' WHERE res_id = 35 AND status = 'booked'. Check-out later is the same update, to checked_out.", zh: '她今天的预订是 35，所以 UPDATE reservations SET status = \'checked_in\' WHERE res_id = 35 AND status = \'booked\'。之后退房也是同样的更新，改成 checked_out。' },
+      { en: "I start from reservations, join rooms and hotels, keep rows that aren't cancelled with check_in in 2025, group by hotel, and COUNT(*) as stays. I order by stays descending and then by name, because two hotels are tied.", zh: '从 reservations 出发，JOIN rooms 和 hotels，保留没取消、check_in 在 2025 年的行，按酒店分组，COUNT(*) 作为 stays。按 stays 从多到少排，再按 name，因为有两家酒店并列。' },
+      { en: "I start from room_types and LEFT JOIN rooms and then reservations, with the not-cancelled and 2025 conditions inside the ON, so the Penthouse with no stays is kept. Revenue is SUM of nightly_rate times the nights, using julianday(check_out) minus julianday(check_in), wrapped in COALESCE to turn NULL into 0, grouped by type.", zh: '从 room_types 出发，LEFT JOIN rooms 再 LEFT JOIN reservations，把「没取消」和「2025 年」的条件写在 ON 里，这样没有入住的 Penthouse 也会保留。收入 = SUM(nightly_rate × 晚数)，晚数用 julianday(check_out) 减 julianday(check_in)，外面套 COALESCE 把 NULL 变成 0，按房型分组。' },
+      { en: "Same joins, reservations to rooms to hotels, not cancelled, check_in in 2025, grouped by hotel. I take AVG of julianday(check_out) minus julianday(check_in) and ROUND it to one decimal.", zh: '同样的 JOIN：reservations → rooms → hotels，没取消、check_in 在 2025 年，按酒店分组。对 julianday(check_out) 减 julianday(check_in) 取 AVG，再 ROUND 到一位小数。' },
+      { en: "Here I keep all 2025 reservations, including cancelled ones, because they're the denominator. Grouped by hotel, I show COUNT(*), the SUM of status = 'cancelled', and 100.0 times that sum divided by the count, so it isn't integer division.", zh: '这里保留 2025 年的全部预订，包括取消的，因为它们是分母。按酒店分组，输出 COUNT(*)、status = \'cancelled\' 的 SUM，以及 100.0 乘以这个和再除以总数，这样就不会是整数除法。' },
+      { en: "I use two CTEs. The first takes non-cancelled reservations that overlap October, joins rooms for the hotel, and counts only the nights inside October: the earlier of check_out and November 1 minus the later of check_in and October 1. The second counts rooms per hotel straight from rooms. Then I join both to hotels, sum the nights, and divide by rooms times 31, times 100.0.", zh: '用两个 CTE。第一个取和 10 月有重叠、没取消的预订，JOIN rooms 拿酒店，只算落在 10 月里的晚数：check_out 和 11 月 1 日取较早的，减去 check_in 和 10 月 1 日取较晚的。第二个直接从 rooms 数每家酒店的房间数。最后两个都 JOIN hotels，把晚数加起来，除以房间数乘 31，再乘 100.0。' },
+    ],
+    close: {
+      en: "To sum up: four dimension tables, hotels, room_types, rooms and guests, and one fact table, reservations. Room types and rooms are separate, so price and capacity are stored once, and room numbers are unique only inside a hotel. Each reservation has half-open dates, the nightly rate quoted at booking, and a status, so cancel, check-in and check-out never delete rows, and double booking is blocked by an overlap check in a transaction or an exclusion constraint. Every report is reservations joined to rooms, hotels and room_types, then grouped, with nights computed from the dates. As the chain grows, I'd move reporting to a nightly data warehouse with one row per room-night.",
+      zh: '总结一下：四张维度表 hotels、room_types、rooms、guests，一张事实表 reservations。房型和房间分开，价格和人数只存一次；房号只在一家酒店里唯一。每条预订有半开区间的日期、订房时的每晚房价和 status，所以取消、入住、退房都不删行；重复订房靠事务里的重叠检查或者排斥约束来挡。所有报表都是 reservations JOIN rooms、hotels、room_types 再分组，晚数从日期算出来。连锁变大以后，把报表挪到每晚同步的数据仓库，一间房一晚一行。',
+    },
+  },
 });
 
 /* Full mock interview: campus internship site (original practice scenario).
@@ -12635,6 +13023,86 @@ window.MOCKS.push({
     { q: 'Chloe Dubois has changed her mind and wants to withdraw application 32, her Product Analyst application at Nimbus. What do you do?', zh: '撤回申请 32（Chloe 在 Nimbus 的 Product Analyst）', dml: true, spec: '把 app_id 32 的 status 改成 withdrawn，前提是它还在进行中（submitted 或 interviewing）；不删行', check: 'SELECT app_id, posting_id, status FROM applications WHERE student_id = 12 ORDER BY app_id;', sql: "UPDATE applications\nSET status = 'withdrawn'\nWHERE app_id = 32\n  AND status IN ('submitted', 'interviewing');", note: "撤回是改 status，不是 DELETE：删掉了 offer 率的分母就少一条，Chloe 也看不到自己的历史。<code>status IN (…)</code> 防止把已经结束的申请改掉：对 Sofia 拿到 offer 的申请 31 执行同样的语句，0 行被改。只写 <code>WHERE student_id = 12</code> 是大错：她另外两条进行中的申请会一起被撤回，两条 rejected 也会被改成 withdrawn，历史就乱了。还有一件事：Chloe 明早 9 点有一场 pending 的面试（interview 17），撤回以后它还在 interviews 表里。要么一起删掉或标记，要么像下一题那样，查面试时永远检查申请是否还在进行中。" },
     { q: 'Rosa Lindgren, a recruiter at Nimbus, wants to see her interviews for the rest of this week.', zh: '招聘官 Rosa Lindgren 本周剩下的面试', ordered: true, spec: '输出 <code>scheduled_at, student, title, round</code>（student 是学生姓名，title 是职位名）：recruiter_id 1 负责的职位上、scheduled_at ≥ 2026-11-04 且 &lt; 2026-11-07（今天到本周五）、outcome 为 pending、所属申请仍在进行中（submitted 或 interviewing）的面试；按 scheduled_at 排序', sql: "SELECT i.scheduled_at, s.name AS student, p.title, i.round\nFROM interviews i\nJOIN applications a ON a.app_id = i.app_id\nJOIN students s ON s.student_id = a.student_id\nJOIN postings p ON p.posting_id = a.posting_id\nWHERE p.recruiter_id = 1\n  AND i.outcome = 'pending'\n  AND a.status IN ('submitted', 'interviewing')\n  AND i.scheduled_at >= '2026-11-04'\n  AND i.scheduled_at < '2026-11-07'\nORDER BY i.scheduled_at;", note: "答案 2 场：今天 15:00 Jordan Alvarez 第 1 轮，周五 14:00 Nina Sorensen 第 2 轮（都是 Data Engineering Intern）。三个坑：① Ethan Brooks 周四 11:00 的面试还是 pending，可他已经撤回了申请；不检查 applications.status 就会多出这一场。② 写成 <code>BETWEEN '2026-11-04' AND '2026-11-06'</code> 会漏掉周五 14:00 那场：文本比较时 '2026-11-06 14:00' 比 '2026-11-06' 大。③ 招聘官在 postings.recruiter_id 上，不要按公司过滤：Chloe 周四 9:00 那场是 Nimbus 的另一位招聘官 Kofi Mensah 负责的。" },
   ],
+  /* bilingual model answer for the 「标准答卷」 page: what to say, in exam order (en = say this, zh = what it means) */
+  answer: {
+    open: {
+      en: "Thanks. Let me make sure I understand the scope first. The career center wants a new internship site where recruiters post internships with required skills, and students search, bookmark and apply, with interviews and offers on each application. On top of that, it needs reports on applications, offer rates, skills in demand and pay. Before I design anything, I have a few quick questions.",
+      zh: '谢谢。我先确认一下范围：就业中心要一个新的实习网站，招聘官发布带技能要求的实习职位，学生搜索、收藏、申请，每次申请下面有面试和 offer。在这之上，还要申请数、offer 率、热门技能和薪资的报表。开始设计之前，我想先问几个问题。',
+    },
+    clarifyZh: [
+      '问：规模多大：多少学生、公司和申请？｜答：一所大学，大约 15,000 名学生。几千家公司有账号，忙的月份大约有 20,000 条申请。',
+      '问：职位属于公司还是属于招聘官？｜答：某种程度上两者都是。一家公司可以有几位招聘官，每个职位由其中一位负责。不过招聘官会离职，他们的职位你怎么处理？（考官把问题抛回给你。）',
+      '问：一个学生能申请同一个职位两次吗？｜答：不能。每个学生每个职位只能申请一次。撤回了就是最终结果。',
+      '问：「开放」是什么意思？招聘官会手动关闭职位吗？｜答：招聘官设一个截止日期，处理完以后把职位标成 closed 或 filled。实际上很多人忘了，所以有些职位过了截止日期几周还显示 open。',
+      '问：技能是自由填写的文本，还是固定列表？｜答：是就业中心维护的固定列表，比如 SQL、Python、CAD。职位列出要求的技能，学生列出自己会的技能。',
+      '问：面试最多有几轮？｜答：通常一到三轮，每轮有自己的日期、时间和结果。',
+      '问：offer 的时薪一定等于职位上标的时薪吗？｜答：不一定。有些公司给得比招聘广告上多，所以要记录实际给的时薪。合同和发薪不在范围内。',
+    ],
+    people: {
+      en: "The main users are students, who search postings by skill, city and pay, bookmark them, apply, withdraw and track their applications; recruiters, who post internships with required skills, schedule interviews, record the results and make offers; companies, which each have several recruiters and postings; and the career center, which wants reports like application rankings, offer rates, popular skills, pay, and students who haven't applied yet. The key business nouns are student, company, recruiter, posting, skill, required skill and student skill, application, interview, offer, and saved posting.",
+      zh: '主要使用者有：学生（按技能、城市、时薪搜索职位，收藏、申请、撤回，查看申请进度）；招聘官（发布带技能要求的职位，安排面试，记录结果，发 offer）；公司（每家有几位招聘官和好几个职位）；就业中心（要报表：申请数排名、offer 率、热门技能、薪资，以及还没申请过的学生）。关键的业务名词是：学生、公司、招聘官、职位、技能、职位要求的技能和学生会的技能、申请、面试、offer、收藏的职位。',
+    },
+    tech: {
+      en: "This is transactional data with clear relationships, so I'd use a relational database such as PostgreSQL. Rules like one application per student per posting are easy to enforce there with constraints. The scale is moderate: about 15,000 students and around 20,000 applications in a busy month. So at first the career center's reports can run on the same database, maybe on a read replica. If reporting gets heavier, I'd copy the data every night into a data warehouse. Student emails and application history are personal data, so access should be by role, and recruiters should only see applications to their own company's postings.",
+      zh: '这是关系清楚的交易型数据，所以用关系型数据库，比如 PostgreSQL。像「每个学生每个职位只能申请一次」这种规则，用约束就能保证。规模中等：大约 15,000 名学生，忙的月份大约 20,000 条申请。所以一开始就业中心的报表可以在同一个库上跑，也可以放在只读副本上。报表变重以后，每晚把数据同步到数据仓库。学生邮箱和申请记录是个人数据，所以按角色控制权限，招聘官只能看到投给自己公司职位的申请。',
+    },
+    walk: {
+      en: "I'll start with the dimension tables. students has one row per student: name, email, major and grad_year. companies has name, industry and city, and city means headquarters, not where the internship is. recruiters has a company_id, because each recruiter works for one company. skills is the fixed list, with a unique name. postings has one row per internship: company_id, recruiter_id, title, location, term, pay_per_hour, posted_on, deadline and status. I keep both company_id and recruiter_id on purpose. Strictly, the company follows from the recruiter, but recruiters leave. Then I can change recruiter_id or set it to NULL, and the posting still belongs to the company. I'd add a check that the recruiter works for that same company. Skills are many-to-many, so I use two junction tables, posting_skills and student_skills, each with a composite primary key, instead of a comma-separated column.\nThen the fact tables. applications has one row per application: student_id, posting_id, applied_at and status. A UNIQUE constraint on student_id and posting_id stops duplicate applications. Withdrawing or rejecting only changes the status. I never delete the row, so offer rates and the student's history stay correct. interviews hangs under an application, one row per round, with UNIQUE on app_id and round, plus scheduled_at and outcome. offers is one-to-one with an application, so app_id is UNIQUE. It stores its own pay_per_hour, because a company may offer more than it posted, plus offered_on and response. saved_postings is a separate table for bookmarks, keyed by student_id and posting_id, not a status on applications. Last, two active rules: a posting is open when status = 'open' and the deadline is today or later, because recruiters forget to close postings. An application is in progress when its status is submitted or interviewing. I'd put the open rule in a view, open_postings.",
+      zh: '先说维度表。students 一个学生一行：name、email、major、grad_year。companies 有 name、industry、city，city 是总部所在地，不是实习地点。recruiters 有 company_id，因为每位招聘官属于一家公司。skills 是固定列表，name 唯一。postings 一个实习职位一行：company_id、recruiter_id、title、location、term、pay_per_hour、posted_on、deadline、status。company_id 和 recruiter_id 都留，是故意的。严格说公司可以从招聘官推出来，但招聘官会离职。那时可以改 recruiter_id 或设成 NULL，职位仍然属于这家公司。我会加一个检查：招聘官必须属于同一家公司。技能是多对多，所以用两张联结表 posting_skills 和 student_skills，各自用联合主键，而不是存一列逗号分隔的文本。\n再说事实表。applications 一次申请一行：student_id、posting_id、applied_at、status。student_id 和 posting_id 上的 UNIQUE 约束挡住重复申请。撤回、拒绝只改 status，从不删行，这样 offer 率和学生的历史都是对的。interviews 挂在申请下面，一轮一行，app_id 和 round 加 UNIQUE，还有 scheduled_at 和 outcome。offers 和申请是一对一，所以 app_id 是 UNIQUE。它单独存 pay_per_hour，因为公司给的可能比职位上标的多，还有 offered_on 和 response。saved_postings 是单独的收藏表，主键是 student_id 和 posting_id，不是 applications 上的一种 status。最后两个「活跃」规则：职位开放 = status = \'open\' 并且截止日期是今天或以后，因为招聘官常常忘了关职位。申请进行中 = status 是 submitted 或 interviewing。我会把开放规则做成一个视图 open_postings。',
+    },
+    probes: [
+      { en: "In the posting_skills junction table, one row per posting and skill, with a composite primary key. A comma-separated column breaks first normal form. To find postings that need SQL, I'd have to use LIKE, which also matches NoSQL, and a fully-qualified match is almost impossible to write. With the junction table it's a simple join on skill_id.",
+        zh: '在联结表 posting_skills 里，一个职位的一项技能一行，联合主键。逗号分隔的一列违反第一范式。要找要求 SQL 的职位，只能用 LIKE，连 NoSQL 也会匹配到，「技能完全符合」几乎写不出来。有了联结表，按 skill_id JOIN 一下就行。' },
+      { en: "It's a little redundant, because the company follows from the recruiter. I keep it on purpose. When a recruiter leaves, I set recruiter_id to another recruiter at the same company, or to NULL, and the posting still belongs to the company. Company reports also need one less join. I'd add a check that the recruiter belongs to the same company.",
+        zh: '有一点冗余，因为公司可以从招聘官推出来。这是故意留的。招聘官离职时，把 recruiter_id 改成同公司的另一位招聘官，或者设成 NULL，职位仍然属于这家公司。按公司统计也少 JOIN 一张表。我会加一个检查：招聘官必须属于同一家公司。' },
+      { en: "No, it's not open. Recruiters forget to close postings, so the deadline is the hard fact. In my queries, open means status = 'open' AND deadline >= today. I'd put that in a view called open_postings, so nobody forgets half of the condition.",
+        zh: '不算开放。招聘官会忘了关职位，所以截止日期才是硬事实。在我的查询里，开放 = status = \'open\' AND deadline >= 今天。我会把它做成视图 open_postings，这样没人会只写一半条件。' },
+      { en: "With a UNIQUE constraint on applications, on student_id and posting_id. The database rejects a second insert, even if two clicks arrive at the same time. And since withdrawing only changes the status, the row is still there, so a student who withdrew can't apply again. That matches the rule that withdrawing is final.",
+        zh: '在 applications 上对 student_id 和 posting_id 加 UNIQUE 约束。第二次插入会被数据库拒绝，就算两次点击同时到达也一样。而且撤回只改 status，这一行还在，所以撤回过的学生不能再申请，正好符合「撤回就是最终结果」的规则。' },
+      { en: "No. I update its status to withdrawn, and only if it's still submitted or interviewing. Deleting it would shrink the offer-rate denominator and erase the student's history. The pending interview is still in interviews, so either I delete it in the same transaction, or every interview query checks that the application is still in progress.",
+        zh: '不删。把 status 改成 withdrawn，而且只在它还是 submitted 或 interviewing 时才改。删掉会让 offer 率的分母变少，也会抹掉学生的历史。那场 pending 的面试还在 interviews 里，所以要么在同一个事务里删掉它，要么所有查面试的查询都检查申请是否还在进行中。' },
+      { en: "That's relational division: none of the required skills may be missing from her skills. I'd use NOT EXISTS: there is no row in posting_skills for that posting whose skill_id is NOT IN her student_skills. Another way is to join her skills, group by posting, and keep it HAVING COUNT(*) equal to the number of skills the posting requires. A plain join only finds postings where she has at least one skill.",
+        zh: '这是关系除法：职位要求的技能里，没有一项是她不会的。用 NOT EXISTS：这个职位在 posting_skills 里不存在一行，它的 skill_id NOT IN 她的 student_skills。另一种写法是 JOIN 她会的技能，按职位分组，HAVING COUNT(*) 等于这个职位要求的技能数。普通 JOIN 只能找出她至少会一项的职位。' },
+      { en: "Both. postings.pay_per_hour is the advertised pay, and offers.pay_per_hour is what was actually offered. If the company offers more, the offer row has the real number. So pay reports on accepted offers use the offer's pay, not the posting's.",
+        zh: '两边都有。postings.pay_per_hour 是招聘广告上的时薪，offers.pay_per_hour 是实际给的时薪。公司给得更多时，offer 这一行存的就是真实数字。所以已接受 offer 的薪资报表用 offer 上的时薪，不用职位上的。' },
+      { en: "The denominator is all applications the company received, and the numerator is applications that have a row in offers. I'd count withdrawn ones too, since the student did apply, but I'd confirm that choice with the career center. Two details: LEFT JOIN offers, so companies with no offers still show zero, and multiply by 100.0 to avoid integer division.",
+        zh: '分母是这家公司收到的全部申请，分子是在 offers 里有一行的申请。撤回的我也算进去，因为学生确实申请过，不过这个选择我会和就业中心确认。两个细节：offers 用 LEFT JOIN，没有 offer 的公司也显示 0；乘以 100.0，避免整数除法。' },
+    ],
+    queries: [
+      { en: "I start from postings, join companies for the name, and join posting_skills and skills so I can filter on skills.name = 'SQL'. Then I keep only open postings: status = 'open' and deadline >= today, so a deadline of today still counts. I order by deadline, then title.",
+        zh: '从 postings 出发，JOIN companies 拿公司名，再 JOIN posting_skills 和 skills，这样能按 skills.name = \'SQL\' 过滤。然后只留开放的职位：status = \'open\' 且 deadline >= 今天，今天截止的也算。按 deadline 排，再按 title。' },
+      { en: "From postings joined to companies, I filter location = 'St. Louis', which is the posting's location, not the company's city, and pay_per_hour >= 25, plus the open condition. I order by pay_per_hour descending, then by deadline.",
+        zh: 'postings JOIN companies，过滤 location = \'St. Louis\'（是职位的地点，不是公司的城市）和 pay_per_hour >= 25，再加上开放条件。按 pay_per_hour 从高到低排，再按 deadline。' },
+      { en: "I start from applications where student_id = 12 and status is submitted or interviewing, then join postings and companies for the title and company name. I don't add the open-posting rule here, because a posting past its deadline can still have an application in progress. I order by applied_at.",
+        zh: '从 applications 出发，条件是 student_id = 12 且 status 是 submitted 或 interviewing，再 JOIN postings 和 companies 拿职位名和公司名。这里不加职位开放的条件，因为过了截止日期的职位上，申请仍然可能在进行中。按 applied_at 排序。' },
+      { en: "From postings with the open condition, I add NOT EXISTS: there is no row in posting_skills for that posting whose skill_id is NOT IN student 3's skills from student_skills. That leaves the postings where she has every required skill. I order by posting_id.",
+        zh: '从 postings 出发，加上开放条件，再加 NOT EXISTS：这个职位在 posting_skills 里没有一行的 skill_id NOT IN 学生 3 在 student_skills 里的技能。剩下的就是每项要求她都会的职位。按 posting_id 排序。' },
+      { en: "I LEFT JOIN postings to applications, join companies for the name, and keep the rows where a.app_id IS NULL, meaning no application matched. I also add the open condition, status = 'open' and deadline >= today, and order by posting_id.",
+        zh: 'postings LEFT JOIN applications，JOIN companies 拿公司名，保留 a.app_id IS NULL 的行，也就是没有任何申请对上。再加开放条件 status = \'open\' 且 deadline >= 今天，按 posting_id 排序。' },
+      { en: "I LEFT JOIN students to applications and keep the rows where app_id IS NULL. Any application counts, whatever its status, and bookmarks in saved_postings don't count as applying.",
+        zh: 'students LEFT JOIN applications，保留 app_id IS NULL 的行。任何申请都算，不管状态；saved_postings 里的收藏不算申请。' },
+      { en: "applications doesn't know the company, so I join applications to postings to companies. I keep applied_at >= '2025-11-04', group by company, count, and order by the count descending, then by company name for ties.",
+        zh: 'applications 上没有公司，所以 applications → postings → companies。保留 applied_at >= \'2025-11-04\'，按公司分组计数，按数量从多到少排，并列时按公司名。' },
+      { en: "I start from posting_skills, join postings to apply the open condition, and join skills for the name. Then I group by skill, count the postings, and order by the count descending, then by skill name, so tied skills both show up.",
+        zh: '从 posting_skills 出发，JOIN postings 加开放条件，JOIN skills 拿技能名。按技能分组，数职位个数，按数量从多到少排，再按技能名，这样并列的技能都会显示。' },
+      { en: "I start from companies, join postings and applications, and LEFT JOIN offers, so applications without an offer still count. Grouped by company, COUNT(a.app_id) is applications, COUNT(o.offer_id) is offers, and the rate is 100.0 times offers divided by applications, rounded to one decimal. I order by the rate descending, then by company name.",
+        zh: '从 companies 出发，JOIN postings 和 applications，再 LEFT JOIN offers，这样没有 offer 的申请也算进去。按公司分组：COUNT(a.app_id) 是申请数，COUNT(o.offer_id) 是 offer 数，比率是 100.0 乘以 offer 数除以申请数，保留一位小数。按比率从高到低排，再按公司名。' },
+      { en: "I start from offers where response = 'accepted', then join applications, postings and companies to reach the industry. I group by industry, count the offers, and average offers.pay_per_hour, the actual pay, rounded to one decimal. I order by the average pay, highest first.",
+        zh: '从 offers 出发，条件 response = \'accepted\'，再 JOIN applications、postings、companies 拿到行业。按 industry 分组，数 offer 个数，对 offers.pay_per_hour（实际时薪）求平均，保留一位小数。按平均时薪从高到低排。' },
+      { en: "One pass over applications with three conditional counts: the sum of applied_at >= each cutoff date. In standard SQL I'd write SUM(CASE WHEN ... THEN 1 ELSE 0 END).",
+        zh: '扫一遍 applications，算三个条件计数：applied_at >= 每个起始日的行数加起来。标准 SQL 写成 SUM(CASE WHEN … THEN 1 ELSE 0 END)。' },
+      { en: "I insert one row into applications with student 1, posting 19, today's date and status submitted, and let the database generate app_id. I write it as INSERT ... SELECT with WHERE EXISTS, so it only inserts if posting 19 is still open: status 'open' and deadline today or later. The UNIQUE constraint on student_id and posting_id blocks a duplicate application.",
+        zh: '在 applications 里插入一行：学生 1、职位 19、今天的日期、status 为 submitted，app_id 让数据库生成。写成 INSERT … SELECT 加 WHERE EXISTS，只有职位 19 仍然开放（status 为 \'open\' 且截止日期是今天或以后）时才插入。student_id 和 posting_id 上的 UNIQUE 约束挡住重复申请。' },
+      { en: "I don't delete anything. I update applications, set status = 'withdrawn' where app_id = 32 and the status is still submitted or interviewing, so a finished application can't be changed. Then I handle her pending interview on that application: I'd delete it in the same transaction, or rely on interview queries that check the application is still in progress.",
+        zh: '什么都不删。UPDATE applications，SET status = \'withdrawn\'，条件是 app_id = 32 且 status 还是 submitted 或 interviewing，这样已经结束的申请不会被改。然后处理这条申请上那场 pending 的面试：在同一个事务里删掉它，或者依靠查面试时检查申请是否还在进行中。' },
+      { en: "I start from interviews and join applications, students and postings. I filter on postings.recruiter_id = 1, outcome = 'pending', the application still submitted or interviewing, and scheduled_at >= '2026-11-04' and < '2026-11-07', so Friday afternoon is included. I order by scheduled_at.",
+        zh: '从 interviews 出发，JOIN applications、students、postings。过滤 postings.recruiter_id = 1、outcome = \'pending\'、申请还是 submitted 或 interviewing，以及 scheduled_at >= \'2026-11-04\' 且 < \'2026-11-07\'，这样周五下午的也包括在内。按 scheduled_at 排序。' },
+    ],
+    close: {
+      en: "To sum up: the dimension tables are students, companies, recruiters, skills and postings, with posting_skills and student_skills as junction tables for the many-to-many skills. The fact tables are applications, with interviews and offers under each application, and saved_postings for bookmarks. Applications are unique per student and posting, withdrawing only changes the status, open means status open and deadline not passed, and offers store the actual pay. Reports start from applications or offers, join up to postings and companies, and then group. At about 20,000 applications a month, one PostgreSQL database is fine at first, and a nightly data warehouse can take over if reporting grows.",
+      zh: '总结一下：维度表是 students、companies、recruiters、skills、postings，多对多的技能用 posting_skills 和 student_skills 两张联结表。事实表是 applications，每次申请下面挂 interviews 和 offers，还有收藏用的 saved_postings。每个学生每个职位只能有一条申请，撤回只改 status，开放 = status 为 open 且没过截止日期，offers 存实际时薪。报表从 applications 或 offers 出发，JOIN 到 postings 和 companies，再分组。每月大约 20,000 条申请，一个 PostgreSQL 库一开始就够用，报表变多以后交给每晚同步的数据仓库。',
+    },
+  },
 });
 
 /* Full mock interview: library book lending (the course's official practice prompt, reworded).
@@ -12721,6 +13189,67 @@ window.MOCKS.push({
     { q: 'How many loans were made in the last 3, 6 and 12 months?', zh: '过去 3、6、12 个月各借出多少次', spec: '输出一行三列 <code>last_3m, last_6m, last_12m</code>，分别从 2026-08-04、2026-05-04、2025-11-04 起算', sql: "SELECT SUM(checkout_date >= '2026-08-04') AS last_3m,\n       SUM(checkout_date >= '2026-05-04') AS last_6m,\n       SUM(checkout_date >= '2025-11-04') AS last_12m\nFROM loans;", note: 'SQLite 里比较的结果是 1 或 0，SUM 起来就是个数。别的数据库写 <code>SUM(CASE WHEN … THEN 1 ELSE 0 END)</code>。' },
     { q: 'Walk me through checking in copy 9 when it comes back today.', zh: '副本 9 今天还回来了，怎么记', exam: true, spec: '把副本 9 那条还没还的借阅记为今天（2026-11-04）归还', check: 'SELECT loan_id, return_date FROM loans WHERE copy_id = 9 ORDER BY loan_id;', dml: true, sql: "UPDATE loans\nSET return_date = '2026-11-04'\nWHERE copy_id = 9 AND return_date IS NULL;", note: '只改「还没还」的那一条借阅，不能把这个副本的历史借阅都改掉。如果书上有人预约，接着把最早的 waiting 预约改成 fulfilled。' },
   ],
+  /* bilingual model answer for the 「标准答卷」 page: what to say, in exam order (en = say this, zh = what it means) */
+  answer: {
+    open: {
+      en: "Thanks. Let me make sure I understand the scope first. The library lends physical books to its members, and it needs two things: day-to-day operations like checkout, return and holds, and reports on borrowing behavior. Before I design anything, I have a few quick questions.",
+      zh: '谢谢。我先确认一下范围：图书馆把实体书借给读者，它要两样东西：日常操作（借出、归还、预约），和借阅行为的报表。开始设计之前，我想先问几个问题。',
+    },
+    clarifyZh: [
+      '问：一个馆还是几个分馆？｜答：假设有几个分馆，每本实体书属于一个分馆。',
+      '问：同一本书能有多个副本吗？｜答：能，热门书经常有好几本。',
+      '问：借期多长？有没有罚款？｜答：三周。罚款有更好，但不是必须。',
+      '问：预约是针对某一个副本，还是针对这本书？｜答：你会怎么选，为什么？（考官把问题抛回给你，没有唯一正确答案。）',
+      '问：图书馆大概多大？｜答：几万本书，几千个读者，每天几百次借阅。',
+      '问：报表在同一个数据库上跑吗？｜答：你决定，说出取舍。',
+    ],
+    people: {
+      en: "The main users are members, who search the catalog, borrow books and place holds; librarians, who check books in and out and handle holds and overdue books; and management or analysts, who look at borrowing trends to decide what to buy. The key business nouns are book, copy, member, loan, due date, return, hold and branch.",
+      zh: '主要使用者有三类：读者（查书、借书、预约）；图书管理员（借出、归还、处理预约和过期）；管理层或分析师（看借阅趋势，决定买什么书）。关键的业务名词是：书目、副本、读者、借阅、到期日、归还、预约、分馆。',
+    },
+    tech: {
+      en: "This is transactional data with clear relationships, so I'd use a relational database such as PostgreSQL. A few hundred loans a day is small, so at first the reports can run on the same database. If reporting grows, I'd copy the data every night into a data warehouse, so analytics never slow down checkouts.",
+      zh: '这是关系清楚的交易型数据，所以用关系型数据库，比如 PostgreSQL。每天几百次借阅很小，一开始报表直接在同一个库上跑就行。报表变多以后，每晚把数据同步到数据仓库，这样分析查询不会拖慢借书。',
+    },
+    walk: {
+      en: "I'll start with the dimension tables. members has one row per member. books has one row per title: ISBN, title, author and genre. copies has one row per physical copy, with a foreign key to books and the branch it sits in. I keep books and copies separate, so the title and author are stored once, not once per copy.\nThen the fact tables. loans has one row per checkout: copy_id, member_id, checkout date, due date and return date. A copy is checked out right now when it has a loan with no return date. holds has one row per hold. I put it on the book, not the copy, because the member wants the title, not a specific copy. It has placed_at, to find who is next, and a status, so we keep history instead of deleting rows.",
+      zh: '先说维度表。members 一个读者一行。books 一个书目一行：ISBN、书名、作者、类型。copies 一本实体副本一行，外键指向 books，还记录在哪个分馆。books 和 copies 分开，书名和作者只存一次，而不是每个副本存一遍。\n再说事实表。loans 一次借阅一行：copy_id、member_id、借出日、到期日、归还日。一个副本「现在借出」，就是它有一条没有归还日的借阅。holds 一次预约一行，挂在书目上而不是副本上，因为读者要的是这本书，不是某一个副本。它有 placed_at 用来找下一个是谁，还有 status，这样保留历史，而不是删行。',
+    },
+    probes: [
+      { en: "Yes. That's exactly why books and copies are separate tables. Each copy is its own row in copies, and they all point to the same book_id. So the title and author are stored once, and each copy can be loaned on its own.",
+        zh: '能。这正是 books 和 copies 分成两张表的原因。每个副本是 copies 里的一行，都指向同一个 book_id。书名作者只存一次，每个副本可以单独借出。' },
+      { en: "I look for a loan on that copy where return_date IS NULL. If there is one, the copy is out. I could also keep a status column on copies to make it faster, but then it has to stay in sync with loans, so by default I derive it from loans.",
+        zh: '看这个副本有没有一条 return_date IS NULL 的借阅，有就是借出去了。也可以在 copies 上加一个 status 列查得更快，但它要和 loans 保持同步，所以默认从 loans 推出来。' },
+      { en: "On the title, so the hold has a book_id. The member doesn't care which copy they get: the first copy that comes back goes to the oldest waiting hold. If holds were on copies, a member could be waiting for one copy while another copy sits on the shelf.",
+        zh: '挂在书目上，也就是 holds 存 book_id。读者不在乎拿到哪个副本：哪个副本先回来，就给排在最前面的预约。如果挂在副本上，可能出现读者在等一个副本，而另一个副本就放在书架上没人借。' },
+      { en: "I don't delete it. I change its status from waiting to fulfilled, and I can record when. That keeps the history, so later we can report on things like how long people wait.",
+        zh: '不删。把 status 从 waiting 改成 fulfilled，也可以记下时间。这样历史还在，以后能统计比如大家平均等多久。' },
+      { en: "Compare return_date with due_date on the loan. If return_date is later than due_date, it came back late. For a book that hasn't come back yet, it's overdue when return_date is null and due_date is before today.",
+        zh: '在借阅这一行上比较 return_date 和 due_date：归还日晚于到期日就是迟还。还没还的书，return_date 为空且 due_date 早于今天，就是过期。' },
+      { en: "It's set at checkout: the checkout date plus the loan period, three weeks. I store it on the loan row, because the rule might change later, and old loans should keep the due date they were given.",
+        zh: '借出时算好：借出日加借期三周。存在 loans 这一行上，因为规则以后可能改，旧的借阅应该保留当时给的到期日。' },
+      { en: "Very little. Branch is already on copies. I'd turn it into a branches table with a branch_id and point copies at it. If members can return a book to any branch, I'd also record the return branch on the loan.",
+        zh: '改动很小。分馆已经在 copies 上了，把它变成一张 branches 表（branch_id），让 copies 指向它。如果读者可以在任何分馆还书，再在 loans 上记一个归还分馆。' },
+    ],
+    queries: [
+      { en: "Titles live in books, one row per title, so this is just SELECT title FROM books.", zh: '书名在 books 里，一个书目一行，所以直接 SELECT title FROM books。' },
+      { en: "Same table, with a filter on genre: WHERE genre = 'Fantasy'. In the app, the genre would be a parameter.", zh: '同一张表，按类型过滤：WHERE genre = \'Fantasy\'。在应用里，类型会是一个参数。' },
+      { en: "A copy is out if it has a loan with no return date. So I take all copies and exclude the ones with an open loan: NOT IN a subquery of loans where return_date IS NULL.", zh: '副本有一条没还的借阅就是借出去了。所以取全部副本，排除有未还借阅的：NOT IN 一个子查询（loans 里 return_date IS NULL 的）。' },
+      { en: "Same idea, but the title is in books, so I join copies to books. I add DISTINCT, because two copies of the same book on the shelf would show the title twice.", zh: '思路一样，但书名在 books 里，所以 copies JOIN books。加 DISTINCT，因为同一本书有两个副本在架上时，书名会出现两次。' },
+      { en: "I start from loans, keep member_id = 1 and return_date IS NULL, then join copies and books to get the title.", zh: '从 loans 出发，保留 member_id = 1 且 return_date IS NULL 的，再 JOIN copies 和 books 拿书名。' },
+      { en: "Holds are on the book, so SELECT * FROM holds WHERE book_id = 12345. If we only want the people still waiting, I add status = 'waiting'.", zh: '预约挂在书目上，所以 SELECT * FROM holds WHERE book_id = 12345。只要还在等的，就加 status = \'waiting\'。' },
+      { en: "I join holds to members, keep only the waiting holds on that book, order by placed_at ascending, and take the first row with LIMIT 1.", zh: 'holds JOIN members，只留这本书上 waiting 的预约，按 placed_at 从早到晚排，LIMIT 1 取第一行。' },
+      { en: "Overdue means not returned and past the due date: return_date IS NULL and due_date before today. I join members for the contact details, and copies and books for the title.", zh: '过期 = 还没还并且过了到期日：return_date IS NULL 且 due_date 早于今天。JOIN members 拿联系方式，JOIN copies 和 books 拿书名。' },
+      { en: "loans only knows the copy, and genre is on books, so I join loans to copies to books, keep the last year by checkout_date, group by genre, count, and sort from most to least.", zh: 'loans 只知道副本，类型在 books 上，所以 loans → copies → books。按 checkout_date 留过去一年，按 genre 分组计数，从多到少排。' },
+      { en: "Same joins, but I group by book_id, not copy_id, so all copies of a book are counted together. Then order by the count, descending, and limit to the top ten.", zh: '同样的 JOIN，但按 book_id 分组而不是 copy_id，这样同一本书的几个副本合在一起数。再按次数从多到少，取前十。' },
+      { en: "One pass over loans with three conditional counts: the sum of checkout_date after each cutoff. In standard SQL I'd write SUM(CASE WHEN ... THEN 1 ELSE 0 END).", zh: '扫一遍 loans，算三个条件计数：每个起始日之后的借阅数加起来。标准 SQL 写成 SUM(CASE WHEN … THEN 1 ELSE 0 END)。' },
+      { en: "I update the open loan on that copy, the one with return_date IS NULL, and set return_date to today. Then I check holds on that book: if someone is waiting, I mark the oldest hold fulfilled and notify that member. I'd do it all in one transaction.", zh: '更新这个副本那条还没还的借阅（return_date IS NULL），把 return_date 设成今天。再看这本书有没有预约：有人在等，就把最早的预约改成 fulfilled 并通知这位读者。全部放在一个事务里。' },
+    ],
+    close: {
+      en: "To sum up: three dimension tables, members, books and copies, and two fact tables, loans and holds. Books and copies are separate, so book details are stored once. Whether a copy is out comes from loans with no return date. Holds are on the title, with a status to keep history. Every report is loans joined to copies and books, then grouped. If reporting grows, I'd move it to a nightly data warehouse.",
+      zh: '总结一下：三张维度表 members、books、copies，两张事实表 loans、holds。书目和副本分开，书的信息只存一次。副本是否借出，从「没有归还日的借阅」推出来。预约挂在书目上，用 status 保留历史。所有报表都是 loans JOIN copies 和 books 再分组。报表量变大时，挪到每晚同步的数据仓库。',
+    },
+  },
 });
 
 </script>
@@ -14626,7 +15155,7 @@ function render() {
   main.className = 'v-' + ui.view;
   if (['chapter', 'lesson', 'practice', 'boss', 'sheet', 'read', 'pseudo'].includes(ui.view) && !CH(ui.ch)) ui.view = 'home';
   if ((ui.view === 'sheet' && !CH(ui.ch).sheet) || (ui.view === 'pseudo' && !CH(ui.ch).pseudo)) ui.view = 'chapter';
-  ({ home: renderHome, chapter: renderChapter, lesson: renderRunner, boss: renderRunner, mix: renderRunner, practice: renderPractice, review: renderReview, exam: renderExam, sheet: renderSheet, read: renderRead, pseudo: renderPseudo })[ui.view](main);
+  ({ home: renderHome, chapter: renderChapter, lesson: renderRunner, boss: renderRunner, mix: renderRunner, practice: renderPractice, review: renderReview, exam: renderExam, sheet: renderSheet, read: renderRead, pseudo: renderPseudo, answer: renderAnswer })[ui.view](main);
   refreshHeader();
 }
 
@@ -14692,6 +15221,9 @@ function renderHome(main) {
       grid.append(t);
     });
     sec.append(grid);
+    if (mocks.some((m) => m.answer)) {
+      sec.append(btn('ans-link', `<span class="sc-ico">${icon('doc')}</span><span class="sc-t"><b>标准答卷（中英对照）</b><span>每个主题从开场到收尾该怎么说：提问、表设计、追问、每道 SQL 的思路和答案</span></span>${icon('next')}`, () => openAnswer()));
+    }
     map.append(sec);
   }
   main.append(map);
@@ -16041,6 +16573,128 @@ function renderExam(main) {
   wrap.append(body);
   ({ listen: exListen, ask: exAsk, design: exDesign, probe: exProbe, query: exQuery, result: exResult })[EX.stage](body, m);
 }
+/* ───────── 标准答卷: the bilingual model answer for every mock theme, in exam order ───────── */
+const ANS_SECS = [
+  ['open', '开场', 'Opening', '约 1 分钟：复述题目范围，告诉教授你要先问几个问题。'],
+  ['ask', '提问', 'Clarifying questions', '约 2–3 分钟：只问会改变设计的问题（范围、规则、规模）。'],
+  ['people', '使用者和业务名词', 'Users & business nouns', '约 1–2 分钟：谁用这个系统、要记哪些东西。'],
+  ['tech', '技术选择', 'Technology', '约 1 分钟：用什么数据库，为什么；报表在哪跑。'],
+  ['tables', '表设计', 'Data model', '约 8–10 分钟：先维度表再事实表，每个关键决定说出理由。'],
+  ['probes', '追问', 'Follow-up questions', '约 5 分钟：教授挑你设计里的弱点问，回答要具体到表和列。'],
+  ['sql', '查询', 'Queries', '约 8–10 分钟：先说思路（从哪张表出发、怎么连、筛什么），再写 SQL。'],
+  ['close', '收尾', 'Wrap-up', '约 1 分钟：用三四句话总结整个设计。'],
+];
+function openAnswer(id) { go('answer', { mock: id || ui.mock }); }
+function ansSpeak(b, text) {
+  if (!('speechSynthesis' in window)) return;
+  if (speechSynthesis.speaking && b.classList.contains('on')) { speechSynthesis.cancel(); return; }
+  speechSynthesis.cancel();
+  $$('.ans-play.on').forEach((x) => x.classList.remove('on'));
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US';
+  u.rate = 0.95;
+  u.onend = u.onerror = () => b.classList.remove('on');
+  b.classList.add('on');
+  speechSynthesis.speak(u);
+}
+/* one "you say" block: English (with a play button) over its Chinese meaning */
+function ansSay(x, who = 'You') {
+  const d = el('div', 'ans-say');
+  const en = el('div', 'ans-en', `<span class="ans-who">${esc(who)}</span><div>${esc(x.en).replace(/\n/g, '</div><div>')}</div>`);
+  if ('speechSynthesis' in window) {
+    const p = btn('ans-play', icon('sound'), () => ansSpeak(p, x.en));
+    p.title = '听英文';
+    p.setAttribute('aria-label', '听英文');
+    en.prepend(p);
+  }
+  d.append(en, el('div', 'ans-zh', `<div>${esc(x.zh).replace(/\n/g, '</div><div>')}</div>`));
+  return d;
+}
+const ansProf = (en, zh) => `<div class="ans-prof"><span class="ans-who">Professor</span><div>${esc(en)}</div>${zh ? `<div class="ans-pzh">${zh}</div>` : ''}</div>`;
+function renderAnswer(main) {
+  const list = simList().filter((m) => m.answer);
+  if (!list.length) { ui.view = 'home'; render(); return; }
+  const m = list.find((x) => x.id === ui.mock) || list[0];
+  const A = m.answer;
+  setHue(MOCK_HUE[m.id] ?? 45);
+  window.speechSynthesis?.cancel();
+  const wrap = el('div', 'wrap ans');
+  main.append(wrap);
+  wrap.innerHTML = `<div class="ans-top"><h1>标准答卷 <span class="muted">Model answers</span></h1>
+    <p>每个主题都按真实口试的顺序写好。<b>深色框里的英文就是你要说的话</b>，下面的浅色字是中文意思；点 ${icon('sound')} 可以听英文发音。这是一份好的答案，不是唯一的答案：表名、列名不一样没关系，理由说得清就行。</p></div>`;
+  const tabs = el('div', 'ans-tabs');
+  list.forEach((x) => {
+    const t = btn('ans-tab' + (x.id === m.id ? ' on' : ''), `<b>${esc(x.title)}</b><span>${esc(x.tag)}</span>`, () => { if (x.id !== m.id) openAnswer(x.id); });
+    t.style.setProperty('--c', `oklch(60% 0.14 ${MOCK_HUE[x.id] ?? 45})`);
+    tabs.append(t);
+  });
+  wrap.append(tabs);
+  const toc = el('div', 'ans-toc');
+  ANS_SECS.forEach(([k, zh], i) => toc.append(btn('chip-btn', `${i + 1} ${zh}`, () => {
+    const s = $('#ans-' + k);
+    const hdr = $('#top') ? $('#top').offsetHeight : 0;
+    if (s) window.scrollTo({ top: s.getBoundingClientRect().top + window.scrollY - hdr - 64, behavior: REDUCED ? 'auto' : 'smooth' });
+  })));
+  wrap.append(toc);
+  // the prompt as the professor reads it
+  const pr = el('details', 'ans-prompt');
+  pr.innerHTML = `<summary>${icon('doc')}题目原文：教授念的那段话 <span class="muted small">${esc(m.en)} · ${esc(m.brief)}</span></summary>
+    ${m.prompt.map((p) => `<p>${esc(p)}</p>`).join('')}
+    ${m.stories ? `<div class="mini-h">User stories</div><ul>${[...m.stories.ops, ...m.stories.analytic].map((s) => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
+    ${m.closing ? `<p><i>${esc(m.closing)}</i></p>` : ''}`;
+  wrap.append(pr);
+  const sec = (k) => {
+    const i = ANS_SECS.findIndex((s) => s[0] === k);
+    const [, zh, en, tip] = ANS_SECS[i];
+    const s = el('section', 'ans-sec', `<h2><span class="ans-n">${i + 1}</span>${zh}<span class="ans-h-en">${en}</span></h2><p class="ans-tip">${tip}</p>`);
+    s.id = 'ans-' + k;
+    wrap.append(s);
+    return s;
+  };
+  sec('open').append(ansSay(A.open));
+  const ask = sec('ask');
+  m.clarify.forEach(([q, a], i) => {
+    const row = el('div', 'ans-qa');
+    row.append(ansSay({ en: q, zh: (A.clarifyZh[i] || '').split('｜')[0].replace(/^问：/, '') }));
+    row.insertAdjacentHTML('beforeend', ansProf(a, esc((A.clarifyZh[i] || '').split('｜')[1]?.replace(/^答：/, '') || '')));
+    ask.append(row);
+  });
+  const ppl = sec('people');
+  ppl.append(ansSay(A.people));
+  ppl.insertAdjacentHTML('beforeend', `<div class="ans-chips"><div class="mini-h">使用者</div>${m.stakeholders.map((s) => `<span>${esc(s)}</span>`).join('')}</div><div class="ans-chips"><div class="mini-h">业务名词</div>${m.nouns.map((s) => `<span>${esc(s)}</span>`).join('')}</div>`);
+  sec('tech').append(ansSay(A.tech));
+  const tb = sec('tables');
+  const colHTML = (c) => {
+    const pk = /\bPK\b/.test(c);
+    const fk = /\bFK\b/.test(c);
+    return `<span class="ans-col${pk ? ' pk' : ''}${fk ? ' fk' : ''}">${esc(c.replace(/\s*\b(PK|FK)\b/g, '').trim())}${pk ? '<i>PK</i>' : ''}${fk ? '<i>FK</i>' : ''}</span>`;
+  };
+  tb.insertAdjacentHTML('beforeend', `<div class="ans-ents">${m.model.ents.map((e) => `<div class="ans-ent"><b>${esc(e.name)}</b><div>${e.cols.map(colHTML).join('')}</div></div>`).join('')}</div>`);
+  tb.append(ansSay(A.walk));
+  tb.insertAdjacentHTML('beforeend', `<div class="mini-h">为什么这样设计（要点）</div><ul class="ans-why">${m.design.map((d) => `<li>${d}</li>`).join('')}</ul>`);
+  const pb = sec('probes');
+  m.probes.forEach((q, i) => {
+    const row = el('div', 'ans-qa');
+    row.insertAdjacentHTML('beforeend', ansProf(q));
+    row.append(ansSay(A.probes[i]));
+    pb.append(row);
+  });
+  const sq = sec('sql');
+  sq.insertAdjacentHTML('beforeend', `<p class="ans-tip">标 <b class="ans-star">★ 考试</b> 的是模拟考试会问的；全部 ${m.queries.length} 道都给了参考答案。今天的日期按示例数据算（${esc(m.today || '')}）。</p>`);
+  m.queries.forEach((q, i) => {
+    const card = el('div', 'ans-q');
+    card.innerHTML = `<div class="ans-qh"><span class="ans-qn">Q${i + 1}</span><b>${esc(q.zh)}</b>${q.exam ? '<span class="ans-star">★ 考试</span>' : ''}</div>${ansProf(q.q)}${q.spec ? `<div class="ans-spec">${/^输出/.test(q.spec) ? '' : '要求：'}${q.spec}</div>` : ''}`;
+    card.append(ansSay(A.queries[i]));
+    card.insertAdjacentHTML('beforeend', codeBlock(q.sql, 'sql') + (q.note ? `<div class="note tip"><span class="note-tag">注意</span><div>${q.note}</div></div>` : ''));
+    sq.append(card);
+  });
+  sec('close').append(ansSay(A.close));
+  const end = el('div', 'btnrow ans-end');
+  end.append(btn('btn primary', `${icon('play')}用这道题考一场`, () => exOpen(m.id)));
+  const nx = list[(list.indexOf(m) + 1) % list.length];
+  if (nx !== m) end.append(btn('btn', `下一个主题：${esc(nx.title)} ${icon('next')}`, () => openAnswer(nx.id)));
+  wrap.append(end);
+}
 function examPick(wrap) {
   const hist = S.exams || [];
   wrap.innerHTML = `<div class="ex-intro"><h1>模拟考试</h1>
@@ -16050,6 +16704,7 @@ function examPick(wrap) {
     $$('[data-m]', seg).forEach((b) => (b.onclick = () => { ui.emode = b.dataset.m; saveUI(); render(); }));
     $('.ex-intro', wrap).append(seg);
   } else $('.ex-intro', wrap).append(el('p', 'muted small', 'AI 考官只在 claude.ai 的链接里可用；这里是自己对照参考答案评分的版本，SQL 照样自动判分。'));
+  if (simList().some((m) => m.answer)) $('.ex-intro', wrap).append(btn('btn sm', `${icon('doc')}先看标准答卷（中英对照）`, () => openAnswer()));
   const L = exLive();
   if (L) {
     const lm = MOCK_BY_ID(L.id);
@@ -16396,6 +17051,7 @@ function exResult(body, m) {
   if (R.ai) (R.ai.improve || []).forEach((x) => items.push(`<li>${esc(String(x))}</li>`));
   if (R.self != null) m.checklist.forEach((c, k) => { if (!(R.selfTicks || [])[k]) items.push(`<li>设计：${esc(c)}</li>`); });
   imp.insertAdjacentHTML('beforeend', items.length ? `<ul class="ex-imp">${items.join('')}</ul>` : '<p>这一场没有明显的漏洞，继续保持。</p>');
+  if (m.answer) imp.append(btn('btn sm', `${icon('doc')}看这道题的标准答卷（中英对照）`, () => openAnswer(m.id)));
   body.append(imp);
   // AI design feedback
   if (R.ai) {
