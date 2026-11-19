@@ -10434,6 +10434,45 @@ window.CHAPTERS.push({
         'How long does a [event] last? What happens if it is late or cancelled?',
         'Can people [wait in line / cancel]? Should we keep that history?',
         'Roughly how many [people], [items] and [events] per day?'] },
+    { h: '三步公式：拿到任何主题都能套', time: '使用者 → 技术 → 表，先在脑子里过一遍',
+      do: ['<b>总公式</b>：几乎所有主题都是 <b>谁（人）+ 对什么（目录 / 实物）+ 做了什么（事件）+ 什么时候、什么状态（时间 / status）</b>。第 1 步把它说出来，第 2 步问它多大、敏不敏感，第 3 步一个名词一张表。',
+        '<b>第 1 步 · 使用者 = 三类人</b>：① 用的人（谁来借 / 买 / 订 / 申请）② 干活的人（谁处理、审批、操作）③ 看数字的人（谁看报表做决定）。有健康、钱、成绩这类敏感数据，再加 ④ 合规和安全的人。',
+        '<b>第 1 步 · 业务名词 = 动词变名词</b>：把题目里的动词圈出来，每个动词变成一个事件名词（borrow → loan，buy → ticket，book → reservation，ride → ride，apply → application），再找它涉及的人和东西，分进 人 person / 目录 catalog / 实物 item / 事件 event（+ 排队 queue）。',
+        '<b>第 2 步 · 技术 = 三个问题</b>：① 是不是很多小的增删改、关系清楚？（几乎总是）→ <b>PostgreSQL</b> ② 报表重不重、数据会不会很大？→ 先同一个库，变大了<b>每晚同步到数据仓库</b> ③ 有没有敏感数据？→ <b>权限、加密、访问记录</b>。规模数字直接用提问时教授给的。',
+        '<b>第 3 步 · 表 = 人表 + 目录表 + 实物表 + 每个事件一张表</b>，再逐条过 5 条规则：',
+        '① 每张表一个 <code>xxx_id</code> 主键',
+        '② 事件表 = <b>谁 + 什么 + 什么时候 + 状态（+ 钱）</b>，谁和什么用外键',
+        '③ 一个东西「有好几份 / 好几次」→ 拆成目录和实物两张表（books / copies，movies / showtimes，room_types / rooms）',
+        '④ 「现在是否……」从事件推：结束时间 <code>IS NULL</code> 或 status',
+        '⑤ 多对多加中间表；不删行，改 status',
+        '<b>最后</b>：拿 user story 一条条走 JOIN，走不通就是缺列或缺表。',
+        '<b>口诀</b>：人分三类（用的、干活的、看数字的）· 动词变事件 · 事件四要素（谁、什么、何时、状态）· 多份就拆 · 现在看 NULL 或 status，不删改状态。'],
+      say: ['The users are [people], who [do x]; [staff], who [handle y]; and [managers], who look at reports on [z].',
+        'The key nouns are [person], [catalog], [item], and the events [event] and [event].',
+        "It's transactional data with clear relationships, so I'd use PostgreSQL. At about [volume] a day it's small, so reports can run on the same database at first; if they grow, I'd copy the data nightly into a data warehouse.",
+        "Since it holds [sensitive data], I'd restrict access by role, encrypt it, and keep an audit log."] },
+    { h: '试一遍：没见过的主题（外卖平台）', time: '3 分钟搭出来',
+      do: ['<b>动词</b>：下单、配送、评价 → 事件 <b>order、delivery、review</b>',
+        '<b>人</b>：顾客（用的）、骑手和餐厅（干活的）、平台运营（看数字的）；有地址和电话 → 要做权限控制',
+        '<b>目录</b>：菜单 menu_items；<b>实物</b>：没有一份一份的实物（菜做出来就卖了），所以这题不拆',
+        '<b>技术</b>：交易型 → PostgreSQL；订单量大、要按小时分析 → 每晚同步到数据仓库',
+        '<b>对 5 条规则</b>：① 都有主键 ② orders 有谁、什么、何时、状态 ③ 不需要拆 ④ 还在送 = <code>delivered_at IS NULL</code> ⑤ 一单多道菜用 order_items，<code>price_paid</code> 记成交价，菜单改价不影响历史订单'],
+      code: `-- 人
+customers   (customer_id PK, name, phone, address)
+couriers    (courier_id PK, name)
+restaurants (restaurant_id PK, name, area)
+-- 目录
+menu_items  (item_id PK, restaurant_id FK, name, price)
+-- 事件（status: placed / delivered / cancelled）
+orders      (order_id PK, customer_id FK, restaurant_id FK,
+             placed_at, status)
+-- 多对多：一单多道菜，记下成交价
+order_items (order_id FK, item_id FK, qty, price_paid)
+-- 事件：delivered_at IS NULL = 还在送
+deliveries  (delivery_id PK, order_id FK, courier_id FK,
+             picked_up_at, delivered_at)
+-- 事件
+reviews     (review_id PK, order_id FK, stars, comment)` },
     { h: '使用者和名词', time: '3–5 分钟',
       do: ['说出 3–4 类使用者 <b>stakeholders</b>，每类一句「他要干什么」', '把题目里的业务名词 <b>business nouns</b> 念一遍，它们就是候选表', '把名词分进 4 种角色（有排队再加第 5 种）：',
         '<b>人 person</b>：用系统的人（members、customers）→ 维度表 <b>dimension table</b>',
