@@ -13628,6 +13628,108 @@ function hlHtml(src) {
 function hlAny(src, lang = 'sql') {
   return lang === 'py' ? hlPy(src) : lang === 'html' ? hlHtml(src) : lang === 'text' ? esc(src) : hl(src);
 }
+/* lay out reference SQL one clause per line, so answers read without sideways scrolling.
+   - clauses (SELECT, FROM, JOIN, WHERE, GROUP BY, …) start a new line; AND/OR in WHERE, ON and HAVING too
+     (not the AND of BETWEEN … AND);
+   - a long SELECT list puts one column per line;
+   - a long (SELECT …) subquery opens on its own indented lines; a short one stays inline;
+   - other parentheses (function calls, IN lists, OVER (…)) stay on one line;
+   - already-formatted SQL is kept, except over-long statement lines, which are laid out the same way. */
+function fmtSQL(q) {
+  if (!q) return '';
+  if (q.includes('\n')) return q.split('\n').map((l) => (l.length > 80 && /^\s*(SELECT|UPDATE|INSERT|DELETE)\b/i.test(l) ? fmtSQL(l.trim()).split('\n').map((x) => l.match(/^\s*/)[0] + x).join('\n') : l)).join('\n');
+  const CL = ['UNION ALL', 'UNION', 'INSERT INTO', 'DELETE FROM', 'UPDATE', 'SELECT', 'FROM', 'LEFT JOIN', 'JOIN', 'WHERE', 'GROUP BY', 'HAVING', 'ORDER BY', 'LIMIT', 'SET', 'VALUES'];
+  const raw = q.match(/'(?:[^']|'')*'|"[^"]*"|\(|\)|;|,|[^\s(),;']+|\s+/g) || [];
+  const T = [];
+  const sp = [];
+  raw.forEach((t, k) => { if (!/^\s+$/.test(t)) { T.push(t); sp.push(k > 0 && /^\s+$/.test(raw[k - 1])); } });
+  const U = T.map((t) => t.toUpperCase());
+  const match = {};
+  const st = [];
+  T.forEach((t, i) => { if (t === '(') st.push(i); else if (t === ')' && st.length) match[st.pop()] = i; });
+  const kwAt = (i) => CL.find((k) => (k.includes(' ') ? U[i] + ' ' + (U[i + 1] || '') === k : U[i] === k));
+  const len = (a, b) => { let n = 0; for (let i = a; i <= b; i++) n += T[i].length + (sp[i] ? 1 : 0); return n; };
+  const out = [];
+  let line = '';
+  const ind = () => line.match(/^ */)[0].length;
+  const nl = (n) => { if (line.trim()) out.push(line.replace(/\s+$/, '')); line = ' '.repeat(n); };
+  const put = (t, i) => { if (sp[i] && line.trim() && !/[ (]$/.test(line)) line += ' '; line += t; };
+  const stack = [{ sub: true, long: true, ind: 0, clause: '' }];
+  const cases = [];
+  let between = false;
+  for (let i = 0; i < T.length; i++) {
+    const t = T[i];
+    const fr = stack[stack.length - 1];
+    if (t === '(') {
+      const sub = U[i + 1] === 'SELECT';
+      const long = sub && match[i] != null && len(i, match[i]) > 60;
+      // a long OVER (PARTITION BY … ORDER BY …) puts each part on its own line, under the "("
+      const over = !sub && U[i - 1] === 'OVER' && match[i] != null && len(i, match[i]) > 50;
+      put('(', i);
+      stack.push({ sub, long, over, col: line.length, base: ind(), ind: long ? ind() + 4 : fr.ind, clause: '' });
+      if (long) nl(ind() + 4);
+      continue;
+    }
+    if (t === ')') {
+      const f = stack.length > 1 ? stack.pop() : fr;
+      if (f.long) { nl(f.base); line += ')'; } else line = line.replace(/\s+$/, '') + ')';
+      continue;
+    }
+    if (t === ';') { line = line.replace(/\s+$/, '') + ';'; nl(0); fr.clause = ''; continue; }
+    if (fr.over && (U[i] + ' ' + U[i + 1] === 'PARTITION BY' || U[i] + ' ' + U[i + 1] === 'ORDER BY')) {
+      if (line.trim() && !line.endsWith('(')) nl(fr.col);
+      put(T[i] + ' ' + T[i + 1], i);
+      i++;
+      continue;
+    }
+    // a long CASE … END puts each WHEN / ELSE on its own line and END under CASE
+    if (U[i] === 'CASE') {
+      let d = 0;
+      let j = i;
+      for (; j < T.length; j++) { if (U[j] === 'CASE') d++; else if (U[j] === 'END' && --d === 0) break; }
+      put(t, i);
+      cases.push({ col: line.length - 4, long: len(i, j) > 50 });
+      continue;
+    }
+    const cs = cases[cases.length - 1];
+    if (cs && cs.long && (U[i] === 'WHEN' || U[i] === 'ELSE')) { nl(cs.col + 2); line += t; continue; }
+    if (cs && U[i] === 'END') { cases.pop(); if (cs.long) { nl(cs.col); line += t; } else put(t, i); continue; }
+    if (!(fr.sub && fr.long)) { put(t, i); continue; }
+    if (t === ',') {
+      line = line.replace(/\s+$/, '') + ',';
+      if (fr.clause === 'SELECT' && fr.split) nl(fr.ind + 7);
+      continue;
+    }
+    const kw = kwAt(i);
+    if (kw) {
+      if (line.trim()) nl(fr.ind);
+      put(kw.includes(' ') ? T[i] + ' ' + T[i + 1] : t, i);
+      if (kw.includes(' ')) i++;
+      fr.clause = kw;
+      between = false;
+      if (kw === 'SELECT') {
+        let j = i + 1;
+        let d = 0;
+        for (; j < T.length; j++) {
+          if (T[j] === '(') d++;
+          else if (T[j] === ')') { if (d === 0) break; d--; } else if (d === 0 && (T[j] === ';' || kwAt(j))) break;
+        }
+        fr.split = len(i + 1, j - 1) > 70;
+      }
+      continue;
+    }
+    if (U[i] === 'BETWEEN') between = true;
+    if ((U[i] === 'AND' || U[i] === 'OR') && ['WHERE', 'HAVING', 'JOIN', 'LEFT JOIN'].includes(fr.clause)) {
+      if (between && U[i] === 'AND') { between = false; put(t, i); continue; }
+      nl(fr.ind + 2);
+      line += t;
+      continue;
+    }
+    put(t, i);
+  }
+  nl(0);
+  return out.join('\n');
+}
 function codeBlock(src, lang = 'sql', cls = '') {
   return `<pre class="code ${cls}" data-lang="${lang}"><code>${hlAny(src, lang)}</code></pre>`;
 }
@@ -15049,7 +15151,7 @@ SCR.sql = (s, b, ctx) => {
   const sol = btn('btn ghost', '看答案', () => { ans.hidden = false; sol.hidden = true; if (!solved) { solved = true; ctx.done(false); } });
   sol.hidden = true;
   row.append(sol);
-  const ans = el('div', 'solbox', `<div class="mini-h">参考写法</div>${codeBlock(s.check || '')}`);
+  const ans = el('div', 'solbox', `<div class="mini-h">参考写法</div>${codeBlock(fmtSQL(s.check || ''))}`);
   ans.hidden = true;
   if (ctx.seed) b.append(mkSchemaPanel(ctx.seed, { editor: ed, ref: s.check || s.sql || '' }));
   b.append(ed.wrap, row, fb, ans, out);
@@ -15290,7 +15392,7 @@ function openLesson(ch, lesId) {
   else go('lesson', { ch: ch.id, les: lesId, i: 0 });
 }
 /* one-line reference SQL → one clause per line, so it reads without sideways scrolling */
-const sqlLines = (q) => (q.includes('\n') ? q : q.replace(/\s+(FROM|LEFT JOIN|JOIN|WHERE|GROUP BY|HAVING|ORDER BY|LIMIT)\s/g, '\n$1 ').replace(/\s+AND\s/g, '\n  AND '));
+const sqlLines = fmtSQL;
 const RD_TAG = { idea: '用法', vs: '对比', list: '要点', quiz: '例子', predict: '易错', fill: '例子', order: '顺序', sort: '分类', match: '对照', sql: '例子', code: '逐行看', flow: '流程', grid: '对照表', er: '表结构', rows: '一步步看', join: 'JOIN 演示' };
 function rdBlock(s, ch) {
   const b = el('section', 'rd-b rd-' + s.t);
@@ -15886,7 +15988,7 @@ function renderPractice(main) {
     exp.hidden = false;
     bExp.textContent = '收起期望结果';
   });
-  const showSol = () => { sol.innerHTML = `<div class="mini-h">参考写法</div>${codeBlock(ex.ref)}<div class="muted small">写法不唯一，结果一致就算对。</div>`; sol.hidden = false; };
+  const showSol = () => { sol.innerHTML = `<div class="mini-h">参考写法</div>${codeBlock(fmtSQL(ex.ref))}<div class="muted small">写法不唯一，结果一致就算对。</div>`; sol.hidden = false; };
   const confirmRow = el('div', 'confirm', '<span>确定要看答案吗？这道题会记入错题本。</span>');
   confirmRow.hidden = true;
   confirmRow.append(btn('btn sm', '确定', () => { confirmRow.hidden = true; (st.prac[ex.id] ||= {}).peek = true; addMistake('prac', ch.id, ex.id, `${ch.title} · 练 ${ex.id} ${ex.title}`); save(); showSol(); }), btn('btn sm ghost', '再想想', () => (confirmRow.hidden = true)));
