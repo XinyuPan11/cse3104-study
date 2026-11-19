@@ -1270,6 +1270,7 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
 .rd-play .split > * { min-width: 0; }
 .rd-notes li { min-width: 0; }
 .rd-notes li code { white-space: pre-wrap; overflow-wrap: anywhere; }
+.rd-what p { margin: 0 0 8px; }
 
 </style>
 <header class="top" id="top"></header>
@@ -5025,7 +5026,8 @@ window.CHAPTERS.push({
       { t: 'sql', title: '数据库会拒绝坏数据',
         task: '这是本章的 <code>bank</code> 数据库。先运行，看看 4 个账户。<br>然后删掉第二条语句前面的 <code>--</code> 再运行：把 Carol 的余额改成负数，会发生什么？',
         sql: "SELECT * FROM accounts;\n\n-- UPDATE accounts SET balance = -999 WHERE owner = 'Carol';",
-        hint: '建表时写了 balance INTEGER NOT NULL CHECK (balance >= 0)' },
+        hint: '建表时写了 balance INTEGER NOT NULL CHECK (balance >= 0)',
+        ans: '<p>第一次运行：4 个账户都在，Carol 是 <b>1000</b>。</p><p>删掉 <code>--</code> 再运行：数据库直接<b>报错</b>，提示类似 <code>CHECK constraint failed: balance &gt;= 0</code>，这条 UPDATE <b>一行都没改</b>。再查一次，Carol 还是 1000。</p><p>原因：建表时给 balance 加了 <code>CHECK (balance &gt;= 0)</code>，每次写入数据库都会检查，不合法的值根本写不进去。Excel 不会拦你，这就是数据库能保证数据正确（integrity）的意思。</p>' },
       { t: 'quiz', q: '有人想把 Carol 的余额改成 −999，这条 UPDATE 被数据库拒绝了。accounts 表的定义如下，拦住它的是哪个机制？',
         code: "CREATE TABLE accounts (\n  id      INTEGER PRIMARY KEY,\n  owner   TEXT NOT NULL,\n  balance INTEGER NOT NULL CHECK (balance >= 0)\n);\n\nUPDATE accounts SET balance = -999\nWHERE owner = 'Carol';   -- 被拒绝",
         opts: ['CHECK 约束', 'PRIMARY KEY', '索引 index', '视图 view'], a: 0,
@@ -15688,9 +15690,11 @@ function rdBlock(s, ch) {
         const sol = [...inner.querySelectorAll('button')].find((x) => x.textContent.includes('看答案'));
         const runB = [...inner.querySelectorAll('button')].find((x) => x.textContent.includes('运行'));
         if (runB) runB.innerHTML = `${icon('play')} 运行并检查 <kbd>Ctrl ↵</kbd>`;
-        if (sol) { sol.hidden = false; sol.textContent = '写不出来？看答案'; }
+        if (sol) { sol.hidden = false; sol.textContent = s.check ? '写不出来？看答案' : '运行完了？看答案'; }
         const ansBox = inner.querySelector('.solbox');
-        if (ansBox) ansBox.innerHTML = `<div class="mini-h">参考写法</div>${codeBlock(sqlLines(s.check || ''), 'sql')}${s.hint ? `<div class="note tip"><span class="note-tag">要点</span><div>${esc(s.hint)}</div></div>` : ''}`;
+        const tip = s.hint ? `<div class="note tip"><span class="note-tag">要点</span><div>${esc(s.hint)}</div></div>` : '';
+        // a "just run it and see" screen has no reference query: the answer is what happens
+        if (ansBox) ansBox.innerHTML = s.check ? `<div class="mini-h">参考写法</div>${codeBlock(sqlLines(s.check), 'sql')}${tip}` : `<div class="mini-h">会发生什么</div><div class="rd-what">${s.ans || ''}</div>${tip}`;
         b.append(inner);
         break;
       }
