@@ -1190,6 +1190,18 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
   .ans-toc .chip-btn { flex: none; }
 }
 
+/* 重点 (starred practice questions) */
+.star-toggle { margin-left: 10px; vertical-align: middle; display: inline-flex; align-items: center; gap: 4px; font: 600 13px var(--body); padding: 4px 11px; border-radius: 99px; border: 1.5px dashed var(--line); background: var(--surface); color: var(--muted); cursor: pointer; }
+.star-toggle .ico { width: 14px; height: 14px; }
+.star-toggle:hover { border-color: oklch(70% 0.15 80); color: oklch(50% 0.13 70); }
+.star-toggle.on { border-style: solid; border-color: oklch(75% 0.15 80); background: oklch(95% 0.07 90); color: oklch(45% 0.13 70); }
+.ex-star { display: inline-flex; vertical-align: -2px; margin-left: 4px; color: oklch(70% 0.16 80); }
+.ex-star .ico { width: 13px; height: 13px; }
+.ex-filter { display: flex; align-items: center; gap: 6px; margin: 0 4px 6px; padding: 6px 10px; border-radius: 9px; border: 1.5px solid oklch(80% 0.12 85); background: var(--surface); color: oklch(45% 0.13 70); font: 600 12.5px var(--body); cursor: pointer; text-align: left; }
+.ex-filter .ico { width: 14px; height: 14px; flex: none; }
+.ex-filter.on { background: oklch(95% 0.07 90); }
+@media (max-width: 860px) { .ex-filter { white-space: nowrap; margin: 0; } }
+
 </style>
 <header class="top" id="top"></header>
 <main id="main"><div class="wrap" style="padding-block:40px">加载中…</div></main>
@@ -15369,7 +15381,8 @@ function renderChapter(main) {
   }
   if ((ch.practice || []).length) {
     const solved = ch.practice.filter((x) => st.prac[x.id]?.solved).length;
-    box('code', 'SQL 实战', `${solved} / ${ch.practice.length} 题通过 · 自动判分`, () => go('practice', { ch: ch.id, ex: null }));
+    const stars = ch.practice.filter((x) => st.prac[x.id]?.star).length;
+    box('code', 'SQL 实战', `${solved} / ${ch.practice.length} 题通过 · 自动判分${stars ? ` · ★ ${stars} 道重点` : ''}`, () => go('practice', { ch: ch.id, ex: null }));
   }
   if (pool.length >= 4) box('bolt', '章节挑战', `随机 ${Math.min(8, pool.length)} 题${st.boss.best ? ` · 最好 ${st.boss.best}/${Math.min(8, pool.length)}` : ''}`, () => go('boss', { ch: ch.id, i: 0, run: null }));
   const due = M.cardsDue(ch.id);
@@ -15923,10 +15936,19 @@ function renderPractice(main) {
   side.setAttribute('aria-label', '练习题');
   const solved = exs.filter((e) => st.prac[e.id]?.solved).length;
   side.innerHTML = `<div class="ex-h">已通过 <b>${solved}</b> / ${exs.length}</div>`;
+  // 重点: questions the learner starred; the list can be narrowed to just those
+  const starred = exs.filter((e) => st.prac[e.id]?.star);
+  const starOnly = !!ui.starOnly && starred.length > 0;
+  if (starred.length) {
+    const f = btn('ex-filter' + (starOnly ? ' on' : ''), `${icon('star')}${starOnly ? `只看重点（${starred.length}）· 点这里看全部` : `只看重点（${starred.length}）`}`, () => { ui.starOnly = !starOnly; saveUI(); render(); });
+    f.setAttribute('aria-pressed', String(starOnly));
+    side.append(f);
+  }
   side.append(btn('ex' + (ui.ex === 'sandbox' ? ' on' : ''), `<span class="ex-s">${icon('code')}</span><span>自由沙盒</span>`, () => go('practice', { ex: 'sandbox' })));
   exs.forEach((e) => {
     const p = st.prac[e.id];
-    side.append(btn('ex' + (ui.ex === e.id ? ' on' : '') + (p?.solved ? ' ok' : p?.n ? ' tried' : ''), `<span class="ex-s">${p?.solved ? icon('check') : p?.n ? '•' : ''}</span><span class="ex-id">${esc(e.id)}</span><span class="ex-t">${esc(e.title)}</span>`, () => go('practice', { ex: e.id })));
+    if (starOnly && !p?.star && ui.ex !== e.id) return;
+    side.append(btn('ex' + (ui.ex === e.id ? ' on' : '') + (p?.solved ? ' ok' : p?.n ? ' tried' : ''), `<span class="ex-s">${p?.solved ? icon('check') : p?.n ? '•' : ''}</span><span class="ex-id">${esc(e.id)}</span><span class="ex-t">${esc(e.title)}${p?.star ? `<b class="ex-star" title="重点">${icon('star')}</b>` : ''}</span>`, () => go('practice', { ex: e.id })));
   });
   const ws = el('section', 'ws');
   split.append(side, ws);
@@ -15949,7 +15971,19 @@ function renderPractice(main) {
     <h2>${esc(ex.title)} ${rec.solved ? `<span class="pill ok">${icon('check')}已通过</span>` : ''}</h2>
     <p class="prompt">${ex.prompt}</p>
     <div class="cols-need"><span class="mini-h">${ex.dml ? '判分方式' : '返回列'}</span><code>${esc(ex.cols)}</code></div>`;
-  const ed = mkEditor(rec.sql || (ex.dml ? '-- 写 INSERT / UPDATE / DELETE，Ctrl/⌘ + Enter 运行并检查\n' : '-- 写一条 SELECT，Ctrl/⌘ + Enter 运行并检查\n'), { onRun: () => doCheck(), label: `练习 ${ex.id}` });
+  const starter = ex.dml ? '-- 写 INSERT / UPDATE / DELETE，Ctrl/⌘ + Enter 运行并检查\n' : '-- 写一条 SELECT，Ctrl/⌘ + Enter 运行并检查\n';
+  const starB = btn('star-toggle' + (rec.star ? ' on' : ''), rec.star ? `${icon('star')}重点` : `${icon('star')}标为重点`, () => {
+    const r = (st.prac[ex.id] ||= {});
+    if (r.star) delete r.star; else r.star = true;
+    if (ed.value.trim() && ed.value !== starter) r.sql = ed.value.slice(0, 4000); // keep the unsent draft across the redraw
+    save();
+    toast(r.star ? '已标为重点：列表里会显示星标，可以只看重点' : '已取消重点');
+    render();
+  });
+  starB.setAttribute('aria-pressed', String(!!rec.star));
+  starB.title = rec.star ? '再点一次取消重点' : '把这道题标为重点，之后可以只看重点题';
+  $('h2', ws).append(starB);
+  const ed = mkEditor(rec.sql || starter, { onRun: () => doCheck(), label: `练习 ${ex.id}` });
   ws.append(mkSchemaPanel(ch.db, { editor: ed, ref: (ex.ref || '') + ' ' + (ex.check || '') }), ed.wrap);
   const bar = el('div', 'btnrow');
   const bHint = btn('btn', '提示');
