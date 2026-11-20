@@ -1346,6 +1346,19 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
 .ans-tag.need { background: oklch(92% 0.06 300); color: oklch(40% 0.17 300); }
 .ans-tag.ask { background: oklch(93% 0.05 250); color: oklch(40% 0.15 250); }
 
+/* signal-word cards (c17 看题选写法) */
+.cue-clause { display: inline-block; margin: -2px 0 6px; padding: 1px 10px; border-radius: 99px; font: 700 12px/1.8 var(--mono); background: var(--c-strong, #333); color: var(--surface); }
+.cue-sub { margin: 0 0 10px; font-size: 14.5px; color: var(--muted); }
+.cue { display: grid; gap: 8px; }
+.cue-it { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 6px 14px; align-items: start; padding: 10px 12px; border-radius: 12px; background: oklch(var(--Ls) var(--Cs) var(--k)); border-left: 5px solid oklch(var(--Lm) var(--Cm) var(--k)); animation: rise .4s var(--d) ease-out backwards; min-width: 0; }
+.cue-w { display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; }
+.cue-w span { padding: 2px 9px; border-radius: 99px; background: var(--surface); border: 1px solid oklch(var(--Lm) var(--Cm) var(--k) / .45); font-size: 13px; font-weight: 600; overflow-wrap: anywhere; }
+.cue-r { display: grid; gap: 3px; min-width: 0; }
+.cue-s { display: block; justify-self: start; max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; font-weight: 700; font-size: 13.5px; background: var(--surface); color: oklch(var(--Lk) var(--Ck) var(--k)); padding: 3px 8px; }
+.cue-r p { margin: 0; font-size: 13.5px; line-height: 1.55; }
+@media (max-width: 560px) { .cue-it { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { .cue-it { animation: none; } }
+
 </style>
 <header class="top" id="top"></header>
 <main id="main"><div class="wrap" style="padding-block:40px">加载中…</div></main>
@@ -11299,7 +11312,7 @@ Object.defineProperty(window.SEEDS, 'sqlall', {
 window.CHAPTERS = window.CHAPTERS || [];
 window.CHAPTERS.push({
   id: 'c17', no: 17, cls: 'SQL 专项', title: 'SQL 专项：学用法，再闯关', en: 'SQL drills across four topics',
-  blurb: '只学用法：筛选、JOIN、分组、子查询、日期和窗口、改数据，每块一个模板。然后在图书馆、电影院、酒店、共享单车 4 套数据上闯 27 关。',
+  blurb: '只学用法：筛选、JOIN、分组、子查询、日期和窗口、改数据，每块一个模板；最后一节「看题选写法」把题目里的信号词和写法一一对上。然后在图书馆、电影院、酒店、共享单车 4 套数据上闯 27 关。',
   hue: 265, db: 'sqlall', read: true, readTry: true, source: '课程 SQL 内容 + 口试查询题型',
   lessons: [
     {
@@ -11622,6 +11635,100 @@ window.CHAPTERS.push({
           opts: ['DELETE FROM reservations WHERE res_id = 45;', "UPDATE reservations SET status = 'cancelled' WHERE res_id = 45 AND status = 'booked';", 'DELETE FROM reservations;', "UPDATE reservations SET status = 'cancelled';"],
           a: 1, why: '改状态不删行：取消率、退款这些报表还要用这条记录。再加 <code>status = \'booked\'</code>，已经入住的预订就不会被误取消。' },
         { t: 'recap', points: ['INSERT 写清列名；UPDATE / DELETE 第一件事写 WHERE', 'WHERE 里加活跃条件，只改「还开着」的那一条', '改两张表放进 BEGIN … COMMIT', '取消用 UPDATE status，不用 DELETE'] },
+      ],
+    },
+    {
+      id: 'g', title: '看题选写法：信号词速查', min: 5,
+      screens: [
+        { t: 'hook', big: '读题时只找信号词：每个信号词对应一种写法。', sub: '按书写顺序问 4 件事：输出什么 → 留哪些行 → 要不要分组 → 怎么排、要几行。', icon: 'search' },
+        { t: 'cue', c: 0, clause: 'SELECT · JOIN', title: '第 1 问：要输出什么？要连几张表？',
+          sub: '把<b>输出的列</b>和<b>条件用到的列</b>都圈出来，看它们在几张表。',
+          items: [
+            { w: ['要的列分在 2 张以上的表', '要名字/书名，起点表只有 ID'], s: 'JOIN 表 ON 外键 = 主键', n: '两张表直接连不上，就找中间那张表：loans → copies → books。' },
+            { w: ['列都在 1 张表'], s: '不用 JOIN', n: '别的表只用来判断「有没有」，就用子查询（第 2 问），不用 JOIN。' },
+            { w: ['including zero', 'with none', '没有的也列出', '显示 0'], s: 'LEFT JOIN … + COUNT(右表.id)', n: '从必须全列出来的表出发；右表的条件写在 ON 里，写在 WHERE 会把 0 那几行删掉。' },
+            { w: ['different', 'distinct', '有哪些种', '不重复'], s: 'SELECT DISTINCT 列', n: '一对多 JOIN 后名字会重复（同一本书两个副本），也要加。' },
+          ] },
+        { t: 'cue', c: 1, clause: 'WHERE', title: '第 2 问：留下哪些行？',
+          sub: '一行一行判断的条件写在 WHERE。「没有」「比平均高」这两类要在 WHERE 里再套一个 SELECT。',
+          items: [
+            { w: ['是 / 等于 / 某人的', '在…之间', '包含'], s: "= · BETWEEN · LIKE '%x%' · IN ('a', 'b')", n: '普通条件。几个条件用 AND，混用 OR 时加括号。' },
+            { w: ['still', 'currently', 'right now', '还在 / 还没还'], s: 'end_time IS NULL · status = …', n: '事件表里有历史行，只留「现在」的。空值只能用 IS NULL，不能写 = NULL。' },
+            { w: ['never', 'no / not', 'available', 'free', 'on the shelf', '从没 / 空的 / 在架'], s: 'NOT EXISTS (SELECT …)\n或 … NOT IN (SELECT …)', n: '「没有某条记录」不能用 JOIN，没有的东西配不上。NOT IN 的名单里有 NULL 会一行都不剩。' },
+            { w: ['who has ever …', '借过 / 订过 …的人'], s: 'EXISTS (SELECT …)\n或 … IN (SELECT …)', n: '只输出一张表的列时用它。用 JOIN 也行，但一人两条会重复，要加 DISTINCT。' },
+            { w: ['above average', 'the latest', '比平均高', '最新的那条'], s: '列 > (SELECT AVG(列) FROM 表)', n: 'WHERE 里不能直接写 AVG / MAX：先在括号里算出那个数，再拿来比。' },
+            { w: ['last year', 'since', 'before', '过去一年 / 某天以后'], s: "日期 >= date('now', '-1 year')", n: '日期存成 YYYY-MM-DD，可以直接比大小。「过去一年」两头都要卡住。' },
+            { w: ['free between … and …', 'overlap', 'conflict', '那几天空着 / 冲突'], s: 'NOT EXISTS (… a开始 < b结束\n  AND b开始 < a结束)', n: '两个条件同时成立才算重叠。退房当天就空了，所以用 <，不用 <=。' },
+          ] },
+        { t: 'cue', c: 2, clause: 'GROUP BY · HAVING', title: '第 3 问：要不要按组统计？',
+          sub: '听到「每个」就分组；条件里有统计出来的数，就写在 HAVING。',
+          items: [
+            { w: ['each', 'per', 'by', 'for every', '每个 / 各 / 按'], s: 'GROUP BY 它的 id, name', n: 'SELECT 里不是聚合的列，都要写进 GROUP BY。' },
+            { w: ['how many', 'total', 'average', '几个 / 总共 / 平均'], s: 'COUNT(*) · SUM(…) · AVG(…)', n: '没有「每个」、只要一个总数时，不用 GROUP BY。' },
+            { w: ['how many different', '几部不同的'], s: 'COUNT(DISTINCT 列)', n: '同一部电影看两次只算一部。' },
+            { w: ['at least N', 'more than N', '至少 7 次的车站'], s: 'HAVING COUNT(*) >= N', n: '条件里有 COUNT / SUM / AVG → HAVING；普通列的条件 → WHERE。' },
+            { w: ['rate', 'percentage', '取消率 / 百分之几'], s: 'SUM(条件) * 100.0 / COUNT(*)', n: '乘 100.0，避免整数除法得 0。' },
+            { w: ['per month', 'monthly', '每个月'], s: "GROUP BY strftime('%Y-%m', 时间)", n: '先把时间变成「年-月」，再按它分组。' },
+            { w: ['for each X, the top Y', '每家酒店最赚钱的房型'], s: 'ROW_NUMBER() OVER (\n  PARTITION BY X ORDER BY 指标 DESC)', n: '外层再取名次 = 1。「全表最…」只要 ORDER BY + LIMIT；「每组最…」才用它。' },
+          ] },
+        { t: 'cue', c: 3, clause: 'ORDER BY · LIMIT', title: '第 4 问：怎么排？要几行？',
+          items: [
+            { w: ['sorted', 'in order', 'by date', '按时间 / 从高到低'], s: 'ORDER BY 列 [DESC]', n: '默认从小到大，DESC 是从大到小。' },
+            { w: ['top N', 'the 3 longest', 'most popular', '前几名'], s: 'ORDER BY 指标 DESC LIMIT N', n: '并列时加第二个排序列（比如 title），结果才稳定。' },
+          ] },
+        { t: 'cue', c: 5, clause: 'INSERT · UPDATE · DELETE', title: '改数据的题',
+          items: [
+            { w: ['add', 'new', 'book', 'sign up', '新增 / 下单'], s: 'INSERT INTO 表 (列, …) VALUES (…)', n: '写清列名；自动生成的 id 不写。' },
+            { w: ['change', 'end', 'cancel', 'renew', '改成 / 结束 / 取消'], s: 'UPDATE 表 SET … WHERE id = … AND 还开着', n: '取消一般是改状态，不删行。' },
+            { w: ['remove', 'delete', '删除 / 退掉'], s: 'DELETE FROM 表 WHERE …', n: '第一件事写 WHERE，不然整张表都没了。' },
+            { w: ['both … together', '两张表一起改'], s: 'BEGIN; … ; COMMIT;', n: '几步要么全做，要么全不做。' },
+          ] },
+        { t: 'code', title: '例 1 · 图书馆：Now show the titles that are on the shelf right now.', lang: 'sql',
+          code: "SELECT DISTINCT b.title\nFROM copies c\nJOIN books b ON b.book_id = c.book_id\nWHERE c.copy_id NOT IN (\n  SELECT copy_id FROM loans\n  WHERE return_date IS NULL);",
+          notes: [
+            { line: 2, text: '第 1 问「titles」：书名在 books，在架的是副本（copies），要两张表 → JOIN。' },
+            { lines: [3, 5], text: '第 2 问「on the shelf」= 没有借出中的记录 →「没有」→ NOT IN 子查询。「right now」→ return_date IS NULL，排除已经还了的旧记录。' },
+            { line: 0, text: '同一本书两个副本都在架，书名会出现两次 → DISTINCT。' },
+          ] },
+        { t: 'code', title: '例 2 · 电影院：Give me a list of the most popular movies in the last year.', lang: 'sql',
+          code: "SELECT m.title, COUNT(*) AS tickets\nFROM tickets t\nJOIN showtimes s ON s.show_id = t.show_id\nJOIN movies m ON m.movie_id = s.movie_id\nWHERE s.starts_at >= '2025-11-04'\n  AND s.starts_at < '2026-11-04'\nGROUP BY m.movie_id, m.title\nORDER BY tickets DESC, m.title\nLIMIT 10;",
+          notes: [
+            { lines: [1, 3], text: '第 1 问「movies」要片名，「popular」看卖了几张票：tickets 到 movies 中间隔着 showtimes → JOIN 两次。' },
+            { lines: [4, 5], text: '第 2 问「in the last year」→ 日期条件，两头都卡住（示例数据里今天是 2026-11-04）。' },
+            { line: 6, text: '第 3 问「most popular movies」= 每部电影卖了几张再比 → 按电影 GROUP BY，COUNT(*)。' },
+            { lines: [7, 8], text: '第 4 问「most popular」「a list」→ 从多到少 ORDER BY … DESC，取前几名 LIMIT。' },
+          ] },
+        { t: 'code', title: '例 3 · 电影院：How many showtimes does each movie have? Show 0 for movies with none.', lang: 'sql',
+          code: "SELECT m.title, COUNT(st.show_id) AS shows\nFROM movies m\nLEFT JOIN showtimes st ON st.movie_id = m.movie_id\nGROUP BY m.movie_id, m.title;",
+          notes: [
+            { line: 2, text: '第 1 问「Show 0 … with none」→ LEFT JOIN，从必须全列出来的 movies 出发。' },
+            { line: 3, text: '第 3 问「each movie」→ GROUP BY。' },
+            { line: 0, text: '「How many」→ COUNT。数右表的列 st.show_id，没排的才会是 0；写 COUNT(*) 会得 1。' },
+          ] },
+        { t: 'code', title: '例 4 · 共享单车：Which stations have had at least 7 rides start there?', lang: 'sql',
+          code: "SELECT s.name, COUNT(*) AS rides\nFROM rides r\nJOIN stations s ON s.station_id = r.start_station_id\nGROUP BY s.station_id, s.name\nHAVING COUNT(*) >= 7;",
+          notes: [
+            { line: 2, text: '第 1 问：要车站名，次数在 rides → JOIN。' },
+            { line: 3, text: '第 3 问：每个车站数一次 → GROUP BY。' },
+            { line: 4, text: '「at least 7」限制的是次数，次数是 COUNT 算出来的 → HAVING，不是 WHERE。' },
+          ] },
+        { t: 'code', title: '例 5 · 电影院：Which movies have an average ticket price above the overall average?', lang: 'sql',
+          code: "SELECT m.title, ROUND(AVG(t.price), 2) AS avg_price\nFROM tickets t\nJOIN showtimes st ON st.show_id = t.show_id\nJOIN movies m ON m.movie_id = st.movie_id\nGROUP BY m.movie_id, m.title\nHAVING AVG(t.price) > (SELECT AVG(price) FROM tickets);",
+          notes: [
+            { lines: [1, 3], text: '第 1 问：票价在 tickets，片名在 movies，中间隔着 showtimes → JOIN 两次。' },
+            { line: 4, text: '第 3 问「each movie 的平均价」→ GROUP BY。' },
+            { line: 5, text: '「above the overall average」→ 先在括号里算出全部票的平均价；拿每组的 AVG 去比 → HAVING。' },
+          ] },
+        { t: 'match', q: '听到这句话 → 用这个写法：', pairs: [
+          ['Members who have never borrowed a book', 'NOT EXISTS / NOT IN'],
+          ['Rides per station, including stations with none', 'LEFT JOIN + COUNT(r.ride_id)'],
+          ['Stations with at least 7 rides', 'GROUP BY + HAVING COUNT(*) >= 7'],
+          ['Movies longer than the average movie', '> (SELECT AVG(length_min) FROM movies)'],
+          ['The 3 longest movies', 'ORDER BY length_min DESC LIMIT 3'],
+          ['Which genres do we have?', 'SELECT DISTINCT genre'],
+          ['For each hotel, its top-earning room type', 'ROW_NUMBER() OVER (PARTITION BY …)'],
+        ] },
+        { t: 'recap', points: ['先问 4 件事：输出什么（JOIN）→ 留哪些行（WHERE）→ 要不要分组（GROUP BY / HAVING）→ 怎么排、要几行（ORDER BY / LIMIT）', '「never / available / on the shelf」→ NOT EXISTS / NOT IN；「比平均高」→ 括号里先算出那个数', '「each」→ GROUP BY；「including zero」→ LEFT JOIN + COUNT(右表列)；「at least N」→ HAVING', '「top N」→ ORDER BY … DESC LIMIT N；「每组第一」→ ROW_NUMBER'] },
       ],
     },
   ],
@@ -14554,6 +14661,11 @@ SCR.list = (s, b) => {
   const cols = s.cols || (n === 4 ? 2 : n <= 3 ? n : 3);
   b.innerHTML = `<div class="tiles" style="--n:${cols}">${s.items.map((it, i) => `<div class="tile ${cat(i)}" style="--d:${i * 90}ms"><div class="tile-ico">${it.icon ? icon(it.icon) : `<span>${i + 1}</span>`}</div><b>${it.h}</b>${it.p ? `<p>${it.p}</p>` : ''}</div>`).join('')}</div>`;
 };
+/* signal words → syntax: one colored card per cue (reading view + card view share it) */
+const cueHTML = (s) => `<div class="cue ${cat(s.c || 0)}">${s.items.map((it, i) => `<div class="cue-it" style="--d:${i * 70}ms"><div class="cue-w">${it.w.map((w) => `<span>${esc(w)}</span>`).join('')}</div><div class="cue-r"><code class="cue-s">${esc(it.s)}</code>${it.n ? `<p>${it.n}</p>` : ''}</div></div>`).join('')}</div>`;
+SCR.cue = (s, b) => {
+  b.innerHTML = `${s.clause ? `<span class="cue-clause">${esc(s.clause)}</span>` : ''}${s.sub ? `<p class="cue-sub">${s.sub}</p>` : ''}${cueHTML(s)}`;
+};
 SCR.recap = (s, b, ctx) => {
   const st = ctx.stars;
   b.innerHTML = (st != null ? `<div class="stars">${[0, 1, 2].map((i) => `<span class="star ${i < st ? 'on' : ''}" style="--d:${250 + i * 200}ms">${icon('star')}</span>`).join('')}</div><div class="stars-t">${ctx.scoreText || ''}</div>` : '') +
@@ -15793,7 +15905,7 @@ function openLesson(ch, lesId) {
 }
 /* one-line reference SQL → one clause per line, so it reads without sideways scrolling */
 const sqlLines = fmtSQL;
-const RD_TAG = { idea: '用法', vs: '对比', list: '要点', quiz: '例子', predict: '易错', fill: '例子', order: '顺序', sort: '分类', match: '对照', sql: '例子', code: '逐行看', flow: '流程', grid: '对照表', er: '表结构', rows: '一步步看', join: 'JOIN 演示', split: '拆表演示', chart: '图表' };
+const RD_TAG = { idea: '用法', vs: '对比', list: '要点', quiz: '例子', predict: '易错', fill: '例子', order: '顺序', sort: '分类', match: '对照', sql: '例子', code: '逐行看', flow: '流程', grid: '对照表', er: '表结构', rows: '一步步看', join: 'JOIN 演示', split: '拆表演示', chart: '图表', cue: '信号词' };
 function rdBlock(s, ch) {
   const b = el('section', 'rd-b rd-' + s.t);
   const head = (t) => `${RD_TAG[s.t] ? `<span class="rd-tag">${RD_TAG[s.t]}</span>` : ''}${t ? `<h3>${esc(t)}</h3>` : ''}`;
@@ -15804,7 +15916,7 @@ function rdBlock(s, ch) {
     case 'hook':
       b.innerHTML = `<p class="rd-hook">${s.big}${s.sub ? `<span>${s.sub}</span>` : ''}</p>`;
       break;
-    case 'idea': case 'vs': case 'list': case 'recap': case 'join': {
+    case 'idea': case 'vs': case 'list': case 'recap': case 'join': case 'cue': {
       b.innerHTML = head(s.t === 'recap' ? '这一课的要点' : s.title);
       const inner = el('div');
       SCR[s.t](s, inner, ctx);
