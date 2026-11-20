@@ -1327,6 +1327,21 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
 .ans-off { display: inline-block; margin-left: 8px; padding: 0 8px; border-radius: 99px; font: 700 11px/1.7 var(--body); background: oklch(93% 0.06 25); color: oklch(45% 0.16 25); vertical-align: 1px; }
 .ans-yous { margin-top: 14px; }
 
+/* answer view: exam-size core tables, full model folded away */
+.ans-core-h { display: grid; gap: 2px; margin: 4px 0 8px; }
+.ans-core-h b { font-size: 16px; }
+.ans-core-h span { font-size: 13.5px; color: var(--muted); }
+.ans-core { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin-bottom: 4px; }
+.ans-ccols { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0; }
+.ans-ccols .ans-col { background: oklch(100% 0 0 / .7); }
+.ans-cwhy { font-size: 12.5px; line-height: 1.5; }
+.ans-full { margin-top: 12px; border: 1.5px dashed var(--line); border-radius: 12px; padding: 8px 12px; }
+.ans-full summary { cursor: pointer; font-weight: 700; font-size: 14px; }
+.ans-full[open] summary { margin-bottom: 8px; }
+.ans-extra { list-style: none; padding: 0; margin: 4px 0 10px; display: grid; gap: 5px; font-size: 13.5px; }
+.ans-extra li { display: grid; grid-template-columns: minmax(0, 180px) minmax(0, 1fr); gap: 8px; align-items: baseline; }
+@media (max-width: 560px) { .ans-extra li { grid-template-columns: minmax(0, 1fr); gap: 0; } }
+
 </style>
 <header class="top" id="top"></header>
 <main id="main"><div class="wrap" style="padding-block:40px">加载中…</div></main>
@@ -11987,6 +12002,12 @@ window.MOCKS.push({
       { en: "I start from rides with start_time >= '2025-11-04' and end_station_id IS NOT NULL, and join stations twice, once for the start and once for the end. I group by start and end station, count, order by rides descending with the station names as tie-breakers, and LIMIT 5.", zh: '从 rides 出发，start_time >= \'2025-11-04\' 并且 end_station_id IS NOT NULL，JOIN 两次 stations，一次拿起点、一次拿终点。按起点站和终点站分组计数，按 rides 从多到少排，相同的再按站名排，LIMIT 5。' },
       { en: "Only rides. I keep finished rides, end_time IS NOT NULL, from the last year, and group by rides.pass_type, the pass at the time of the ride, not the rider's current pass. I count the rides and average end_time minus start_time in minutes, rounded to one decimal. I'd also mention that one overnight day-pass ride pulls the average way up, so a median is worth showing too.", zh: '只用 rides。保留已经结束的骑行（end_time IS NOT NULL）、过去一年的，按 rides.pass_type 分组，也就是骑行当时的身份，而不是骑车人现在的身份。数骑行次数，算 end_time 减 start_time 的平均分钟数，保留 1 位小数。我还会提一句：有一次日票骑行过了一夜，把平均值拉高很多，所以最好也给出中位数。' },
     ],
+    core: {
+      tables: [['p', 'riders', '人'], ['x', 'stations', '地点：车站'], ['i', 'bikes', '实物：一辆辆车'], ['e', 'rides', '② 事件：谁 + 哪辆 + 起止站 + 起止时间；④ end_time 为空 = 还在骑']],
+      extra: [['docks', '被问「会不会两辆车停同一个桩」：桩单独一张，车指向桩'], ['bike_models', '有普通车和电动车、被问「明年加电动滑板车」时'], ['repair_reports', '题目要报修、被问「两个人报修同一辆车」时']],
+      say: { en: 'I\'d start with four tables. Riders are the people, stations are the places, bikes are the physical items, and rides are the event: which rider, which bike, from which station to which station, and the start and end times. A ride that\'s still going has a null end_time, so where a bike is right now comes from its open ride or its last one. If there\'s time, I\'d add docks, so two bikes can\'t share a dock, bike models for e-bikes, and repair reports.',
+        zh: '先画四张表。riders 是人，stations 是地点，bikes 是一辆辆车，rides 是事件：谁、骑哪辆、从哪站到哪站、开始和结束时间。还在骑的那次 end_time 为空，所以车现在在哪，看它还开着的那次骑行或最后一次骑行。有时间再加 docks（防止两辆车占同一个桩）、bike_models（电动车）和报修表。' },
+    },
     anom: {
       en: "This design avoids the three anomalies. Renaming a station is one update in stations, not one per ride. A new station can be added before anyone rides from it. And deleting a ride never loses the rider or the bike.",
       zh: "这个设计避免了三种异常：车站改名只改 stations 的一行，不用改每次骑行（更新异常）；新车站还没人骑过，也能先建（插入异常）；删掉一次骑行，骑手和车的信息都还在（删除异常）。",
@@ -12148,6 +12169,12 @@ window.MOCKS.push({
       { en: "Same joins and the same last-year window on starts_at, but I group by genre and SUM(t.price) instead of counting. Then order by revenue, descending.", zh: '同样的 JOIN、同样按 starts_at 取过去一年，但按 genre 分组，用 SUM(t.price) 而不是计数。再按收入从多到少排。' },
       { en: "In one transaction: first I INSERT a row into transactions for customer 1 with purchased_at. Then I INSERT a ticket with that new transaction_id, show 12356, seat_id 4, adult, price 14, and COMMIT. If A4 is already sold for that showing, the UNIQUE (show_id, seat_id) makes the ticket insert fail, and the whole transaction rolls back.", zh: '放在一个事务里：先在 transactions 插一行（顾客 1，purchased_at）。再插一张票：用新的 transaction_id、场次 12356、seat_id 4、成人票、价格 14，然后 COMMIT。如果这一场的 A4 已经卖了，UNIQUE (show_id, seat_id) 会让插票失败，整个事务回滚。' },
     ],
+    core: {
+      tables: [['p', 'customers', '人'], ['c', 'movies', '目录：片名、片长只存一次'], ['i', 'showtimes', '③ 一部电影放很多场'], ['e', 'tickets', '② 事件：谁 + 哪场 + 哪个座位 + 成交价'], ['x', 'seats', 'UNIQUE(show_id, seat_id) 防止一个座位卖两次']],
+      extra: [['screens', '一家影院有好几个厅时（被问「同一部电影能不能两个厅同时放」）'], ['locations', '连锁、有好几家影院时（被问「地址存在每一行上」）'], ['transactions', '被问「一次能不能买好几场的票」：一笔交易包含多张票']],
+      say: { en: 'I\'d start with four tables. Customers are the people, movies are the catalog, showtimes are the individual showings of a movie, and tickets are the event: which customer, which showing, which seat, and the price paid. A movie plays many times, so showtimes are their own table. Then I\'d add seats, so a UNIQUE constraint on show and seat stops a seat from being sold twice. If there\'s time, I\'d add screens and theater locations, and a transactions table so one purchase can hold several tickets.',
+        zh: '先画四张表。customers 是人，movies 是目录，showtimes 是一部电影的每一场，tickets 是事件：哪位顾客、哪一场、哪个座位、成交价。一部电影要放很多场，所以 showtimes 单独一张。然后加 seats，用 UNIQUE(show_id, seat_id) 保证一个座位不会卖两次。有时间再加影厅 screens、影院 locations，以及 transactions，让一次购买可以包含好几张票。' },
+    },
     anom: {
       en: "This design avoids the three anomalies. Changing a movie's title or rating is one update in movies, not one per showtime. A new movie can be added before it has any showtimes. And deleting a ticket or a showtime never loses the customer or the movie.",
       zh: "这个设计避免了三种异常：改片名或分级只改 movies 的一行，不用每一场都改（更新异常）；新片还没排场次，也能先录进 movies（插入异常）；删掉一张票或一场，顾客和电影的信息都还在（删除异常）。",
@@ -12526,6 +12553,12 @@ window.MOCKS.push({
       { en: "Same shape as the attendance rate, but grouped by member. I start from bookings, join members and sessions, keep attended and no_show bookings from last month, and compute 100.0 times the no_shows divided by the count, rounded to one decimal. I order by the rate descending, then by name.",
         zh: '和出勤率的写法一样，只是按会员分组。从 bookings 出发，JOIN members 和 sessions，只留上个月 attended 和 no_show 的预约，算 100.0 × no_show 次数 ÷ 总数，保留 1 位小数。按爽约率从高到低，再按姓名排。' },
     ],
+    core: {
+      tables: [['p', 'members', '人'], ['c', 'class_types', '目录：课名、难度只存一次'], ['i', 'sessions', '③ 一种课每周上很多节；容量在这里'], ['e', 'bookings', '② 事件：谁 + 哪节 + 状态；UNIQUE 防重复'], ['q', 'waitlist', '⑤ 排队：按加入时间；改状态不删']],
+      extra: [['memberships', '被问「会员卡过期了又续费，今天算不算有效」：会员卡按时间段单独一张'], ['instructors', '题目要按教练出报表时'], ['rooms / studios', '有好几个教室、好几家门店时（容量上限也从这里来）']],
+      say: { en: 'I\'d start with four tables plus the waitlist. Members are the people, class_types are the catalog, like Vinyasa Yoga, sessions are each scheduled class with its time and capacity, and bookings are the event: which member, which session, and a status. The waitlist is the queue for full sessions, ordered by when people joined. Cancelling changes the status instead of deleting, and a UNIQUE constraint stops double booking. If there\'s time, I\'d add memberships, instructors and rooms.',
+        zh: '先画四张表，加一张候补。members 是人；class_types 是目录，比如 Vinyasa Yoga；sessions 是每一节排好的课，带时间和容量；bookings 是事件：哪位会员、哪一节、状态。waitlist 是满员时的排队，按加入时间排。取消改状态不删行，UNIQUE 约束防止重复预约。有时间再加会员卡 memberships、教练 instructors 和教室 rooms。' },
+    },
     anom: {
       en: "This design avoids the three anomalies. Changing a class description is one update in class_types, not one per session. A new class type can be added before it is scheduled. And deleting a booking never loses the member or the session.",
       zh: "这个设计避免了三种异常：改课程介绍只改 class_types 的一行，不用每节课都改（更新异常）；新课程还没排课，也能先建（插入异常）；删掉一条预约，会员和这节课的信息都还在（删除异常）。",
@@ -12681,6 +12714,12 @@ window.MOCKS.push({
       { en: "Discharging is two updates in one transaction: set discharge_time and discharge_doctor_id on admission 17, and close its open unit_stays row at the same time. Both have an IS NULL condition, so running it twice changes nothing.",
         zh: '办出院是一个事务里的两次更新：给住院 17 写上出院时间和出院医生，同时把它当前那段 unit_stays 在同一时间结束。两个 UPDATE 都带 IS NULL 条件，执行两遍也不会改错。' },
     ],
+    core: {
+      tables: [['p', 'patients', '人'], ['p', 'doctors', '人：收治、出院都要记是哪位医生'], ['x', 'units', '地点：ER、ICU、普通病房'], ['e', 'admissions', '② 主事件：一次住院；④ discharge_time 为空 = 在院'], ['e', 'unit_stays', '转科：每段一行，转一次就结束一行、开一行']],
+      extra: [['appointments', '题目点名门诊：核心讲完马上补，是另一张事件表'], ['procedures + procedure_types', '题目点名手术/检查：procedures 是事件，procedure_types 是目录（费用只存一次）']],
+      say: { en: 'I\'d start with five tables. Patients and doctors are the people, and units like the ER and ICU are the places. Admissions are the main event, with the admitting and discharging doctor and a discharge_time that stays null while the patient is in. Unit_stays record each stretch in a unit, so a transfer closes one row and opens another. The prompt also mentions outpatient visits and procedures, so next I\'d add appointments, procedures and a procedure_types catalog.',
+        zh: '先画五张表。patients 和 doctors 是人，units（ER、ICU 等）是地点。admissions 是主事件，记收治和出院的医生，病人在院时 discharge_time 为空。unit_stays 记在每个科室的每一段，转科就是结束一行、开一行。题目还提到门诊和手术，所以接着加 appointments、procedures 和目录表 procedure_types。' },
+    },
     anom: {
       en: "This design avoids the three anomalies. Changing a patient's phone number is one update in patients, not one per admission. A new doctor or unit can be added before any admission uses it. And deleting an appointment never loses the patient or the doctor.",
       zh: "这个设计避免了三种异常：病人换电话只改 patients 的一行，不用每次住院都改（更新异常）；新医生或新科室还没有病人，也能先录入（插入异常）；删掉一次门诊预约，病人和医生的信息都还在（删除异常）。",
@@ -12959,6 +12998,12 @@ window.MOCKS.push({
       { en: "Here I keep all 2025 reservations, including cancelled ones, because they're the denominator. Grouped by hotel, I show COUNT(*), the SUM of status = 'cancelled', and 100.0 times that sum divided by the count, so it isn't integer division.", zh: '这里保留 2025 年的全部预订，包括取消的，因为它们是分母。按酒店分组，输出 COUNT(*)、status = \'cancelled\' 的 SUM，以及 100.0 乘以这个和再除以总数，这样就不会是整数除法。' },
       { en: "I use two CTEs. The first takes non-cancelled reservations that overlap October, joins rooms for the hotel, and counts only the nights inside October: the earlier of check_out and November 1 minus the later of check_in and October 1. The second counts rooms per hotel straight from rooms. Then I join both to hotels, sum the nights, and divide by rooms times 31, times 100.0.", zh: '用两个 CTE。第一个取和 10 月有重叠、没取消的预订，JOIN rooms 拿酒店，只算落在 10 月里的晚数：check_out 和 11 月 1 日取较早的，减去 check_in 和 10 月 1 日取较晚的。第二个直接从 rooms 数每家酒店的房间数。最后两个都 JOIN hotels，把晚数加起来，除以房间数乘 31，再乘 100.0。' },
     ],
+    core: {
+      tables: [['p', 'guests', '人'], ['c', 'room_types', '目录：床数、价格只存一次'], ['x', 'hotels', '题目说有好几家酒店'], ['i', 'rooms', '③ 每个房型有很多间；UNIQUE(hotel_id, room_no)'], ['e', 'reservations', '② 事件：谁 + 哪间 + 入住/退房日 + 状态']],
+      extra: [],
+      say: { en: 'I\'d start with four tables plus hotels. Guests are the people, room_types are the catalog with beds, capacity and price, rooms are the physical rooms, each tied to a hotel and a type, and reservations are the event: which guest, which room, the check-in and check-out dates, and a status. Price lives on room_types, so a rate change is one update. Whether a room is free is an overlap check on reservations that ignores cancelled ones, and cancelling only changes the status.',
+        zh: '先画四张表，加一张 hotels。guests 是人；room_types 是目录，存床数、可住人数和价格；rooms 是一间间实物房间，各属于一家酒店、一种房型；reservations 是事件：哪位客人、哪间房、入住和退房日期、状态。价格放在 room_types，调价只改一行。房间空不空，就在 reservations 里查日期有没有重叠（排除 cancelled）；取消只改状态。' },
+    },
     anom: {
       en: "This design avoids the three anomalies. Changing a room type's beds or base rate is one update in room_types, not one per room. A new room type can be added before any room has it. And deleting a reservation never loses the guest or the room.",
       zh: "这个设计避免了三种异常：改房型的床数或基础价只改 room_types 的一行，不用每间房都改（更新异常）；新房型还没建房间，也能先加进 room_types（插入异常）；删掉一个订单，客人和房间的信息都还在（删除异常）。",
@@ -13418,6 +13463,12 @@ window.MOCKS.push({
       { en: "I start from interviews and join applications, students and postings. I filter on postings.recruiter_id = 1, outcome = 'pending', the application still submitted or interviewing, and scheduled_at >= '2026-11-04' and < '2026-11-07', so Friday afternoon is included. I order by scheduled_at.",
         zh: '从 interviews 出发，JOIN applications、students、postings。过滤 postings.recruiter_id = 1、outcome = \'pending\'、申请还是 submitted 或 interviewing，以及 scheduled_at >= \'2026-11-04\' 且 < \'2026-11-07\'，这样周五下午的也包括在内。按 scheduled_at 排序。' },
     ],
+    core: {
+      tables: [['p', 'students', '人'], ['x', 'companies', '机构：公司信息只存一次'], ['i', 'postings', '③ 一家公司发很多个职位；截止日期和状态在这里'], ['e', 'applications', '② 事件：谁 + 哪个职位 + 何时 + 状态；UNIQUE 防重复']],
+      extra: [['skills + posting_skills', '被问「技能为什么不能写成逗号分隔的一列」：多对多中间表（⑤）'], ['student_skills', '要算「完全符合要求的职位」时'], ['recruiters', '被问「招聘官离职了怎么办」时'], ['interviews / offers', '题目要面试安排、offer 率时：都是挂在 application 上的事件'], ['saved_postings', '题目提到收藏时']],
+      say: { en: 'I\'d start with four tables. Students are the people, companies are the organizations, postings are the jobs each company lists, with a deadline and a status, and applications are the event: which student, which posting, when, and a status. A UNIQUE constraint on student and posting stops duplicate applications, and withdrawing only changes the status. Then I\'d add skills with a posting_skills junction table, since that\'s many-to-many. Recruiters, interviews and offers come in when the professor asks about them.',
+        zh: '先画四张表。students 是人，companies 是公司，postings 是公司发的一个个职位（带截止日期和状态），applications 是事件：哪个学生、哪个职位、什么时候、状态。UNIQUE(student_id, posting_id) 防止重复申请，撤回只改状态。接着加 skills 和中间表 posting_skills，因为职位和技能是多对多。招聘官、面试、offer 等教授问到再加。' },
+    },
     anom: {
       en: "This design avoids the three anomalies. Renaming a company is one update in companies, not one per posting. A new skill can be added before any posting requires it. And deleting an application never loses the student or the posting.",
       zh: "这个设计避免了三种异常：公司改名只改 companies 的一行，不用每个职位都改（更新异常）；新技能还没有职位要求，也能先加进 skills（插入异常）；删掉一份申请，学生和职位的信息都还在（删除异常）。",
@@ -13569,6 +13620,12 @@ window.MOCKS.push({
       { en: "One pass over loans with three conditional counts: the sum of checkout_date after each cutoff. In standard SQL I'd write SUM(CASE WHEN ... THEN 1 ELSE 0 END).", zh: '扫一遍 loans，算三个条件计数：每个起始日之后的借阅数加起来。标准 SQL 写成 SUM(CASE WHEN … THEN 1 ELSE 0 END)。' },
       { en: "I update the open loan on that copy, the one with return_date IS NULL, and set return_date to today. Then I check holds on that book: if someone is waiting, I mark the oldest hold fulfilled and notify that member. I'd do it all in one transaction.", zh: '更新这个副本那条还没还的借阅（return_date IS NULL），把 return_date 设成今天。再看这本书有没有预约：有人在等，就把最早的预约改成 fulfilled 并通知这位读者。全部放在一个事务里。' },
     ],
+    core: {
+      tables: [['p', 'members', '人'], ['c', 'books', '目录：书名、作者只存一次'], ['i', 'copies', '③ 一本书有好几本，实物单独一张'], ['e', 'loans', '② 事件：谁 + 哪本 + 何时；④ return_date 为空 = 还在借'], ['q', 'holds', '⑤ 排队；按书预约；改状态不删']],
+      extra: [],
+      say: { en: 'I\'ll keep it to the four nouns plus the hold queue. Members are the people, books are the catalog, copies are the physical items, and loans are the event: who borrowed which copy, when, and when it\'s due. Copies are split from books because the library owns several of each title. Whether a copy is out right now is just whether it has a loan with no return_date. Holds are the queue, placed on the book rather than the copy, and I change their status instead of deleting them.',
+        zh: '只用四个名词，再加预约排队。members 是人，books 是目录，copies 是一本本实物，loans 是事件：谁借了哪本、什么时候、哪天到期。copies 和 books 分开，因为同一本书图书馆有好几本。一本书现在借没借出，就看有没有 return_date 为空的借阅。holds 是排队，预约的是书而不是某一本，取消或完成都改状态，不删行。' },
+    },
     anom: {
       en: "This design avoids the three anomalies. Changing an author is one update in books, not one per copy. A new book can be added before any copy or loan exists. And deleting a loan never loses the member or the book.",
       zh: "这个设计避免了三种异常：改作者只改 books 的一行，不用每个副本都改（更新异常）；新书还没有副本、没人借过，也能先录进 books（插入异常）；删掉一条借阅，读者和书的信息都还在（删除异常）。",
@@ -17145,7 +17202,7 @@ const ANS_SECS = [
   ['ask', '提问', 'Clarifying questions', '约 2–3 分钟：只问会改变设计的问题（范围、规则、规模）。'],
   ['people', '使用者和业务名词', 'Users & business nouns', '约 1–2 分钟：谁用这个系统、要记哪些东西。'],
   ['tech', '技术选择', 'Technology', '约 1 分钟：官方原话「Where does it live? How does it operate? Why?」用 OLTP / OLAP 这两个词回答。'],
-  ['tables', '表设计', 'Data model', '约 8–10 分钟：先维度表再事实表，每个关键决定说出理由；最后说明怎么避免更新、插入、删除三种异常（官方题目明确要问）。'],
+  ['tables', '表设计', 'Data model', '约 8–10 分钟：按「三人 · 四词 · 三问 · 五规」先画 4–5 张核心表，每个关键决定说出理由；其余的表等教授追问再加。最后说明怎么避免更新、插入、删除三种异常（官方题目明确要问）。'],
   ['probes', '追问', 'Follow-up questions', '约 5 分钟：教授挑你设计里的弱点问，回答要具体到表和列。'],
   ['sql', '查询', 'Queries', '约 8–10 分钟：先说思路（从哪张表出发、怎么连、筛什么），再写 SQL。'],
   ['close', '收尾', 'Wrap-up', '约 1 分钟：用三四句话总结整个设计。'],
@@ -17262,8 +17319,28 @@ function renderAnswer(main) {
     const fk = /\bFK\b/.test(c);
     return `<span class="ans-col${pk ? ' pk' : ''}${fk ? ' fk' : ''}">${esc(c.replace(/\s*\b(PK|FK)\b/g, '').trim())}${pk ? '<i>PK</i>' : ''}${fk ? '<i>FK</i>' : ''}</span>`;
   };
-  tb.insertAdjacentHTML('beforeend', `<div class="ans-ents">${m.model.ents.map((e) => `<div class="ans-ent"><b>${esc(e.name)}</b><div>${e.cols.map(colHTML).join('')}</div></div>`).join('')}</div>`);
-  tb.append(ansSay(A.walk));
+  const fullEnts = `<div class="ans-ents">${m.model.ents.map((e) => `<div class="ans-ent"><b>${esc(e.name)}</b><div>${e.cols.map(colHTML).join('')}</div></div>`).join('')}</div>`;
+  if (A.core) {
+    // exam version first: the 4–5 tables the formula gives you, then the rest only when asked
+    const byName = Object.fromEntries(m.model.ents.map((e) => [e.name, e]));
+    const C = A.core;
+    // drop FK columns that point at tables only the full version has
+    const coreSet = new Set(C.tables.map((t) => t[1]));
+    const laterPK = new Set(m.model.ents.filter((e) => !coreSet.has(e.name)).flatMap((e) => e.cols.filter((c) => /\bPK\b/.test(c) && !/\bFK\b/.test(c)).map((c) => c.split(/\s/)[0])));
+    const coreCols = (name) => (byName[name]?.cols || []).filter((c) => !(/\bFK\b/.test(c) && !/\bPK\b/.test(c) && laterPK.has(c.split(/\s/)[0])));
+    tb.insertAdjacentHTML('beforeend', `<div class="ans-core-h"><b>考场版：先画这 ${C.tables.length} 张</b><span>四个名词各一张（人 · 目录 · 实物 · 事件），再用五规检查。30 分钟里讲清这几张就够了。</span></div>
+      <div class="ans-core">${C.tables.map(([r, name, why]) => `<div class="fm-tb fm-b${r}"><span class="fm-role">${FM_ROLE[r][0]} ${FM_ROLE[r][1]}</span><b>${esc(name)}</b><div class="ans-ccols">${coreCols(name).map(colHTML).join('')}</div><span class="ans-cwhy">${esc(why)}</span></div>`).join('')}</div>`);
+    tb.append(ansSay(C.say, 'You · 考场版'));
+    const det = el('details', 'ans-full');
+    det.innerHTML = `<summary>完整版：全部 ${m.model.ents.length} 张表 + 完整口述${C.extra.length ? `（多出的 ${m.model.ents.length - C.tables.length} 张，有时间或被追问再加）` : ''}</summary>
+      ${C.extra.length ? `<div class="mini-h">什么时候才加这些表</div><ul class="ans-extra">${C.extra.map(([n, w]) => `<li><code>${esc(n)}</code><span>${esc(w)}</span></li>`).join('')}</ul>` : '<p class="ans-tip">这个主题的核心表就是全部了，完整版只是多讲一些细节。</p>'}
+      ${fullEnts}`;
+    det.append(ansSay(A.walk, 'You · 完整版'));
+    tb.append(det);
+  } else {
+    tb.insertAdjacentHTML('beforeend', fullEnts);
+    tb.append(ansSay(A.walk));
+  }
   if (A.anom) tb.append(ansSay(A.anom, 'You · 三种异常'));
   tb.insertAdjacentHTML('beforeend', `<div class="mini-h">为什么这样设计（要点）</div><ul class="ans-why">${m.design.map((d) => `<li>${d}</li>`).join('')}</ul>`);
   const pb = sec('probes');
