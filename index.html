@@ -1342,6 +1342,10 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
 .ans-extra li { display: grid; grid-template-columns: minmax(0, 180px) minmax(0, 1fr); gap: 8px; align-items: baseline; }
 @media (max-width: 560px) { .ans-extra li { grid-template-columns: minmax(0, 1fr); gap: 0; } }
 
+.ans-tag { display: inline-block; padding: 0 7px; border-radius: 99px; font: 700 11px/1.7 var(--body); vertical-align: 1px; }
+.ans-tag.need { background: oklch(92% 0.06 300); color: oklch(40% 0.17 300); }
+.ans-tag.ask { background: oklch(93% 0.05 250); color: oklch(40% 0.15 250); }
+
 </style>
 <header class="top" id="top"></header>
 <main id="main"><div class="wrap" style="padding-block:40px">加载中…</div></main>
@@ -12004,9 +12008,9 @@ window.MOCKS.push({
     ],
     core: {
       tables: [['p', 'riders', '人'], ['x', 'stations', '地点：车站'], ['i', 'bikes', '实物：一辆辆车'], ['e', 'rides', '② 事件：谁 + 哪辆 + 起止站 + 起止时间；④ end_time 为空 = 还在骑']],
-      extra: [['docks', '被问「会不会两辆车停同一个桩」：桩单独一张，车指向桩'], ['bike_models', '有普通车和电动车、被问「明年加电动滑板车」时'], ['repair_reports', '题目要报修、被问「两个人报修同一辆车」时']],
-      say: { en: 'I\'d start with four tables. Riders are the people, stations are the places, bikes are the physical items, and rides are the event: which rider, which bike, from which station to which station, and the start and end times. A ride that\'s still going has a null end_time, so where a bike is right now comes from its open ride or its last one. If there\'s time, I\'d add docks, so two bikes can\'t share a dock, bike models for e-bikes, and repair reports.',
-        zh: '先画四张表。riders 是人，stations 是地点，bikes 是一辆辆车，rides 是事件：谁、骑哪辆、从哪站到哪站、开始和结束时间。还在骑的那次 end_time 为空，所以车现在在哪，看它还开着的那次骑行或最后一次骑行。有时间再加 docks（防止两辆车占同一个桩）、bike_models（电动车）和报修表。' },
+      extra: [['docks', 'need', '需求「找有空桩的车站」：桩单独一张，车指向桩，也防止两辆车占同一个桩'], ['bike_models', 'need', '需求「有几辆是电动车」：车型是目录'], ['repair_reports', 'need', '需求「报修坏车」和「维修列表，最早的报修排前面」：报修是事件']],
+      say: { en: 'I\'d start with four tables. Riders are the people, stations are the places, bikes are the physical items, and rides are the event: which rider, which bike, from which station to which station, and the start and end times. A ride that\'s still going has a null end_time, so where a bike is right now comes from its open ride or its last one. Checking the stories, riders need free docks, e-bike counts and repair reports, so I\'d add docks, bike models and repair reports next.',
+        zh: '先画四张表。riders 是人，stations 是地点，bikes 是一辆辆车，rides 是事件：谁、骑哪辆、从哪站到哪站、开始和结束时间。还在骑的那次 end_time 为空，所以车现在在哪，看它还开着的那次骑行或最后一次骑行。再对着需求检查：要找空桩、要数电动车、要报修，所以接着补 docks、bike_models 和 repair_reports。' },
     },
     anom: {
       en: "This design avoids the three anomalies. Renaming a station is one update in stations, not one per ride. A new station can be added before anyone rides from it. And deleting a ride never loses the rider or the bike.",
@@ -12171,9 +12175,9 @@ window.MOCKS.push({
     ],
     core: {
       tables: [['p', 'customers', '人'], ['c', 'movies', '目录：片名、片长只存一次'], ['i', 'showtimes', '③ 一部电影放很多场'], ['e', 'tickets', '② 事件：谁 + 哪场 + 哪个座位 + 成交价'], ['x', 'seats', 'UNIQUE(show_id, seat_id) 防止一个座位卖两次']],
-      extra: [['screens', '一家影院有好几个厅时（被问「同一部电影能不能两个厅同时放」）'], ['locations', '连锁、有好几家影院时（被问「地址存在每一行上」）'], ['transactions', '被问「一次能不能买好几场的票」：一笔交易包含多张票']],
-      say: { en: 'I\'d start with four tables. Customers are the people, movies are the catalog, showtimes are the individual showings of a movie, and tickets are the event: which customer, which showing, which seat, and the price paid. A movie plays many times, so showtimes are their own table. Then I\'d add seats, so a UNIQUE constraint on show and seat stops a seat from being sold twice. If there\'s time, I\'d add screens and theater locations, and a transactions table so one purchase can hold several tickets.',
-        zh: '先画四张表。customers 是人，movies 是目录，showtimes 是一部电影的每一场，tickets 是事件：哪位顾客、哪一场、哪个座位、成交价。一部电影要放很多场，所以 showtimes 单独一张。然后加 seats，用 UNIQUE(show_id, seat_id) 保证一个座位不会卖两次。有时间再加影厅 screens、影院 locations，以及 transactions，让一次购买可以包含好几张票。' },
+      extra: [['screens', 'need', '需求「一个影厅有多少座位」：座位属于影厅，场次也在某个影厅放'], ['locations', 'need', '题目说是连锁影院：影院一张，影厅指向它（不然地址要抄在每个影厅上）'], ['transactions', 'ask', '被问「一次能不能买好几张、好几场的票」时：一笔交易包含多张票']],
+      say: { en: 'I\'d start with four tables. Customers are the people, movies are the catalog, showtimes are the individual showings of a movie, and tickets are the event: which customer, which showing, which seat, and the price paid. A movie plays many times, so showtimes are their own table. Then I\'d add seats, so a UNIQUE constraint on show and seat stops a seat from being sold twice. Checking the stories, seats belong to screens and the chain has several theaters, so I\'d add screens and locations too.',
+        zh: '先画四张表。customers 是人，movies 是目录，showtimes 是一部电影的每一场，tickets 是事件：哪位顾客、哪一场、哪个座位、成交价。一部电影要放很多场，所以 showtimes 单独一张。然后加 seats，用 UNIQUE(show_id, seat_id) 保证一个座位不会卖两次。对着需求检查：座位属于影厅、连锁有好几家影院，所以再补 screens 和 locations。' },
     },
     anom: {
       en: "This design avoids the three anomalies. Changing a movie's title or rating is one update in movies, not one per showtime. A new movie can be added before it has any showtimes. And deleting a ticket or a showtime never loses the customer or the movie.",
@@ -12555,9 +12559,9 @@ window.MOCKS.push({
     ],
     core: {
       tables: [['p', 'members', '人'], ['c', 'class_types', '目录：课名、难度只存一次'], ['i', 'sessions', '③ 一种课每周上很多节；容量在这里'], ['e', 'bookings', '② 事件：谁 + 哪节 + 状态；UNIQUE 防重复'], ['q', 'waitlist', '⑤ 排队：按加入时间；改状态不删']],
-      extra: [['memberships', '被问「会员卡过期了又续费，今天算不算有效」：会员卡按时间段单独一张'], ['instructors', '题目要按教练出报表时'], ['rooms / studios', '有好几个教室、好几家门店时（容量上限也从这里来）']],
-      say: { en: 'I\'d start with four tables plus the waitlist. Members are the people, class_types are the catalog, like Vinyasa Yoga, sessions are each scheduled class with its time and capacity, and bookings are the event: which member, which session, and a status. The waitlist is the queue for full sessions, ordered by when people joined. Cancelling changes the status instead of deleting, and a UNIQUE constraint stops double booking. If there\'s time, I\'d add memberships, instructors and rooms.',
-        zh: '先画四张表，加一张候补。members 是人；class_types 是目录，比如 Vinyasa Yoga；sessions 是每一节排好的课，带时间和容量；bookings 是事件：哪位会员、哪一节、状态。waitlist 是满员时的排队，按加入时间排。取消改状态不删行，UNIQUE 约束防止重复预约。有时间再加会员卡 memberships、教练 instructors 和教室 rooms。' },
+      extra: [['memberships', 'need', '需求「会员卡某天是否有效」「卡过期的会员」：会员卡按时间段单独一张'], ['instructors', 'need', '需求「上个月最受欢迎的教练」'], ['rooms / studios', 'need', '需求「我那家门店的课表」：门店和教室；教室容量也是课程人数上限的来源']],
+      say: { en: 'I\'d start with four tables plus the waitlist. Members are the people, class_types are the catalog, like Vinyasa Yoga, sessions are each scheduled class with its time and capacity, and bookings are the event: which member, which session, and a status. The waitlist is the queue for full sessions, ordered by when people joined. Cancelling changes the status instead of deleting, and a UNIQUE constraint stops double booking. Checking the stories, I also need memberships with start and end dates, instructors, and studios and rooms, so I\'d add those next.',
+        zh: '先画四张表，加一张候补。members 是人；class_types 是目录，比如 Vinyasa Yoga；sessions 是每一节排好的课，带时间和容量；bookings 是事件：哪位会员、哪一节、状态。waitlist 是满员时的排队，按加入时间排。取消改状态不删行，UNIQUE 约束防止重复预约。再对着需求检查：要查会员卡是否有效、教练排名、按门店看课表，所以接着补 memberships、instructors 和 studios / rooms。' },
     },
     anom: {
       en: "This design avoids the three anomalies. Changing a class description is one update in class_types, not one per session. A new class type can be added before it is scheduled. And deleting a booking never loses the member or the session.",
@@ -12716,7 +12720,7 @@ window.MOCKS.push({
     ],
     core: {
       tables: [['p', 'patients', '人'], ['p', 'doctors', '人：收治、出院都要记是哪位医生'], ['x', 'units', '地点：ER、ICU、普通病房'], ['e', 'admissions', '② 主事件：一次住院；④ discharge_time 为空 = 在院'], ['e', 'unit_stays', '转科：每段一行，转一次就结束一行、开一行']],
-      extra: [['appointments', '题目点名门诊：核心讲完马上补，是另一张事件表'], ['procedures + procedure_types', '题目点名手术/检查：procedures 是事件，procedure_types 是目录（费用只存一次）']],
+      extra: [['appointments', 'need', '题目点名门诊：另一张事件表，核心讲完马上补'], ['procedures + procedure_types', 'need', '题目点名手术/检查：procedures 是事件，procedure_types 是目录（费用只存一次）']],
       say: { en: 'I\'d start with five tables. Patients and doctors are the people, and units like the ER and ICU are the places. Admissions are the main event, with the admitting and discharging doctor and a discharge_time that stays null while the patient is in. Unit_stays record each stretch in a unit, so a transfer closes one row and opens another. The prompt also mentions outpatient visits and procedures, so next I\'d add appointments, procedures and a procedure_types catalog.',
         zh: '先画五张表。patients 和 doctors 是人，units（ER、ICU 等）是地点。admissions 是主事件，记收治和出院的医生，病人在院时 discharge_time 为空。unit_stays 记在每个科室的每一段，转科就是结束一行、开一行。题目还提到门诊和手术，所以接着加 appointments、procedures 和目录表 procedure_types。' },
     },
@@ -13465,9 +13469,9 @@ window.MOCKS.push({
     ],
     core: {
       tables: [['p', 'students', '人'], ['x', 'companies', '机构：公司信息只存一次'], ['i', 'postings', '③ 一家公司发很多个职位；截止日期和状态在这里'], ['e', 'applications', '② 事件：谁 + 哪个职位 + 何时 + 状态；UNIQUE 防重复']],
-      extra: [['skills + posting_skills', '被问「技能为什么不能写成逗号分隔的一列」：多对多中间表（⑤）'], ['student_skills', '要算「完全符合要求的职位」时'], ['recruiters', '被问「招聘官离职了怎么办」时'], ['interviews / offers', '题目要面试安排、offer 率时：都是挂在 application 上的事件'], ['saved_postings', '题目提到收藏时']],
-      say: { en: 'I\'d start with four tables. Students are the people, companies are the organizations, postings are the jobs each company lists, with a deadline and a status, and applications are the event: which student, which posting, when, and a status. A UNIQUE constraint on student and posting stops duplicate applications, and withdrawing only changes the status. Then I\'d add skills with a posting_skills junction table, since that\'s many-to-many. Recruiters, interviews and offers come in when the professor asks about them.',
-        zh: '先画四张表。students 是人，companies 是公司，postings 是公司发的一个个职位（带截止日期和状态），applications 是事件：哪个学生、哪个职位、什么时候、状态。UNIQUE(student_id, posting_id) 防止重复申请，撤回只改状态。接着加 skills 和中间表 posting_skills，因为职位和技能是多对多。招聘官、面试、offer 等教授问到再加。' },
+      extra: [['skills + posting_skills', 'need', '需求「按技能搜职位」「最热门的技能」：多对多中间表（五规 ⑤），不能写成逗号分隔'], ['student_skills', 'need', '需求「我完全符合要求的职位」：学生和技能也是多对多'], ['recruiters', 'need', '需求里招聘官要发职位、看自己的面试：招聘官属于公司'], ['interviews / offers', 'need', '需求「面试安排」「发 offer、学生是否接受」「offer 率」：都是挂在 application 上的事件'], ['saved_postings', 'need', '需求「收藏职位」：学生和职位多对多']],
+      say: { en: 'I\'d start with four tables. Students are the people, companies are the organizations, postings are the jobs each company lists, with a deadline and a status, and applications are the event: which student, which posting, when, and a status. A UNIQUE constraint on student and posting stops duplicate applications, and withdrawing only changes the status. Then I go through the stories: skills need a posting_skills junction table, since that\'s many-to-many, and recruiters, bookmarks, interviews and offers each get their own table.',
+        zh: '先画四张表。students 是人，companies 是公司，postings 是公司发的一个个职位（带截止日期和状态），applications 是事件：哪个学生、哪个职位、什么时候、状态。UNIQUE(student_id, posting_id) 防止重复申请，撤回只改状态。然后对着需求一条条过：技能要用中间表 posting_skills（多对多），招聘官、收藏、面试、offer 也各补一张表。' },
     },
     anom: {
       en: "This design avoids the three anomalies. Renaming a company is one update in companies, not one per posting. A new skill can be added before any posting requires it. And deleting an application never loses the student or the posting.",
@@ -17202,7 +17206,7 @@ const ANS_SECS = [
   ['ask', '提问', 'Clarifying questions', '约 2–3 分钟：只问会改变设计的问题（范围、规则、规模）。'],
   ['people', '使用者和业务名词', 'Users & business nouns', '约 1–2 分钟：谁用这个系统、要记哪些东西。'],
   ['tech', '技术选择', 'Technology', '约 1 分钟：官方原话「Where does it live? How does it operate? Why?」用 OLTP / OLAP 这两个词回答。'],
-  ['tables', '表设计', 'Data model', '约 8–10 分钟：按「三人 · 四词 · 三问 · 五规」先画 4–5 张核心表，每个关键决定说出理由；其余的表等教授追问再加。最后说明怎么避免更新、插入、删除三种异常（官方题目明确要问）。'],
+  ['tables', '表设计', 'Data model', '约 8–10 分钟：按「三人 · 四词 · 三问 · 五规」先画 4–5 张核心表，每个关键决定说出理由；再对着需求逐条检查，需求点名的补表。最后说明怎么避免更新、插入、删除三种异常（官方题目明确要问）。'],
   ['probes', '追问', 'Follow-up questions', '约 5 分钟：教授挑你设计里的弱点问，回答要具体到表和列。'],
   ['sql', '查询', 'Queries', '约 8–10 分钟：先说思路（从哪张表出发、怎么连、筛什么），再写 SQL。'],
   ['close', '收尾', 'Wrap-up', '约 1 分钟：用三四句话总结整个设计。'],
@@ -17328,12 +17332,17 @@ function renderAnswer(main) {
     const coreSet = new Set(C.tables.map((t) => t[1]));
     const laterPK = new Set(m.model.ents.filter((e) => !coreSet.has(e.name)).flatMap((e) => e.cols.filter((c) => /\bPK\b/.test(c) && !/\bFK\b/.test(c)).map((c) => c.split(/\s/)[0])));
     const coreCols = (name) => (byName[name]?.cols || []).filter((c) => !(/\bFK\b/.test(c) && !/\bPK\b/.test(c) && laterPK.has(c.split(/\s/)[0])));
-    tb.insertAdjacentHTML('beforeend', `<div class="ans-core-h"><b>考场版：先画这 ${C.tables.length} 张</b><span>四个名词各一张（人 · 目录 · 实物 · 事件），再用五规检查。30 分钟里讲清这几张就够了。</span></div>
+    tb.insertAdjacentHTML('beforeend', `<div class="ans-core-h"><b>考场版：先画这 ${C.tables.length} 张</b><span>四个名词各一张（人 · 目录 · 实物 · 事件），再用五规检查。这是骨架，先讲清楚；接着对着需求一条条过，需求点名的东西再补表。</span></div>
       <div class="ans-core">${C.tables.map(([r, name, why]) => `<div class="fm-tb fm-b${r}"><span class="fm-role">${FM_ROLE[r][0]} ${FM_ROLE[r][1]}</span><b>${esc(name)}</b><div class="ans-ccols">${coreCols(name).map(colHTML).join('')}</div><span class="ans-cwhy">${esc(why)}</span></div>`).join('')}</div>`);
     tb.append(ansSay(C.say, 'You · 考场版'));
     const det = el('details', 'ans-full');
-    det.innerHTML = `<summary>完整版：全部 ${m.model.ents.length} 张表 + 完整口述${C.extra.length ? `（多出的 ${m.model.ents.length - C.tables.length} 张，有时间或被追问再加）` : ''}</summary>
-      ${C.extra.length ? `<div class="mini-h">什么时候才加这些表</div><ul class="ans-extra">${C.extra.map(([n, w]) => `<li><code>${esc(n)}</code><span>${esc(w)}</span></li>`).join('')}</ul>` : '<p class="ans-tip">这个主题的核心表就是全部了，完整版只是多讲一些细节。</p>'}
+    const need = C.extra.filter((x) => x[1] === 'need');
+    const ask = C.extra.filter((x) => x[1] === 'ask');
+    const exList = (xs) => `<ul class="ans-extra">${xs.map(([n, , w]) => `<li><code>${esc(n)}</code><span>${esc(w)}</span></li>`).join('')}</ul>`;
+    det.innerHTML = `<summary>完整版：全部 ${m.model.ents.length} 张表 + 完整口述${C.extra.length ? `（核心之外的表，看哪条需求要它）` : ''}</summary>
+      ${need.length ? `<div class="mini-h"><span class="ans-tag need">需求点名</span> 对着需求检查时补上（不等教授问）</div>${exList(need)}` : ''}
+      ${ask.length ? `<div class="mini-h"><span class="ans-tag ask">追问再加</span> 需求里没有，被追问时现场补</div>${exList(ask)}` : ''}
+      ${C.extra.length ? '' : '<p class="ans-tip">这个主题的核心表就是全部了，完整版只是多讲一些细节。</p>'}
       ${fullEnts}`;
     det.append(ansSay(A.walk, 'You · 完整版'));
     tb.append(det);
