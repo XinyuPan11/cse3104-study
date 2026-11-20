@@ -1367,6 +1367,9 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
 .prompt.prompt-en { margin-bottom: 4px; font-size: 17px; line-height: 1.55; }
 .prompt.prompt-zh { margin-top: 0; padding-left: 10px; border-left: 3px solid var(--line); font-size: 14.5px; color: var(--muted); }
 
+/* c17 syntax sheet: the -- comments carry the explanations, so give them full text contrast */
+.rd-sheet pre .tc { color: var(--muted); font-style: normal; }
+
 </style>
 <header class="top" id="top"></header>
 <main id="main"><div class="wrap" style="padding-block:40px">加载中…</div></main>
@@ -11320,9 +11323,88 @@ Object.defineProperty(window.SEEDS, 'sqlall', {
 window.CHAPTERS = window.CHAPTERS || [];
 window.CHAPTERS.push({
   id: 'c17', no: 17, cls: 'SQL 专项', title: 'SQL 专项：学用法，再闯关', en: 'SQL drills across four topics',
-  blurb: '只学用法：筛选、JOIN、分组、子查询、日期和窗口、改数据，每块一个模板；最后一节「看题选写法」把题目里的信号词和写法一一对上。然后做 27 道打乱顺序的混合题（7 个主题），再在 4 套数据上按用法闯 27 关。',
+  blurb: '第一节是语法总表，所有写法一页看完。然后只学用法：筛选、JOIN、分组、子查询、日期和窗口、改数据，每块一个模板；最后一节「看题选写法」把题目里的信号词和写法一一对上。然后做 27 道打乱顺序的混合题（7 个主题），再在 4 套数据上按用法闯 27 关。',
   hue: 265, db: 'sqlall', read: true, readTry: true, source: '课程 SQL 内容 + 口试查询题型',
   lessons: [
+    {
+      id: 'h', title: '语法总表：所有写法一页看完', min: 6,
+      screens: [
+        { t: 'hook', big: '考试会用到的 SQL 写法，全在这一页。', sub: '每块左边是写法，右边 -- 后面是中文说明；块下面是易错点。忘了怎么写就回来查。', icon: 'doc' },
+        { t: 'code', cls: 'rd-sheet', title: '① 查询骨架：书写顺序', lang: 'sql',
+          code: "SELECT   要输出的列\nFROM     从哪张表出发\nJOIN     再接哪张表 ON 外键 = 主键\nWHERE    留下哪些行（分组前，一行一行判断）\nGROUP BY 按什么分组\nHAVING   留下哪些组（分组后，可以用 COUNT / SUM / AVG）\nORDER BY 怎么排序\nLIMIT    要几行;\n-- 数据库真正的执行顺序：\n-- FROM / JOIN → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT",
+          notes: [
+            { lines: [3, 5], text: 'WHERE 筛行，HAVING 筛组。条件里有 COUNT / SUM / AVG，只能写在 HAVING。' },
+            { lines: [8, 9], text: 'SELECT 比 WHERE 后算，所以 WHERE 里不能用 SELECT 起的别名；ORDER BY 在最后，可以用。' },
+          ] },
+        { t: 'code', cls: 'rd-sheet', title: '② SELECT：输出什么', lang: 'sql',
+          code: "SELECT *                               -- 所有列（考试里最好写清列名）\nSELECT name, email                     -- 指定列\nSELECT DISTINCT genre                  -- 去掉完全一样的行\nSELECT l.name AS location              -- AS 起别名；两张表都有 name 时必须带表名\nSELECT price * 2 AS doubled            -- 可以写算式\nSELECT ROUND(AVG(price), 2)            -- 保留 2 位小数\nSELECT first_name || ' ' || last_name  -- 拼接文字（SQLite 用 ||）\nSELECT COALESCE(phone, 'none')         -- 空值换成一个默认值\nSELECT CASE WHEN price >= 14 THEN 'high'\n            ELSE 'low' END AS level    -- 按条件给不同的值",
+          notes: [
+            { line: 2, text: 'DISTINCT 看的是整行：SELECT DISTINCT name, copy_id 里 name 相同、copy_id 不同的两行都会留下。' },
+            { line: 3, text: '多张表 JOIN 后，name、id 这种列名经常重复，一律写成 表别名.列名。' },
+            { lines: [8, 9], text: 'CASE WHEN … THEN … ELSE … END：像 if / else，最后的 END 别忘。' },
+          ] },
+        { t: 'code', cls: 'rd-sheet', title: '③ FROM 和 JOIN：从哪来、接哪张', lang: 'sql',
+          code: "FROM loans l                                       -- 给表起别名，后面写 l.列名\nJOIN copies c ON c.copy_id = l.copy_id             -- JOIN：两边都配得上的行才留下\nJOIN books b  ON b.book_id = c.book_id             -- 再接一张：沿外键一步步走\nLEFT JOIN showtimes st ON st.movie_id = m.movie_id -- 左表一行不少，配不上的右边是 NULL\nLEFT JOIN rides r ON r.start_station_id = s.station_id\n                 AND r.start_time >= '2026-10-05'  -- LEFT JOIN 右表的条件写在 ON 里\nJOIN doctors d1 ON d1.doctor_id = a.admit_doctor_id      -- 同一张表接两次，\nJOIN doctors d2 ON d2.doctor_id = a.discharge_doctor_id  -- 用两个不同的别名\nFROM (SELECT … ) t                                 -- 子查询当一张表用，要起别名",
+          notes: [
+            { line: 1, text: '用到 N 张表就 JOIN N − 1 次。两张表直接连不上，就把中间那张也接进来。' },
+            { lines: [4, 5], text: 'LEFT JOIN 后在 WHERE 里卡右表的列，会把 NULL 那些行删掉，等于又变回普通 JOIN。' },
+          ] },
+        { t: 'code', cls: 'rd-sheet', title: '④ WHERE：留下哪些行', lang: 'sql',
+          code: "WHERE status = 'booked'                    -- 等于（文字用单引号）\n  AND status <> 'cancelled'                -- 不等于（也可以写 !=）\n  AND price >= 10                          -- >  <  >=  <=\n  AND base_rate BETWEEN 150 AND 300        -- 区间，含两端\n  AND status IN ('booked', 'checked_in')   -- 几个值之一\n  AND title LIKE '%the%'                   -- 包含；'The%' 开头，'%s' 结尾\n  AND end_time IS NULL                     -- 是空\n  AND return_date IS NOT NULL              -- 不是空\n  AND NOT (status = 'cancelled')           -- 取反\n  AND (pass_type = 'member' OR price > 5)  -- OR 一定加括号",
+          notes: [
+            { line: 6, text: '判断空值只能写 IS NULL / IS NOT NULL。写 = NULL 永远不成立，一行都查不出来。' },
+            { line: 9, text: 'AND 比 OR 先算。a AND b OR c 会变成 (a AND b) OR c，所以 OR 两边加括号。' },
+          ] },
+        { t: 'code', cls: 'rd-sheet', title: '⑤ WHERE 里套 SELECT：子查询', lang: 'sql',
+          code: "-- 每一行是一种独立的写法\nWHERE member_id IN (SELECT member_id FROM loans)          -- 在名单里\nWHERE member_id NOT IN (SELECT member_id FROM loans\n                        WHERE member_id IS NOT NULL)      -- 不在名单里\nWHERE EXISTS (SELECT 1 FROM loans l\n              WHERE l.member_id = m.member_id)            -- 至少有一条（和外层关联）\nWHERE NOT EXISTS (SELECT 1 FROM loans l\n                  WHERE l.member_id = m.member_id)        -- 一条都没有（最稳的写法）\nWHERE price > (SELECT AVG(price) FROM tickets)            -- 和一个算出来的数比\nHAVING AVG(price) > (SELECT AVG(price) FROM tickets)      -- 每组的平均和整体平均比",
+          notes: [
+            { lines: [2, 3], text: 'NOT IN 的名单里只要有一个 NULL，结果就一行都没有。所以要排除 NULL，或者改用 NOT EXISTS。' },
+            { lines: [8, 9], text: 'WHERE 里不能直接写 AVG / MAX，要先在括号里算出那个数。' },
+          ] },
+        { t: 'code', cls: 'rd-sheet', title: '⑥ 统计：聚合函数、GROUP BY、HAVING', lang: 'sql',
+          code: "COUNT(*)                         -- 行数\nCOUNT(st.show_id)                -- 不是 NULL 的个数（LEFT JOIN 数出 0 要用它）\nCOUNT(DISTINCT member_id)        -- 有几个不同的\nSUM(price)    AVG(price)         -- 求和、平均\nMIN(starts_at)  MAX(starts_at)   -- 最小、最大（用在日期上就是最早、最近）\nSUM(status = 'cancelled')        -- 条件计数（SQLite 里真 = 1，假 = 0）\nSUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END)   -- 条件计数的通用写法\nROUND(SUM(status = 'cancelled') * 100.0 / COUNT(*), 1)  -- 百分比，保留 1 位\nGROUP BY m.movie_id, m.title     -- SELECT 里不是聚合的列都写进来，按 id 分组\nGROUP BY branch, genre           -- 按两样东西分组\nHAVING COUNT(*) >= 7             -- 留下哪些组",
+          notes: [
+            { line: 7, text: '整数除以整数会舍掉小数（3 / 4 = 0），所以先乘 100.0 或 1.0。' },
+            { line: 8, text: '按 id 分组再带上名字：两部电影同名也不会被合成一组。' },
+          ] },
+        { t: 'code', cls: 'rd-sheet', title: '⑦ ORDER BY 和 LIMIT：排序、取前几行', lang: 'sql',
+          code: "ORDER BY starts_at               -- 从小到大（默认 ASC）\nORDER BY tickets DESC            -- 从大到小\nORDER BY tickets DESC, title     -- 先按票数，票数相同再按名字\nLIMIT 3                          -- 只要前 3 行\nLIMIT 10 OFFSET 10               -- 跳过 10 行再取 10 行（第 2 页）",
+          notes: [
+            { line: 2, text: '前 N 名可能并列。加第二个排序列，结果才固定；要并列的都留下，就用 ⑨ 的 RANK。' },
+          ] },
+        { t: 'code', cls: 'rd-sheet', title: '⑧ 日期和时间（SQLite）', lang: 'sql',
+          code: "WHERE checkout_date >= '2026-01-01'                   -- 日期存成 'YYYY-MM-DD' 文本，可以直接比大小\ndate('now')                                           -- 今天\ndate('now', '-1 year')    date('now', '-30 days')     -- 一年前、30 天前\ndate(discharge_time, '+30 days')                      -- 某天往后 30 天\nstrftime('%Y-%m', admit_time)                         -- 取「年-月」，按月分组用\nstrftime('%Y', admit_time)                            -- 只取年份\njulianday(check_out) - julianday(check_in)            -- 相差几天（住了几晚）\n(julianday(end_time) - julianday(start_time)) * 24 * 60   -- 相差几分钟\na_start < b_end AND b_start < a_end                   -- 两段时间重叠\nstart_time <= 'T' AND (end_time > 'T' OR end_time IS NULL)  -- 时刻 T 正在进行",
+          notes: [
+            { line: 0, text: '时间带时分（2026-10-31 18:00）时，「10 月底以前」要写 < \'2026-11-01\'，不要写 <= \'2026-10-31\'。' },
+            { line: 8, text: '退房当天房间就空了，所以用 <；如果结束那天也算（比如会员卡到期日），就用 <= 和 >=。' },
+          ] },
+        { t: 'code', cls: 'rd-sheet', title: '⑨ 窗口函数：不压行的排名和上一行', lang: 'sql',
+          code: "ROW_NUMBER() OVER (PARTITION BY hotel_id ORDER BY revenue DESC)   -- 组内编号 1, 2, 3（并列也分先后）\nRANK()       OVER (PARTITION BY hotel_id ORDER BY revenue DESC)   -- 并列同名次 1, 1, 3\nLAG(discharge_time) OVER (PARTITION BY patient_id ORDER BY admit_time)  -- 同组上一行的值\nSUM(price) OVER (PARTITION BY customer_id)      -- 每行都带上本组合计，不压成一行\n-- 每组取第一名：外面再套一层\nSELECT * FROM (\n  SELECT …, RANK() OVER (PARTITION BY … ORDER BY … DESC) AS rn\n  FROM …\n) WHERE rn = 1;",
+          notes: [
+            { lines: [0, 1], text: '「每组第一」只要一个用 ROW_NUMBER；并列的都要列出来用 RANK。' },
+            { line: 2, text: 'LAG 拿到同一个病人上一次的出院时间，和这次入院比，就能算 30 天内再入院。' },
+          ] },
+        { t: 'code', cls: 'rd-sheet', title: '⑩ 组合查询：WITH 和 UNION', lang: 'sql',
+          code: "WITH monthly AS (                          -- 先给一个查询起名字，像一张临时表\n  SELECT strftime('%Y-%m', admit_time) AS month, COUNT(*) AS n\n  FROM admissions GROUP BY month\n)\nSELECT month, n FROM monthly WHERE n > 1;  -- 后面当表用\n\nSELECT 'admission' AS kind, admit_time AS at FROM admissions WHERE patient_id = 2\nUNION ALL                                  -- 两个结果上下拼起来\nSELECT 'procedure', performed_at FROM procedures WHERE patient_id = 2\nORDER BY at DESC;                          -- 拼完再整体排序",
+          notes: [
+            { line: 7, text: 'UNION 会去掉重复行，UNION ALL 不去重、更快。上下两半的列数和顺序要一样。' },
+            { line: 0, text: 'WITH 让一条很长的查询分成几步写，口述时也更好讲。' },
+          ] },
+        { t: 'code', cls: 'rd-sheet', title: '⑪ 改数据：INSERT、UPDATE、DELETE、事务', lang: 'sql',
+          code: "INSERT INTO holds (book_id, member_id, placed_at, status)\nVALUES (12345, 3, '2026-11-04 10:00', 'waiting');   -- 写清列名；自动编号的 id 不写\nUPDATE bookings SET status = 'cancelled'\nWHERE booking_id = 40 AND status = 'booked';        -- 一定写 WHERE，再加「还开着」的条件\nDELETE FROM saved_postings\nWHERE student_id = 14 AND posting_id = 20;          -- 一定写 WHERE，不然整张表清空\nBEGIN;                                              -- 事务开始\nUPDATE …;  INSERT …;                                -- 要一起成功的几步\nCOMMIT;                                             -- 全部生效；中途出错就 ROLLBACK 全部撤销",
+          notes: [
+            { line: 3, text: '取消、退订一般是改状态，不删行：历史和报表还要用这条记录。' },
+            { lines: [6, 8], text: '一件事要改两张表（转科、修好车、买票），就包进一个事务。' },
+          ] },
+        { t: 'code', cls: 'rd-sheet', title: '⑫ 建表和约束', lang: 'sql',
+          code: "CREATE TABLE loans (\n  loan_id       INTEGER PRIMARY KEY,                    -- 主键：唯一、不空，自动编号\n  copy_id       INTEGER NOT NULL REFERENCES copies(copy_id),     -- 外键\n  member_id     INTEGER NOT NULL REFERENCES members(member_id),\n  checkout_date TEXT NOT NULL DEFAULT (date('now')),     -- 默认值\n  due_date      TEXT NOT NULL,                          -- 不能为空\n  return_date   TEXT,                                   -- 可以为空：NULL 就是还没还\n  CHECK (due_date >= checkout_date)                     -- 检查条件\n);\nCREATE TABLE tickets (…, UNIQUE (show_id, seat_id));   -- 组合唯一：一场里一个座位只卖一次\nCREATE INDEX idx_loans_member ON loans(member_id);     -- 索引：常按这列查，就建一个",
+          notes: [
+            { line: 2, text: '外键保证 copy_id 一定是 copies 里真实存在的副本：这就是数据库帮你挡住坏数据。' },
+            { line: 9, text: 'UNIQUE 防重复：一个座位不会卖两次，一个学生不会重复申请同一个职位。' },
+          ] },
+        { t: 'recap', points: ['书写顺序：SELECT → FROM → JOIN → WHERE → GROUP BY → HAVING → ORDER BY → LIMIT', '空值用 IS NULL；OR 加括号；比率乘 100.0', '「没有」用 NOT EXISTS；「每个」用 GROUP BY；「包括 0」用 LEFT JOIN + COUNT(右表列)', '每组第一用 ROW_NUMBER / RANK；改数据一定写 WHERE，几步一起改用事务'] },
+      ],
+    },
     {
       id: 'a', title: '筛选、排序、去重', min: 5,
       screens: [
@@ -15944,7 +16026,7 @@ function openLesson(ch, lesId) {
 const sqlLines = fmtSQL;
 const RD_TAG = { idea: '用法', vs: '对比', list: '要点', quiz: '例子', predict: '易错', fill: '例子', order: '顺序', sort: '分类', match: '对照', sql: '例子', code: '逐行看', flow: '流程', grid: '对照表', er: '表结构', rows: '一步步看', join: 'JOIN 演示', split: '拆表演示', chart: '图表', cue: '信号词' };
 function rdBlock(s, ch) {
-  const b = el('section', 'rd-b rd-' + s.t);
+  const b = el('section', 'rd-b rd-' + s.t + (s.cls ? ' ' + s.cls : ''));
   const head = (t) => `${RD_TAG[s.t] ? `<span class="rd-tag">${RD_TAG[s.t]}</span>` : ''}${t ? `<h3>${esc(t)}</h3>` : ''}`;
   const steps = (frames) => `<ol class="rd-steps">${frames.map((f) => `<li>${f.text}</li>`).join('')}</ol>`;
   const answer = (html) => `<div class="rd-ans">${icon('check')}<div>${html}</div></div>`;
