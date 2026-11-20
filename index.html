@@ -745,6 +745,7 @@ table.grid.mini { width: auto; border: 1.5px solid var(--line); border-radius: 1
   .pr-split { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .exlist { position: static; flex-direction: row; overflow-x: auto; max-height: none; padding-bottom: 6px; }
   .ex { white-space: nowrap; grid-template-columns: auto auto auto; }
+  .exlist .ex-sec { flex: none; align-self: center; white-space: nowrap; margin: 0 2px 0 8px; }
   .ex-h { white-space: nowrap; padding-top: 7px; }
 }
 
@@ -1358,6 +1359,9 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
 .cue-r p { margin: 0; font-size: 13.5px; line-height: 1.55; }
 @media (max-width: 560px) { .cue-it { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: reduce) { .cue-it { animation: none; } }
+
+/* practice list: one heading per exercise set */
+.ex-sec { margin: 10px 0 2px; padding: 4px 9px; border-radius: 8px; font: 700 12px/1.4 var(--body); color: var(--c-strong); background: var(--c-soft, var(--surface-2)); }
 
 </style>
 <header class="top" id="top"></header>
@@ -11312,7 +11316,7 @@ Object.defineProperty(window.SEEDS, 'sqlall', {
 window.CHAPTERS = window.CHAPTERS || [];
 window.CHAPTERS.push({
   id: 'c17', no: 17, cls: 'SQL 专项', title: 'SQL 专项：学用法，再闯关', en: 'SQL drills across four topics',
-  blurb: '只学用法：筛选、JOIN、分组、子查询、日期和窗口、改数据，每块一个模板；最后一节「看题选写法」把题目里的信号词和写法一一对上。然后在图书馆、电影院、酒店、共享单车 4 套数据上闯 27 关。',
+  blurb: '只学用法：筛选、JOIN、分组、子查询、日期和窗口、改数据，每块一个模板；最后一节「看题选写法」把题目里的信号词和写法一一对上。然后做 27 道打乱顺序的混合题（7 个主题），再在 4 套数据上按用法闯 27 关。',
   hue: 265, db: 'sqlall', read: true, readTry: true, source: '课程 SQL 内容 + 口试查询题型',
   lessons: [
     {
@@ -11733,6 +11737,33 @@ window.CHAPTERS.push({
     },
   ],
   practice: [
+    {"id":"M1","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"gym","title":"健身房 · 教练上周带了几节课","prompt":"<b>健身房</b>：每位教练<b>上周</b>（<code>starts_at</code> 在 2026-10-26 到 2026-11-01 之间，含这两天）一共带了几节课。5 位教练都要列出来，没带课的写 0。","cols":"name, sessions","ref":"SELECT i.name, COUNT(s.session_id) AS sessions FROM instructors i LEFT JOIN sessions s ON s.instructor_id = i.instructor_id AND s.starts_at >= '2026-10-26' AND s.starts_at < '2026-11-02' GROUP BY i.instructor_id, i.name;","hints":["「都要列出来、没有的写 0」：从 instructors 出发 LEFT JOIN","日期条件写在 ON 里，写在 WHERE 会把 0 那几位删掉；COUNT(s.session_id)。starts_at 带时间，所以写 < '2026-11-02'"]},
+    {"id":"M2","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"hospital","title":"医院 · 现在在院的病人和入院原因","prompt":"<b>医院</b>：现在还在住院（还没出院）的病人，以及这次入院的原因。","cols":"first_name, last_name, admit_time, reason","ref":"SELECT p.first_name, p.last_name, a.admit_time, a.reason FROM admissions a JOIN patients p ON p.patient_id = a.patient_id WHERE a.discharge_time IS NULL;","hints":["还没出院 = discharge_time IS NULL","名字在 patients，原因在 admissions：JOIN 一次"]},
+    {"id":"M3","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"internship","title":"实习 · 一个职位都没申请过的学生","prompt":"<b>实习网站</b>：一个职位都没申请过的学生。","cols":"name","ref":"SELECT s.name FROM students s WHERE NOT EXISTS (SELECT 1 FROM applications a WHERE a.student_id = s.student_id);","hints":["「一个都没有」：在 applications 里找不到这个学生","NOT EXISTS (SELECT 1 FROM applications a WHERE a.student_id = s.student_id)"]},
+    {"id":"M4","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"cinema","title":"电影院 · 买票最多的顾客","prompt":"<b>电影院</b>：一共买过<b>至少 10 张</b>票的顾客，按票数从多到少（相同按名字）。","cols":"name, tickets","ordered":true,"ref":"SELECT c.name, COUNT(*) AS tickets FROM customers c JOIN transactions tr ON tr.customer_id = c.customer_id JOIN tickets t ON t.transaction_id = tr.transaction_id GROUP BY c.customer_id, c.name HAVING COUNT(*) >= 10 ORDER BY tickets DESC, c.name;","hints":["顾客 → 交易 → 票：JOIN 两次，按顾客分组数票","「至少 10 张」限制的是 COUNT 出来的数：HAVING"]},
+    {"id":"M5","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"library","title":"图书馆 · 每位读者借过几本不同的书","prompt":"<b>图书馆</b>：每位读者借过几本<b>不同的书</b>（同一本书借两次、或借了同一本书的两个副本，都只算一本）。","cols":"name, books","ref":"SELECT m.name, COUNT(DISTINCT c.book_id) AS books FROM members m JOIN loans l ON l.member_id = m.member_id JOIN copies c ON c.copy_id = l.copy_id GROUP BY m.member_id, m.name;","hints":["loans 只有 copy_id，要经过 copies 才知道是哪本书","COUNT(DISTINCT c.book_id)"]},
+    {"id":"M6","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"bikeshare","title":"共享单车 · 某一刻正在骑的车","prompt":"<b>共享单车</b>：<b>2026-11-03 12:00</b> 那一刻正在路上的骑行：已经出发，而且还没结束（到那时还没还车，或者到现在都没还）。","cols":"ride_id, bike_id, start_time, end_time","ref":"SELECT ride_id, bike_id, start_time, end_time FROM rides WHERE start_time <= '2026-11-03 12:00' AND (end_time > '2026-11-03 12:00' OR end_time IS NULL);","hints":["出发时间 ≤ 那一刻，并且（结束时间 > 那一刻，或者结束时间为空）","OR 两边要加括号，不然 AND 会先算"]},
+    {"id":"M7","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"hotel","title":"酒店 · 住过 Riverfront 的客人","prompt":"<b>酒店</b>：在 Larkspur Riverfront（<code>hotel_id = 1</code>）有过<b>没取消</b>的预订的客人，每人只出现一次。","cols":"name","ref":"SELECT g.name FROM guests g WHERE g.guest_id IN (SELECT r.guest_id FROM reservations r JOIN rooms rm ON rm.room_id = r.room_id WHERE rm.hotel_id = 1 AND r.status <> 'cancelled');","hints":["预订只知道 room_id，酒店在 rooms 上","只输出客人名：IN 子查询，天然每人一次；用 JOIN 就要加 DISTINCT"]},
+    {"id":"M8","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"internship","title":"实习 · 要求 Python 的职位","prompt":"<b>实习网站</b>：技能要求里有 Python 的职位，以及发布它的公司。","cols":"posting_id, title, company","ref":"SELECT p.posting_id, p.title, c.name AS company FROM postings p JOIN companies c ON c.company_id = p.company_id JOIN posting_skills ps ON ps.posting_id = p.posting_id JOIN skills s ON s.skill_id = ps.skill_id WHERE s.name = 'Python';","hints":["职位和技能是多对多：postings → posting_skills → skills","WHERE s.name = 'Python'"]},
+    {"id":"M9","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"hospital","title":"医院 · 2026 年每月入院人数","prompt":"<b>医院</b>：2026 年每个月有多少次入院。按月份排序。","cols":"month, admissions","ordered":true,"ref":"SELECT strftime('%Y-%m', admit_time) AS month, COUNT(*) AS admissions FROM admissions WHERE admit_time >= '2026-01-01' GROUP BY month ORDER BY month;","hints":["strftime('%Y-%m', admit_time) 得到「2026-03」这样的月份","先 WHERE 留下 2026 年，再按月份 GROUP BY"]},
+    {"id":"M10","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"gym","title":"健身房 · 取消一个预约","dml":true,"prompt":"<b>健身房</b>：预约 <code>booking_id = 40</code> 的会员说不来了。把它改成取消（<code>cancelled</code>），但<b>只在它现在还是 booked 时才改</b>，已经上过课的不能动。","cols":"检查 bookings 里 booking_id = 40 的状态","ref":"UPDATE bookings SET status = 'cancelled' WHERE booking_id = 40 AND status = 'booked';","check":"SELECT booking_id, status FROM bookings WHERE booking_id = 40;","hints":["取消是改状态，不删行：UPDATE … SET status","WHERE 里加上 status = 'booked'"]},
+    {"id":"M11","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"cinema","title":"电影院 · 平均票价高的类型","prompt":"<b>电影院</b>：平均票价超过 12.5 的电影类型（genre），平均价保留 2 位小数。","cols":"genre, avg_price","ref":"SELECT m.genre, ROUND(AVG(t.price), 2) AS avg_price FROM tickets t JOIN showtimes s ON s.show_id = t.show_id JOIN movies m ON m.movie_id = s.movie_id GROUP BY m.genre HAVING AVG(t.price) > 12.5;","hints":["票价在 tickets，类型在 movies，中间隔着 showtimes","按 genre 分组；条件是 AVG 算出来的数，写在 HAVING"]},
+    {"id":"M12","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"internship","title":"实习 · 时薪高于平均的职位","prompt":"<b>实习网站</b>：时薪比<b>所有职位的平均时薪</b>高的职位，按时薪从高到低（相同按职位名）。","cols":"title, company, pay_per_hour","ordered":true,"ref":"SELECT p.title, c.name AS company, p.pay_per_hour FROM postings p JOIN companies c ON c.company_id = p.company_id WHERE p.pay_per_hour > (SELECT AVG(pay_per_hour) FROM postings) ORDER BY p.pay_per_hour DESC, p.title;","hints":["WHERE 里不能直接写 AVG：先在括号里算出平均时薪","WHERE p.pay_per_hour > (SELECT AVG(pay_per_hour) FROM postings)"]},
+    {"id":"M13","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"gym","title":"健身房 · 那一周会员卡有效的会员","prompt":"<b>健身房</b>：会员卡在 <b>2026-10-25 到 2026-10-31</b> 这一周里<b>至少有一天有效</b>的会员，每人只出现一次。会员卡的 <code>end_date</code> 当天也算有效。","cols":"name","ref":"SELECT m.name FROM members m WHERE EXISTS (SELECT 1 FROM memberships ms WHERE ms.member_id = m.member_id AND ms.start_date <= '2026-10-31' AND ms.end_date >= '2026-10-25');","hints":["两段时间重叠：卡开始 ≤ 这周结束，并且 卡结束 ≥ 这周开始","end_date 当天有效，所以用 <= 和 >=；一个人可能有两张卡，用 EXISTS 每人只出现一次"]},
+    {"id":"M14","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"bikeshare","title":"共享单车 · 停着电动车的车站","prompt":"<b>共享单车</b>：现在桩上停着<b>电动车</b>（车型 <code>kind = 'electric'</code>）的车站，每个车站只出现一次。","cols":"name","ref":"SELECT DISTINCT st.name FROM bikes b JOIN bike_models bm ON bm.model_id = b.model_id JOIN docks d ON d.dock_id = b.dock_id JOIN stations st ON st.station_id = d.station_id WHERE bm.kind = 'electric';","hints":["车 → 车型（看是不是电动）；车 → 桩 → 车站","一个车站可能停着好几辆电动车：DISTINCT"]},
+    {"id":"M15","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"hospital","title":"医院 · 平均住院天数","prompt":"<b>医院</b>：已经出院的住院里，每种入院原因平均住了几天（保留 1 位小数），从长到短（相同按原因）。","cols":"reason, avg_days","ordered":true,"ref":"SELECT reason, ROUND(AVG(julianday(discharge_time) - julianday(admit_time)), 1) AS avg_days FROM admissions WHERE discharge_time IS NOT NULL GROUP BY reason ORDER BY avg_days DESC, reason;","hints":["住了几天 = julianday(discharge_time) - julianday(admit_time)","还在院的没有出院时间，先 WHERE 排除，再按 reason 分组求 AVG"]},
+    {"id":"M16","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"library","title":"图书馆 · 2026 年借书很多的读者","prompt":"<b>图书馆</b>：2026 年（<code>checkout_date ≥ 2026-01-01</code>）借书<b>超过 3 次</b>的读者。","cols":"name, loans","ref":"SELECT m.name, COUNT(*) AS loans FROM loans l JOIN members m ON m.member_id = l.member_id WHERE l.checkout_date >= '2026-01-01' GROUP BY m.member_id, m.name HAVING COUNT(*) > 3;","hints":["日期是每一行的条件：WHERE；次数是分组后的条件：HAVING","HAVING COUNT(*) > 3"]},
+    {"id":"M17","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"hotel","title":"酒店 · 今天在住的客人","prompt":"<b>酒店</b>：今天（2026-11-04）晚上住在店里的客人：入住日 ≤ 今天 &lt; 退房日，而且预订没取消。列出客人、酒店和房号。","cols":"guest, hotel, room_no","ref":"SELECT g.name AS guest, h.name AS hotel, rm.room_no FROM reservations r JOIN guests g ON g.guest_id = r.guest_id JOIN rooms rm ON rm.room_id = r.room_id JOIN hotels h ON h.hotel_id = rm.hotel_id WHERE r.check_in <= '2026-11-04' AND r.check_out > '2026-11-04' AND r.status <> 'cancelled';","hints":["预订 → 客人；预订 → 房间 → 酒店：4 张表，JOIN 3 次","check_in <= '2026-11-04' AND check_out > '2026-11-04'，再排除 cancelled"]},
+    {"id":"M18","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"internship","title":"实习 · 每家公司的 offer 率","prompt":"<b>实习网站</b>：每家公司收到几份申请、其中几份发了 offer（申请状态是 <code>offer</code>）、offer 率百分之几（保留 1 位小数）。没收到申请的公司不用列。","cols":"company, apps, offers, pct","ref":"SELECT c.name AS company, COUNT(*) AS apps, SUM(a.status = 'offer') AS offers, ROUND(SUM(a.status = 'offer') * 100.0 / COUNT(*), 1) AS pct FROM applications a JOIN postings p ON p.posting_id = a.posting_id JOIN companies c ON c.company_id = p.company_id GROUP BY c.company_id, c.name;","hints":["申请 → 职位 → 公司，按公司分组","条件计数：SUM(a.status = 'offer')；比率乘 100.0 避免整数除法"]},
+    {"id":"M19","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"gym","title":"健身房 · 从没被约过的课","prompt":"<b>健身房</b>：一个预约都没有的课（<code>sessions</code>，不管预约状态），列出课名和开始时间，按时间排序。","cols":"name, starts_at","ordered":true,"ref":"SELECT ct.name, s.starts_at FROM sessions s JOIN class_types ct ON ct.class_type_id = s.class_type_id WHERE NOT EXISTS (SELECT 1 FROM bookings b WHERE b.session_id = s.session_id) ORDER BY s.starts_at;","hints":["课名在 class_types：JOIN 一次","「一个预约都没有」：NOT EXISTS 去 bookings 里找"]},
+    {"id":"M20","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"library","title":"图书馆 · 新增一个预约","dml":true,"prompt":"<b>图书馆</b>：读者 3 想预约书 12345（The Martian），时间 2026-11-04 10:00，状态 <code>waiting</code>。<code>hold_id</code> 让数据库自动生成。","cols":"检查读者 3 对书 12345 的预约","ref":"INSERT INTO holds (book_id, member_id, placed_at, status) VALUES (12345, 3, '2026-11-04 10:00', 'waiting');","check":"SELECT book_id, member_id, placed_at, status FROM holds WHERE member_id = 3 AND book_id = 12345;","hints":["INSERT INTO holds (列, …) VALUES (…)","自动生成的 hold_id 不写进列名"]},
+    {"id":"M21","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"bikeshare","title":"共享单车 · 最长的 3 次骑行","prompt":"<b>共享单车</b>：已经结束的骑行里，时间最长的 3 次：骑手名和骑了几分钟（四舍五入到整数）。","cols":"ride_id, name, minutes","ordered":true,"ref":"SELECT r.ride_id, ri.name, ROUND((julianday(r.end_time) - julianday(r.start_time)) * 24 * 60) AS minutes FROM rides r JOIN riders ri ON ri.rider_id = r.rider_id WHERE r.end_time IS NOT NULL ORDER BY minutes DESC, r.ride_id LIMIT 3;","hints":["分钟 = (julianday(结束) - julianday(开始)) * 24 * 60","前 3 名：ORDER BY minutes DESC LIMIT 3"]},
+    {"id":"M22","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"cinema","title":"电影院 · 每家影院卖得最好的电影","prompt":"<b>电影院</b>：每家影院（location）卖票最多的那部电影和张数。<b>并列第一的都要列出来</b>。","cols":"location, title, tickets","ref":"SELECT location, title, tickets FROM (SELECT l.name AS location, m.title, COUNT(*) AS tickets, RANK() OVER (PARTITION BY l.location_id ORDER BY COUNT(*) DESC) AS rn FROM tickets t JOIN showtimes s ON s.show_id = t.show_id JOIN movies m ON m.movie_id = s.movie_id JOIN screens sc ON sc.screen_id = s.screen_id JOIN locations l ON l.location_id = sc.location_id GROUP BY l.location_id, l.name, m.movie_id, m.title) WHERE rn = 1;","hints":["先按「影院 + 电影」分组数票","每组第一：RANK() OVER (PARTITION BY 影院 ORDER BY 票数 DESC)，外层取 = 1。用 RANK 不用 ROW_NUMBER，并列的才会都留下"]},
+    {"id":"M23","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"hospital","title":"医院 · 给病人转科","dml":true,"prompt":"<b>医院</b>：住院 13 的病人现在在 ICU，<b>2026-10-28 09:00</b> 转到 Floor 3（<code>unit_id = 3</code>）。结束当前这一段，再开新的一段，两步放进一个事务。","cols":"检查住院 13 的所有 unit_stays","ref":"BEGIN; UPDATE unit_stays SET end_time = '2026-10-28 09:00' WHERE admission_id = 13 AND end_time IS NULL; INSERT INTO unit_stays (admission_id, unit_id, start_time) VALUES (13, 3, '2026-10-28 09:00'); COMMIT;","check":"SELECT admission_id, unit_id, start_time, end_time FROM unit_stays WHERE admission_id = 13 ORDER BY start_time;","hints":["当前这一段 = admission_id = 13 AND end_time IS NULL","BEGIN; UPDATE …; INSERT …; COMMIT;"]},
+    {"id":"M24","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"hotel","title":"酒店 · 从没取消过的客人","prompt":"<b>酒店</b>：有过预订、而且<b>一次都没取消过</b>的客人。","cols":"name","ref":"SELECT g.name FROM guests g WHERE EXISTS (SELECT 1 FROM reservations r WHERE r.guest_id = g.guest_id) AND NOT EXISTS (SELECT 1 FROM reservations r WHERE r.guest_id = g.guest_id AND r.status = 'cancelled');","hints":["两个条件：有预订（EXISTS），并且没有取消的预订（NOT EXISTS）","两个子查询都要和外层的 g.guest_id 关联"]},
+    {"id":"M25","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"library","title":"图书馆 · 一个副本都不在架的书","prompt":"<b>图书馆</b>：所有副本现在都被借走了（一本都不在架）的书。","cols":"title","ref":"SELECT b.title FROM books b WHERE NOT EXISTS (SELECT 1 FROM copies c WHERE c.book_id = b.book_id AND c.copy_id NOT IN (SELECT copy_id FROM loans WHERE return_date IS NULL));","hints":["翻译：找不到任何一个「在架的副本」","在架的副本 = copy_id NOT IN (借出中的副本)；外层再套 NOT EXISTS"]},
+    {"id":"M26","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"gym","title":"健身房 · 各门店的课数","prompt":"<b>健身房</b>：每家门店（studio）、每种课各排了几节，按门店名、课名排序。","cols":"studio, class, sessions","ordered":true,"ref":"SELECT st.name AS studio, ct.name AS class, COUNT(*) AS sessions FROM sessions s JOIN rooms r ON r.room_id = s.room_id JOIN studios st ON st.studio_id = r.studio_id JOIN class_types ct ON ct.class_type_id = s.class_type_id GROUP BY st.studio_id, st.name, ct.class_type_id, ct.name ORDER BY studio, class;","hints":["课 → 教室 → 门店；课 → 课种","按两样东西分组：GROUP BY 门店, 课种"]},
+    {"id":"M27","set":"混合练习 · 打乱顺序（标题不告诉你用法）","db":"internship","title":"实习 · 删除一条收藏","dml":true,"prompt":"<b>实习网站</b>：学生 14 取消收藏职位 20（从 <code>saved_postings</code> 里删掉这一条，其他收藏不动）。","cols":"检查学生 14 的所有收藏","ref":"DELETE FROM saved_postings WHERE student_id = 14 AND posting_id = 20;","check":"SELECT student_id, posting_id FROM saved_postings WHERE student_id = 14 ORDER BY posting_id;","hints":["DELETE FROM saved_postings WHERE …","两个条件都要写，不然会删掉学生 14 的全部收藏"]},
     { id: 'Q1', les: 'a', title: '1 筛选 · 图书馆', prompt: '<b>图书馆</b>（books）：书名里含有 "the" 的书（不分大小写）。输出 <code>title</code>。',
       cols: 'title', ref: "SELECT title FROM books WHERE title LIKE '%the%';", hints: ["LIKE '%the%'", 'SQLite 的 LIKE 对英文字母不分大小写'] },
     { id: 'Q2', les: 'a', title: '1 筛选 · 酒店', prompt: '<b>酒店</b>（room_types）：基础价 <code>base_rate</code> 在 150 到 300 之间（含两端）的房型。输出 <code>name, base_rate</code>。',
@@ -16548,9 +16579,13 @@ function renderPractice(main) {
     side.append(f);
   }
   side.append(btn('ex' + (ui.ex === 'sandbox' ? ' on' : ''), `<span class="ex-s">${icon('code')}</span><span>自由沙盒</span>`, () => go('practice', { ex: 'sandbox' })));
+  const anySet = exs.some((e) => e.set);
+  let lastSet = null;
   exs.forEach((e) => {
     const p = st.prac[e.id];
     if (starOnly && !p?.star && ui.ex !== e.id) return;
+    const setName = e.set || (anySet ? '按用法分组（标题写明用法）' : '');
+    if (setName && setName !== lastSet) { side.append(el('div', 'ex-sec', esc(setName))); lastSet = setName; }
     side.append(btn('ex' + (ui.ex === e.id ? ' on' : '') + (p?.solved ? ' ok' : p?.n ? ' tried' : ''), `<span class="ex-s">${p?.solved ? icon('check') : p?.n ? '•' : ''}</span><span class="ex-id">${esc(e.id)}</span><span class="ex-t">${esc(e.title)}${p?.star ? `<b class="ex-star" title="重点">${icon('star')}</b>` : ''}</span>`, () => go('practice', { ex: e.id })));
   });
   const ws = el('section', 'ws');
@@ -16587,7 +16622,8 @@ function renderPractice(main) {
   starB.title = rec.star ? '再点一次取消重点' : '把这道题标为重点，之后可以只看重点题';
   $('h2', ws).append(starB);
   const ed = mkEditor(rec.sql || starter, { onRun: () => doCheck(), label: `练习 ${ex.id}` });
-  ws.append(mkSchemaPanel(ch.db, { editor: ed, ref: (ex.ref || '') + ' ' + (ex.check || '') }), ed.wrap);
+  const xdb = ex.db || ch.db;
+  ws.append(mkSchemaPanel(xdb, { editor: ed, ref: (ex.ref || '') + ' ' + (ex.check || '') }), ed.wrap);
   const bar = el('div', 'btnrow');
   const bHint = btn('btn', '提示');
   const bExp = btn('btn ghost', '看期望结果');
@@ -16617,7 +16653,7 @@ function renderPractice(main) {
   if (!(ex.hints || []).length) bHint.hidden = true;
   bExp.onclick = () => withDB(exp, () => {
     if (!exp.hidden) { exp.hidden = true; bExp.textContent = '看期望结果'; return; }
-    const db = freshDB(ch.db);
+    const db = freshDB(xdb);
     let s2;
     if (ex.dml) { db.exec(ex.ref); s2 = db.exec(ex.check)[0]; } else { const r = db.exec(ex.ref); s2 = r[r.length - 1]; }
     db.close();
@@ -16634,7 +16670,7 @@ function renderPractice(main) {
   function doCheck() {
     withDB(out, () => {
       const sql = ed.value;
-      const res = checkExercise(ex, sql, ch.db);
+      const res = checkExercise(ex, sql, xdb);
       last = { sql, res };
       const r = (st.prac[ex.id] ||= {});
       r.sql = sql.slice(0, 4000);
@@ -16643,7 +16679,7 @@ function renderPractice(main) {
       if (res.err) {
         fb.classList.add('bad');
         fb.innerHTML = '<b>SQL 报错</b>';
-        out.innerHTML = resultHTML({ error: res.err }, ch.db);
+        out.innerHTML = resultHTML({ error: res.err }, xdb);
         Sound.play('bad');
       } else if (res.ok) {
         const first = !r.solved;
@@ -16676,7 +16712,7 @@ function renderPractice(main) {
 2) 给一个能让学生自己改对的提示，**不要直接给出完整答案**；
 3) 如果背后是某个概念误解，用一两句话讲清楚。
 数据库是 SQLite。表结构：
-${schemaText(ch.db)}
+${schemaText(xdb)}
 
 题目：${strip(ex.prompt)}
 要求返回列：${ex.cols}${ex.ordered ? '（要求顺序）' : ''}
@@ -17933,7 +17969,7 @@ const Tutor = {
       const ch = CH(ui.ch);
       const ex = (ch.practice || []).find((e) => e.id === ui.ex);
       const mine = ex ? chs(ch.id).prac[ex.id]?.sql || '' : '';
-      return `第 ${ch.no} 章 SQL 实战${ex ? `，题目 ${ex.id}《${ex.title}》：${strip(ex.prompt)}\n学生当前的 SQL：\n${mine.slice(0, 1500)}` : '（沙盒）'}\n数据库：\n${schemaText(ch.db)}`;
+      return `第 ${ch.no} 章 SQL 实战${ex ? `，题目 ${ex.id}《${ex.title}》：${strip(ex.prompt)}\n学生当前的 SQL：\n${mine.slice(0, 1500)}` : '（沙盒）'}\n数据库：\n${schemaText(ex?.db || ch.db)}`;
     }
     if (ui.view === 'chapter' && CH(ui.ch)) { const ch = CH(ui.ch); return `第 ${ch.no} 章《${ch.title}》：${ch.blurb || ''}。小课：${ch.lessons.map((l) => l.title).join('、')}`; }
     return 'CSE 3104 复习（全部章节）。';
