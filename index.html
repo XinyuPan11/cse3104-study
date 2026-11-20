@@ -1321,6 +1321,12 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
 .pz-say-en { font-style: italic; }
 .pz-say-zh { font-size: 14px; color: oklch(38% 0.04 150); }
 
+/* answer view: what the professor says at each stage */
+.ans-asks { display: grid; gap: 0; margin-bottom: 4px; }
+.ans-asks .ans-prof { margin-top: 6px; }
+.ans-off { display: inline-block; margin-left: 8px; padding: 0 8px; border-radius: 99px; font: 700 11px/1.7 var(--body); background: oklch(93% 0.06 25); color: oklch(45% 0.16 25); vertical-align: 1px; }
+.ans-yous { margin-top: 14px; }
+
 </style>
 <header class="top" id="top"></header>
 <main id="main"><div class="wrap" style="padding-block:40px">加载中…</div></main>
@@ -17144,6 +17150,29 @@ const ANS_SECS = [
   ['sql', '查询', 'Queries', '约 8–10 分钟：先说思路（从哪张表出发、怎么连、筛什么），再写 SQL。'],
   ['close', '收尾', 'Wrap-up', '约 1 分钟：用三四句话总结整个设计。'],
 ];
+/* what the professor actually says at each stage: [en, zh, official?]. `m` is the mock, for its own wording */
+const OFF = true;
+const ANS_ASK = {
+  open: (m) => [[m.prompt[0], '教授先念题目（完整原文在上面「题目原文」里）。你的第一句话就是接着这段说。']],
+  ask: (m) => [[m.closing, m.id === 'hospital' ? '「请想一想使用者和业务名词、用什么技术以及为什么、你的数据模型和它避免的异常，然后是 SQL。开始之前有什么问题吗？」' : '「设计一个数据模型、一套表，支持上面所有需求。想一分钟。开始之前有什么问题吗？」'],
+    ['Good question. What would you assume?', '「好问题。你会怎么假设？」教授常把问题丢回来，这时就说出你的假设，继续往下。']],
+  people: () => [['Who are the main users of this system, and what do they need from it?', '这个系统主要谁在用？他们各自需要它做什么？'],
+    ['What are the main things this system has to keep track of?', '这个系统要记录哪些主要的东西（业务名词）？'],
+    ['Please think about the stakeholders and the business nouns.', '请想一想使用者（stakeholders）和业务名词。（医院样题里就是这样提示的）']],
+  tech: () => [['Where does it live? How does it operate? Why?', '数据放在哪？怎么运作？为什么？', OFF],
+    ['Where would this data live, and why?', '这些数据放在哪里？为什么？'],
+    ['Which technologies would you use, and why?', '你会用哪些技术？为什么？'],
+    ['Would you run these reports on the same database the staff use every day?', '这些报表你会跑在员工每天用的那个数据库上吗？（问的就是 OLTP / OLAP 要不要分开）']],
+  tables: () => [['Walk me through your data model. What tables would you have?', '讲讲你的数据模型：会有哪些表？'],
+    ['What are the primary keys and foreign keys? Why did you split these into two tables?', '主键、外键是什么？为什么把这两样拆成两张表？'],
+    ['Is your system appropriately resistant to update, insertion, and deletion anomalies?', '你的系统能不能有效避免更新异常、插入异常、删除异常？', OFF],
+    ['What anomalies does your model avoid?', '你的模型避免了哪些异常？']],
+  probes: () => [['Let me push on your design a little. What happens when …?', '我来挑挑你设计的毛病：如果……会怎样？（具体问什么，看下面每一题）']],
+  sql: () => [["Now let's write a few queries. Pseudocode is fine.", '现在写几个查询，伪代码也可以。'],
+    ['How would you find …? Talk me through it first.', '你会怎么查出……？先讲讲思路。（具体题目看下面每张卡）']],
+  close: () => [["We're about out of time. Can you sum up your design?", '时间差不多了，能总结一下你的设计吗？'],
+    ['If you had more time, what would you add or change?', '如果有更多时间，你会加什么、改什么？']],
+};
 function openAnswer(id) { go('answer', { mock: id || ui.mock }); }
 function ansSpeak(b, text) {
   if (!('speechSynthesis' in window)) return;
@@ -17206,7 +17235,9 @@ function renderAnswer(main) {
   const sec = (k) => {
     const i = ANS_SECS.findIndex((s) => s[0] === k);
     const [, zh, en, tip] = ANS_SECS[i];
-    const s = el('section', 'ans-sec', `<h2><span class="ans-n">${i + 1}</span>${zh}<span class="ans-h-en">${en}</span></h2><p class="ans-tip">${tip}</p>`);
+    const asks = ANS_ASK[k] ? ANS_ASK[k](m).filter((x) => x[0]) : [];
+    const askHTML = asks.length ? `<div class="ans-asks"><div class="mini-h">教授会这样问</div>${asks.map(([qe, qz, off]) => `<div class="ans-prof"><span class="ans-who">Professor</span>${off ? '<span class="ans-off">官方原话</span>' : ''}<div>${esc(qe)}</div><div class="ans-pzh">${esc(qz)}</div></div>`).join('')}</div><div class="mini-h ans-yous">你这样答</div>` : '';
+    const s = el('section', 'ans-sec', `<h2><span class="ans-n">${i + 1}</span>${zh}<span class="ans-h-en">${en}</span></h2><p class="ans-tip">${tip}</p>${askHTML}`);
     s.id = 'ans-' + k;
     wrap.append(s);
     return s;
