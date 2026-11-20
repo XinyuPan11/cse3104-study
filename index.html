@@ -16002,8 +16002,9 @@ const PLAN = [
   { id: 'c15', no: 15, cls: '官方练习题 ②', title: '电影院售票系统', hue: 320 },
   { id: 'c16', no: 16, cls: '答题模板', title: '万能答题模板', hue: 200 },
   { id: 'c17', no: 17, cls: 'SQL 专项', title: 'SQL 专项：学用法，再闯关', hue: 265 },
+  { id: 'c18', no: 18, cls: '考场实战', title: '考场实战：career center 与表关系', hue: 150 },
 ];
-const SECTIONS = [['SQL 查询', 1, 5, 'db'], ['数据库设计', 6, 8, 'layers'], ['Python 与数据获取', 9, 12, 'py'], ['口试准备', 13, 13, 'user'], ['官方练习题（最重要）', 14, 15, 'star'], ['考前专项：答题模板 + SQL（任何主题都能套）', 16, 17, 'puzzle']];
+const SECTIONS = [['考场实战：同学考完的反馈（新，先看这个）', 18, 18, 'spark'], ['SQL 查询', 1, 5, 'db'], ['数据库设计', 6, 8, 'layers'], ['Python 与数据获取', 9, 12, 'py'], ['口试准备', 13, 13, 'user'], ['官方练习题（最重要）', 14, 15, 'star'], ['考前专项：答题模板 + SQL（任何主题都能套）', 16, 17, 'puzzle']];
 const CHS = () => (window.CHAPTERS || []).slice().sort((a, b) => a.no - b.no);
 const CH = (id) => (window.CHAPTERS || []).find((c) => c.id === id);
 const DAY = 864e5;
@@ -16096,7 +16097,7 @@ function renderHome(main) {
   const done = M.totalDone();
   hero.innerHTML = `<div class="hh-text">
       <div class="eyebrow">CSE 3104 · Data Manipulation and Management</div>
-      <h1>17 节课，拆成 ${total || '一节一节'} 个小课。</h1>
+      <h1>${PLAN.length} 节课，拆成 ${total || '一节一节'} 个小课。</h1>
       <p>每个小课 4–6 分钟：看一段动画，马上动手试。学完一课回地图，学过的东西进复习卡。</p>
       <div class="hh-stats"><span><b>${done}</b> / ${total} 小课</span><span>${icon('star')}<b>${M.totalStars()}</b> 星</span><span>${icon('bolt')}<b>${streak()}</b> 天连续</span></div>
     </div>`;
