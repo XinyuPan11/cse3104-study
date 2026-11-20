@@ -11644,7 +11644,7 @@ window.CHAPTERS.push({
         { t: 'cue', c: 0, clause: 'SELECT · JOIN', title: '第 1 问：要输出什么？要连几张表？',
           sub: '把<b>输出的列</b>和<b>条件用到的列</b>都圈出来，看它们在几张表。',
           items: [
-            { w: ['要的列分在 2 张以上的表', '要名字/书名，起点表只有 ID'], s: 'JOIN 表 ON 外键 = 主键', n: '两张表直接连不上，就找中间那张表：loans → copies → books。' },
+            { w: ['要的列不在同一张表', '要名字/书名，起点表只有 ID'], s: 'JOIN 表 ON 外键 = 主键', n: '用到几张表，就 JOIN 几减 1 次：2 张表 JOIN 1 次，3 张 JOIN 2 次。两张表直接连不上时，中间那张也要算进去：loans → copies → books 是 3 张，JOIN 2 次。' },
             { w: ['列都在 1 张表'], s: '不用 JOIN', n: '别的表只用来判断「有没有」，就用子查询（第 2 问），不用 JOIN。' },
             { w: ['including zero', 'with none', '没有的也列出', '显示 0'], s: 'LEFT JOIN … + COUNT(右表.id)', n: '从必须全列出来的表出发；右表的条件写在 ON 里，写在 WHERE 会把 0 那几行删掉。' },
             { w: ['different', 'distinct', '有哪些种', '不重复'], s: 'SELECT DISTINCT 列', n: '一对多 JOIN 后名字会重复（同一本书两个副本），也要加。' },
