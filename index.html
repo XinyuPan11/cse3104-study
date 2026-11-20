@@ -1370,6 +1370,13 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
 /* c17 syntax sheet: the -- comments carry the explanations, so give them full text contrast */
 .rd-sheet pre .tc { color: var(--muted); font-style: normal; }
 
+/* ★ 重点 badge on reading blocks; key blocks also get a colored edge */
+.rd-key { display: inline-block; margin-right: 6px; padding: 1px 9px; border-radius: 99px; font: 800 12px/1.7 var(--body); background: oklch(88% 0.13 85); color: oklch(35% 0.1 70); }
+.rd-b:has(> .rd-key) { border-color: oklch(78% 0.13 85); box-shadow: inset 4px 0 0 oklch(78% 0.13 85); }
+
+/* spoken scripts: wrap lines so they read without sideways scrolling */
+.rd-say pre.code, .rd-say pre.code code { white-space: pre-wrap; overflow-wrap: anywhere; }
+
 </style>
 <header class="top" id="top"></header>
 <main id="main"><div class="wrap" style="padding-block:40px">加载中…</div></main>
@@ -11964,6 +11971,195 @@ window.CHAPTERS.push({
   ],
 });
 
+/* c18 · 考场实战：career center + 表之间的关系 + 开场自我介绍和临时换题。
+   Based on what classmates reported after their oral exams. Runs on the `internship` seed (career center data). */
+window.CHAPTERS = window.CHAPTERS || [];
+window.CHAPTERS.push({
+  id: 'c18', no: 18, cls: '考场实战', title: '考场实战：career center 与表关系', en: 'Career center, relationships, and your own project',
+  blurb: '考完的同学说：默认题是 career center，开场会问你的专业和项目，可能当场换题；教授最看重一对多、多对多。这一章把这三件事讲透，重点都标了出来。',
+  hue: 150, db: 'internship', read: true, readTry: true, source: '同学考完后的反馈 + 实习网站模拟题数据',
+  lessons: [
+    {
+      id: 'a', title: '考场情报：考什么、教授看什么', min: 4,
+      screens: [
+        { t: 'hook', big: '默认题是 career center，开场会问你的专业，教授最看重表之间的关系。', sub: '下面是考完的同学讲的，按「考什么 → 看什么 → 怎么准备」排好了。', icon: 'spark' },
+        { t: 'list', key: true, title: '同学的反馈：五件事', cols: 1, items: [
+          { h: '① 默认题：career center 的数据库', p: '好几个人都拿到这个题：学生投递实习、学校看报表、公司看申请。就是网站上的「学生实习求职网站」模拟题。' },
+          { h: '② 开场会问你的专业和做过的项目', p: '<mark>然后可能直接让你给自己的专业或项目设计一个数据系统。</mark>有人说自己学心理学，就被要求设计「心理学实验的数据系统」，只准备了 career center，当场乱了。' },
+          { h: '③ 最看重：一对多和多对多', p: '<mark>多讲 relationship。</mark>有人讲了很多第三范式，教授说没必要，多讲关系就行。' },
+          { h: '④ 表可以只写 key', p: '主键、外键写清楚就行，其他列口头说一声。花哨的高级写法教授不在意。' },
+          { h: '⑤ 说清楚为什么拆表', p: '拆开以后分析更方便，也更好保护数据（比如学生的联系方式单独一张表，单独控制权限）。' },
+        ] },
+        { t: 'sort', q: '这些内容，教授在乎还是不在乎？', buckets: ['在乎：多花时间', '不在乎：一句带过或不讲'], items: [
+          ['每条线是一对多还是多对多', 0], ['外键放在哪张表', 0], ['为什么要拆成两张表', 0], ['多对多用中间表', 0],
+          ['第三范式的定义', 1], ['每张表把所有列都写全', 1], ['花哨的高级 SQL', 1],
+        ], why: '同学的原话：教授「根本不 care 你整什么花活」，就看维度表和 relationship。范式和异常准备一句话就够。' },
+        { t: 'idea', key: true, title: '每个数据系统，都是三个问题', body: '以 career center 为例：<b>谁在做事</b>（学生申请）、<b>机构要看什么</b>（学校看学生申请了哪些公司）、<b>另一方要看什么</b>（公司看有多少学生申请）。<mark>换成任何题目，先找这三个问题。</mark>',
+          code: "-- 1. 学生申请：在 applications 里加一行\nINSERT INTO applications (student_id, posting_id, applied_at, status) VALUES (…);\n-- 2. 学校看：某个学生申请了哪些公司\n-- 3. 公司看：每家公司收到多少份申请", lang: 'sql' },
+        { t: 'quiz', q: '你正在讲 third normal form，教授打断说：<i>"That\'s fine, you don\'t need to go into that."</i> 你接下来最该讲什么？', opts: ['再换个例子解释第三范式', '每两张表之间是一对多还是多对多、外键放在哪', '开始写很复杂的 SQL', '列出每张表的所有列'], a: 1,
+          why: '这正是同学遇到的情况。教授要听的是关系：哪条线是一对多、哪条是多对多、外键放在哪、为什么这样拆。' },
+        { t: 'quiz', q: '教授开场问：<i>"So what\'s your major? Any projects you\'ve worked on?"</i> 最好的准备是？', opts: ['随便说一句，赶紧进入正题', '提前准备 30 秒的介绍，并且<b>提前给自己的项目画好数据模型</b>', '只说 career center 准备得很好', '说没做过项目'], a: 1,
+          why: '介绍完以后，教授可能直接说「那就设计你这个项目的数据系统」。第 3 节就是帮你准备这个的。' },
+        { t: 'recap', points: ['默认题 career center，但开场问专业，可能当场换题', '重点讲一对多、多对多和外键放哪；范式一句带过', '表可以只写 key，其他列口头说；讲清为什么拆表', '每个系统先找三个问题：谁做事、机构看什么、另一方看什么'] },
+      ],
+    },
+    {
+      id: 'b', title: '★ 一对多和多对多：每条线怎么判断', min: 7,
+      screens: [
+        { t: 'hook', big: '两张表之间连一条线，就要说出它是一对多还是多对多。', sub: '判断方法只有一个：两个方向各问一遍。', icon: 'link' },
+        { t: 'idea', key: true, title: '判断方法：两个方向各问一遍', body: '<b>一个 A 对应几个 B？一个 B 对应几个 A？</b><br>一边「多」一边「一」→ <mark>一对多，外键放在「多」那边</mark>。<br>两边都是「多」→ <mark>多对多，加一张中间表，里面放两个外键</mark>。',
+          code: "-- 一对多：公司 → 职位\n一家公司有几个职位？ 多个\n一个职位属于几家公司？ 一家     → 一对多，postings 里放 company_id\n\n-- 多对多：学生 ↔ 职位\n一个学生申请几个职位？ 多个\n一个职位被几个学生申请？ 多个   → 多对多，中间表 applications", lang: 'text' },
+        { t: 'quiz', q: '一家公司发很多个职位，一个职位只属于一家公司。<b>外键应该放在哪？</b>',
+          tables: [
+            { name: 'companies', head: ['company_id', 'name'], rows: [[1, 'Nimbus Analytics'], [2, 'Brightpath Health']] },
+            { name: 'postings（Nimbus 的 4 个职位）', head: ['posting_id', 'company_id', 'title'], rows: [[1, 1, 'Data Analyst Intern'], [8, 1, 'BI Dashboard Intern'], [11, 1, 'Data Engineering Intern'], [12, 1, 'Product Analyst Intern']] },
+          ],
+          opts: ['companies 里放 posting_id', 'postings 里放 company_id', '两边都放', '再建一张中间表'], a: 1,
+          why: '外键放在「多」那边。Nimbus 有 4 个职位，companies 的一行只有一个格子，装不下 4 个 posting_id；反过来，每个职位只要记一个 company_id。' },
+        { t: 'quiz', q: '学生和职位是多对多。看数据：Sofia Rossi 投了 6 个职位，Data Engineering Intern 收到 5 份申请。<b>该怎么存？</b>',
+          tables: [
+            { name: 'applications（部分）', head: ['app_id', 'student_id', 'posting_id', 'status'], rows: [[2, 6, 1, 'rejected'], [6, 6, 2, 'rejected'], [31, 6, 12, 'offer'], [26, 2, 11, 'interviewing'], [27, 3, 11, 'interviewing']] },
+          ],
+          opts: ['students 里加一列 posting_ids，写成 "1, 2, 12"', 'postings 里加一列 student_id', '中间表 applications：每行一个「学生 + 职位」，两个外键', '把学生和职位合成一张表'], a: 2,
+          why: '两边都是「多」，外键放哪边都装不下。中间表每行记一次申请：student_id 和 posting_id 两个外键，再加 applied_at、status 这些属于「这次申请」的信息。<mark>一个多对多 = 两个一对多。</mark>' },
+        { t: 'er', key: true, title: 'career center 的完整关系图（只写 key）',
+          ents: [
+            { id: 'c', name: 'companies', cols: ['company_id PK', 'name'], x: 0, y: 0 },
+            { id: 'p', name: 'postings', cols: ['posting_id PK', 'company_id FK', 'recruiter_id FK'], x: 1, y: 0 },
+            { id: 'ps', name: 'posting_skills', cols: ['posting_id PK FK', 'skill_id PK FK'], x: 2, y: 0 },
+            { id: 'k', name: 'skills', cols: ['skill_id PK', 'name'], x: 3, y: 0 },
+            { id: 'r', name: 'recruiters', cols: ['recruiter_id PK', 'company_id FK'], x: 0, y: 1 },
+            { id: 'a', name: 'applications', cols: ['app_id PK', 'student_id FK', 'posting_id FK', 'status'], x: 1, y: 1 },
+            { id: 'o', name: 'offers', cols: ['offer_id PK', 'app_id FK UNIQUE'], x: 2, y: 1 },
+            { id: 'i', name: 'interviews', cols: ['interview_id PK', 'app_id FK', 'round'], x: 0, y: 2 },
+            { id: 's', name: 'students', cols: ['student_id PK', 'name'], x: 1, y: 2 },
+          ],
+          rels: [
+            { a: 'c', b: 'p', card: '1:N', label: '发布' }, { a: 'c', b: 'r', card: '1:N', label: '雇用' }, { a: 'r', b: 'p', card: '1:N' },
+            { a: 'p', b: 'ps', card: '1:N' }, { a: 'k', b: 'ps', card: '1:N' },
+            { a: 'p', b: 'a', card: '1:N', label: '收到' }, { a: 's', b: 'a', card: '1:N', label: '投递' },
+            { a: 'a', b: 'i', card: '1:N', label: '几轮' }, { a: 'a', b: 'o', card: '1:1' },
+          ],
+          frames: [
+            { text: '<b>一对多</b>：一家公司 → 多个职位、多位招聘官（外键 company_id 在 postings 和 recruiters 上）。', on: ['c', 'p', 'r', 'r0', 'r1'] },
+            { text: '<b>多对多 ①</b>：学生 ↔ 职位，中间表 <b>applications</b>。它拆成两个一对多：学生 → 申请、职位 → 申请。', on: ['s', 'a', 'p', 'r5', 'r6'] },
+            { text: '<b>多对多 ②</b>：职位 ↔ 技能，中间表 <b>posting_skills</b>，主键是 (posting_id, skill_id) 两列合起来。8 个职位要求 Python，职位 4 要求 Python 和 Statistics。', on: ['p', 'ps', 'k', 'r3', 'r4'] },
+            { text: '<b>一对多</b>：一份申请 → 好几轮面试（interviews 里放 app_id）。<b>一对一</b>：一份申请最多一个 offer（offers.app_id 加 UNIQUE）。', on: ['a', 'i', 'o', 'r7', 'r8'] },
+          ] },
+        { t: 'sort', q: '把 career center 的每条线分好类：', buckets: ['一对多', '多对多（要中间表）', '一对一'], items: [
+          ['companies — postings', 0], ['companies — recruiters', 0], ['applications — interviews', 0],
+          ['students — postings（申请）', 1], ['postings — skills', 1], ['students — skills', 1], ['students — postings（收藏）', 1],
+          ['applications — offers', 2],
+        ], why: '多对多各有一张中间表：applications、posting_skills、student_skills、saved_postings。一对一用 UNIQUE 外键实现。' },
+        { t: 'quiz', q: '为什么不能在 postings 里加一列 <code>skills = \'Python, Statistics\'</code>？', opts: ['可以，这样更简单', '「按技能搜职位」「最热门的技能」没法用 = 和 GROUP BY 查，改名也要改很多行', '因为 SQLite 不支持逗号', '因为技能太多了'], a: 1,
+          why: '一个格子里塞好几个值，就没法 JOIN、没法 GROUP BY。多对多一律拆成中间表：posting_skills 每行一个「职位 + 技能」。' },
+        { t: 'sql', key: true, title: '公司看：每家公司收到几份申请', task: '<b>career center</b>（applications、postings、companies）：每家公司一共收到几份申请，从多到少（相同按公司名）。输出 <code>company, apps</code>。',
+          sql: 'SELECT COUNT(*) AS apps\nFROM applications a;  -- 接上 postings 和 companies，再按公司分组',
+          check: 'SELECT c.name AS company, COUNT(*) AS apps FROM applications a JOIN postings p ON p.posting_id = a.posting_id JOIN companies c ON c.company_id = p.company_id GROUP BY c.company_id, c.name ORDER BY apps DESC, c.name;', ordered: true,
+          hint: '申请 → 职位 → 公司：JOIN 两次，按公司 GROUP BY，ORDER BY apps DESC, c.name' },
+        { t: 'sql', key: true, title: '学校看：某个学生申请了哪些公司', task: '<b>career center</b>：Sofia Rossi（<code>student_id = 6</code>）申请过哪些公司，每家只列一次。输出 <code>company</code>。',
+          sql: 'SELECT a.posting_id\nFROM applications a\nWHERE a.student_id = 6;  -- 接到 companies，换成公司名，每家只列一次',
+          check: 'SELECT DISTINCT c.name AS company FROM applications a JOIN postings p ON p.posting_id = a.posting_id JOIN companies c ON c.company_id = p.company_id WHERE a.student_id = 6;',
+          hint: '她投了 6 个职位，但只涉及 3 家公司：JOIN 到 companies 以后加 DISTINCT' },
+        { t: 'code', key: true, cls: 'rd-say', title: '考场上这样讲关系（照着说）', lang: 'text',
+          code: "One company has many postings, so that's one-to-many,\nand company_id goes on postings, the many side.\nStudents and postings are many-to-many:\na student applies to many postings, and a posting gets many applicants.\nSo I add a junction table, applications,\nwith student_id and posting_id as foreign keys,\nplus applied_at and status, which describe the application itself.\nSkills work the same way, through posting_skills.\nAn application has many interview rounds, and at most one offer.",
+          notes: [
+            { lines: [0, 1], text: '一对多：说出「多」的那边，外键就放那边。' },
+            { lines: [2, 6], text: '多对多：先说为什么两边都是多，再说中间表和它自己的列。' },
+            { line: 8, text: '最后补一句一对多（面试）和一对一（offer），关系就讲全了。' },
+          ] },
+        { t: 'recap', points: ['判断：两个方向各问一遍「一个 A 对应几个 B」', '一对多：外键放在「多」那边', '多对多：中间表放两个外键，再加这段关系自己的列；一个多对多 = 两个一对多', 'career center：applications、posting_skills、student_skills、saved_postings 都是中间表'] },
+      ],
+    },
+    {
+      id: 'c', title: '★ 开场：介绍专业和项目，被换题怎么画', min: 7,
+      screens: [
+        { t: 'hook', big: '"What\'s your major? Any projects?" 之后，教授可能说：那就设计你这个项目的数据系统。', sub: '你是 data science 专业。提前把介绍和项目的数据模型都准备好，换题也不慌。', icon: 'user' },
+        { t: 'idea', key: true, title: '先说清楚：项目要是真的', body: '教授会追问细节，<mark>编的项目一问就露馅</mark>。用你真做过的（课程作业也算）。没有合适的，这周末用公开数据做一个小版本，它就是真的。下面用一个 data science 常见项目当例子：<b>MovieLens 电影推荐</b>。你做过别的，就把名词换掉，方法完全一样。',
+          code: "MovieLens 100K：943 个用户、1,682 部电影、10 万条评分（1–5 分）\n做了什么：pandas 清洗 → 协同过滤推荐 → 用 RMSE 在留出集上评估\n公开数据，几个小时就能做出一个小版本", lang: 'text' },
+        { t: 'code', key: true, cls: 'rd-say', title: '30 秒自我介绍（照着说）', lang: 'text',
+          code: "I'm a data science major.\nOne project I did was a movie recommender on the MovieLens dataset:\nabout a hundred thousand ratings from around a thousand users.\nI cleaned the data in pandas, trained a collaborative-filtering model,\nand evaluated it with RMSE on a held-out set.\nWhat I found interesting was the data itself:\nusers rate many movies, and each movie is rated by many users,\nso the ratings table is really the heart of it.",
+          notes: [
+            { lines: [1, 2], text: '一句话说清项目和数据规模。' },
+            { lines: [3, 4], text: '说你具体做了什么：清洗、模型、评估。被追问时能展开。' },
+            { lines: [5, 7], text: '最后一句故意引到多对多：教授一听就知道你懂关系，换题也能接得住。' },
+          ] },
+        { t: 'er', key: true, title: '换题：给你的推荐系统设计数据模型',
+          ents: [
+            { id: 'u', name: 'users', cols: ['user_id PK', 'joined_at'], x: 0, y: 0 },
+            { id: 'r', name: 'ratings', cols: ['user_id PK FK', 'movie_id PK FK', 'rating', 'rated_at'], x: 1, y: 0 },
+            { id: 'm', name: 'movies', cols: ['movie_id PK', 'title', 'year'], x: 2, y: 0 },
+            { id: 'mg', name: 'movie_genres', cols: ['movie_id PK FK', 'genre_id PK FK'], x: 3, y: 0 },
+            { id: 'rec', name: 'recommendations', cols: ['run_id FK', 'user_id FK', 'movie_id FK', 'score'], x: 0, y: 1 },
+            { id: 't', name: 'tags', cols: ['tag_id PK', 'user_id FK', 'movie_id FK', 'tag'], x: 1, y: 1 },
+            { id: 'g', name: 'genres', cols: ['genre_id PK', 'name'], x: 3, y: 1 },
+            { id: 'run', name: 'model_runs', cols: ['run_id PK', 'trained_at', 'rmse'], x: 0, y: 2 },
+          ],
+          rels: [
+            { a: 'u', b: 'r', card: '1:N', label: '打分' }, { a: 'm', b: 'r', card: '1:N', label: '被打分' },
+            { a: 'm', b: 'mg', card: '1:N' }, { a: 'g', b: 'mg', card: '1:N' },
+            { a: 'u', b: 't', card: '1:N' }, { a: 'm', b: 't', card: '1:N' },
+            { a: 'run', b: 'rec', card: '1:N', label: '产出' }, { a: 'u', b: 'rec', card: '1:N' },
+          ],
+          frames: [
+            { text: '<b>多对多 ①</b>：用户 ↔ 电影，中间表 <b>ratings</b>，主键 (user_id, movie_id)，所以一个人对一部电影只有一个分数；rating、rated_at 是这次打分自己的信息。', on: ['u', 'r', 'm', 'r0', 'r1'] },
+            { text: '<b>多对多 ②</b>：电影 ↔ 类型，中间表 <b>movie_genres</b>。一部电影可以既是 Comedy 又是 Romance，不能写成一列 "Comedy|Romance"。', on: ['m', 'mg', 'g', 'r2', 'r3'] },
+            { text: '<b>多对多 ③</b>：tags 也连着用户和电影，但一个人可以给同一部电影打好几个标签，所以它有自己的 tag_id 主键。', on: ['u', 't', 'm', 'r4', 'r5'] },
+            { text: '<b>data science 加分项</b>：model_runs 记每次训练（时间、RMSE），一次训练 → 很多条 recommendations（一对多）。这样能比较不同版本的模型。', on: ['run', 'rec', 'r6', 'r7'] },
+          ] },
+        { t: 'sort', q: '推荐系统里每条线是什么关系？', buckets: ['一对多', '多对多（要中间表）'], items: [
+          ['users — movies（打分）', 1], ['movies — genres', 1], ['users — movies（打标签）', 1],
+          ['model_runs — recommendations', 0], ['users — ratings', 0], ['movies — ratings', 0],
+        ], why: '多对多的线都要有中间表；中间表和两边各是一条一对多。' },
+        { t: 'idea', key: true, title: '套三个问题 + 技术选择', body: '<b>用户做事</b>：给电影打分（ratings 加一行）。<b>平台要看</b>：每个类型里评分最高的电影。<b>模型要看</b>：每个用户的打分历史，用来训练。<mark>技术</mark>：app 里的打分存在业务库（OLTP）；每晚导到数据仓库或 Parquet 文件里训练模型（OLAP），不在业务库上跑重计算。',
+          code: "-- 平台看：每个类型里，至少 50 人打过分的电影，按平均分排\nSELECT g.name, m.title, AVG(r.rating) AS avg_rating\nFROM ratings r\nJOIN movies m        ON m.movie_id = r.movie_id\nJOIN movie_genres mg ON mg.movie_id = m.movie_id\nJOIN genres g        ON g.genre_id = mg.genre_id\nGROUP BY g.genre_id, g.name, m.movie_id, m.title\nHAVING COUNT(*) >= 50\nORDER BY g.name, avg_rating DESC;", lang: 'sql' },
+        { t: 'quiz', q: '教授追问：<i>"A movie can belong to several genres. How do you store that?"</i>', opts: ['movies 加一列 genres = "Comedy|Romance"', 'movies 加 genre1、genre2、genre3 三列', '中间表 movie_genres(movie_id, genre_id)，两列一起做主键', '每个类型建一张表'], a: 2,
+          why: '多对多 → 中间表。写成一列或好几列，「每个类型有几部电影」就没法 GROUP BY，类型改名也要改很多行。' },
+        { t: 'list', title: '换成别的主题也一样：找人、找事件、找多对多', cols: 1, items: [
+          { h: '心理学实验', p: 'participants（被试）、studies（实验）、sessions（某人参加某次实验，事件）、responses（每道题的作答）。被试 ↔ 实验是多对多，中间是 sessions。' },
+          { h: '课程推荐（学校）', p: 'students、courses、enrollments（选课，中间表）、prerequisites（课程 ↔ 课程，自己和自己多对多）。' },
+          { h: '任何没准备过的题', p: '先问三件事：谁在做事、机构要看什么、另一方要看什么；再按「人 · 目录 · 实物 · 事件」列表；最后每条线说一对多还是多对多。' },
+        ] },
+        { t: 'code', cls: 'rd-say', title: '换题后这样开头（照着说）', lang: 'text',
+          code: "Sure. Let me start with the people and the events.\nThe people are users. The catalog is movies.\nThe event is a rating: a user rates a movie at some time.\nUsers and movies are many-to-many, so ratings is the junction table,\nwith user_id and movie_id as a composite primary key.\nGenres are many-to-many with movies too, through movie_genres.\nAnd since I train models, I'd keep a model_runs table,\nso each batch of recommendations points to the run that produced it.",
+          notes: [
+            { line: 0, text: '先说一句 "Sure"，给自己两秒钟，然后按固定顺序讲：人 → 目录 → 事件。' },
+            { lines: [3, 5], text: '一说到事件，马上点出多对多和中间表：这是教授最想听的。' },
+            { lines: [6, 7], text: '最后一句体现 data science 专业：模型版本也是数据。' },
+          ] },
+        { t: 'recap', points: ['准备 30 秒自我介绍：专业 + 一个真做过的项目 + 一句引到数据关系', '提前把自己项目的数据模型画好：推荐系统 = users、movies、ratings（多对多）、genres（多对多）', '换题时按「人 → 目录 → 事件」讲，每条线说一对多还是多对多', '加分：model_runs 记录模型版本；打分在业务库，训练在数据仓库'] },
+      ],
+    },
+  ],
+  cards: [
+    ['one-to-many', '一对多', '一个 A 对应多个 B，一个 B 只对应一个 A。外键放在 B（「多」那边）。'],
+    ['many-to-many', '多对多', '两边都是「多」。加一张中间表，里面放两个外键。'],
+    ['junction table', '中间表 / 连接表', '把多对多拆成两个一对多的表，比如 applications、posting_skills、ratings。'],
+    ['one-to-one', '一对一', '一份申请最多一个 offer：外键加 UNIQUE。'],
+    ['foreign key', '外键', '指向另一张表主键的列，保证引用的行真实存在。'],
+    ['composite primary key', '组合主键', '两列合起来当主键，比如 (posting_id, skill_id)，同一对只能出现一次。'],
+    ['cardinality', '基数（对应关系）', '一对一、一对多、多对多的统称。'],
+    ['career center', '就业中心', '默认考题：学生申请实习，学校看报表，公司看申请人。'],
+    ['stakeholder', '使用者 / 利益相关方', '谁会用这个系统：学生、招聘官、就业中心。'],
+    ['held-out set', '留出集', '训练时不用、专门用来评估模型的数据。'],
+    ['collaborative filtering', '协同过滤', '根据「相似用户喜欢什么」来推荐的方法。'],
+  ],
+  oral: [
+    { id: 'r1', q: "Walk me through the relationships in your career center model.", zh: '讲清 career center 每条线的关系',
+      points: ['Companies to postings is one-to-many; company_id lives on postings', 'Students and postings are many-to-many through applications', 'Applications has student_id and posting_id as foreign keys, plus its own columns like status', 'Postings and skills are many-to-many through posting_skills', 'Mentions interviews (one-to-many) or offers (one-to-one)'],
+      model: "One company has many postings, so that's one-to-many, and company_id goes on postings. Students and postings are many-to-many, because a student applies to many postings and a posting gets many applicants, so applications is the junction table, with student_id and posting_id as foreign keys plus applied_at and status. Skills work the same way through posting_skills. An application can have several interview rounds, which is one-to-many, and at most one offer, which is one-to-one, so offers has a unique app_id." },
+    { id: 'r2', q: "Tell me a bit about yourself. What's your major, and have you worked on any projects?", zh: '开场自我介绍：专业 + 项目',
+      points: ['Says the major in one sentence', 'Names one real project and the data it used', 'Says what they actually did (cleaning, model, evaluation)', 'Ends with something about the data structure'],
+      model: "I'm a data science major. One project I did was a movie recommender on the MovieLens dataset, about a hundred thousand ratings from around a thousand users. I cleaned the data in pandas, trained a collaborative-filtering model, and evaluated it with RMSE on a held-out set. What I found interesting was that users rate many movies and each movie is rated by many users, so the ratings table is really the heart of it." },
+    { id: 'r3', q: "Okay, let's switch it up. Design the data system behind your project.", zh: '换题：给自己的项目设计数据系统',
+      points: ['Starts with people, catalog and events', 'Ratings is a junction table between users and movies', 'Genres are many-to-many with movies through movie_genres', 'Gives at least one analytic question and how it is answered', 'Separates the app database from where models are trained'],
+      model: "The people are users, the catalog is movies, and the event is a rating. Users and movies are many-to-many, so ratings is the junction table with a composite key of user_id and movie_id, plus the rating and a timestamp. A movie can have several genres, so movie_genres links movies and genres. Tags also connect users and movies, but a user can add several tags to one movie, so tags has its own id. Since I train models, model_runs stores each training run with its RMSE, and recommendations point to the run that produced them. Ratings come in through the app database, and I'd export them nightly to a warehouse or Parquet files for training, so heavy jobs never slow the app." },
+    { id: 'r4', q: "Why didn't you just put the skills in a column on postings?", zh: '为什么技能要单独拆表',
+      points: ['A posting needs several skills and a skill appears on many postings: many-to-many', 'A comma-separated column cannot be joined or grouped', 'A junction table posting_skills with two foreign keys', 'Renaming a skill is then one update'],
+      model: "Because it's many-to-many: one posting needs several skills, and one skill appears on many postings. If I stored them as text like 'Python, SQL', I couldn't join on a skill or count the most requested skills, and renaming a skill would mean editing many rows. So skills is its own table, and posting_skills links the two with posting_id and skill_id as a composite key." },
+  ],
+});
+
 /* Full mock interview: city bike share (original practice scenario).
    Defines its own `bikeshare` seed. "Today" in the data is 2026-11-04, and "now" is 09:00 that morning. */
 window.SEEDS = window.SEEDS || {};
@@ -16027,7 +16223,8 @@ const sqlLines = fmtSQL;
 const RD_TAG = { idea: '用法', vs: '对比', list: '要点', quiz: '例子', predict: '易错', fill: '例子', order: '顺序', sort: '分类', match: '对照', sql: '例子', code: '逐行看', flow: '流程', grid: '对照表', er: '表结构', rows: '一步步看', join: 'JOIN 演示', split: '拆表演示', chart: '图表', cue: '信号词' };
 function rdBlock(s, ch) {
   const b = el('section', 'rd-b rd-' + s.t + (s.cls ? ' ' + s.cls : ''));
-  const head = (t) => `${RD_TAG[s.t] ? `<span class="rd-tag">${RD_TAG[s.t]}</span>` : ''}${t ? `<h3>${esc(t)}</h3>` : ''}`;
+  const key = s.key ? '<span class="rd-key">★ 重点</span>' : '';
+  const head = (t) => `${key}${RD_TAG[s.t] ? `<span class="rd-tag">${RD_TAG[s.t]}</span>` : ''}${t ? `<h3>${esc(t)}</h3>` : ''}`;
   const steps = (frames) => `<ol class="rd-steps">${frames.map((f) => `<li>${f.text}</li>`).join('')}</ol>`;
   const answer = (html) => `<div class="rd-ans">${icon('check')}<div>${html}</div></div>`;
   const ctx = { ch: ch.id, seed: ch.db, done: () => {}, stars: null };
@@ -16101,7 +16298,7 @@ function rdBlock(s, ch) {
     case 'sql':
       if (ch.readTry) {
         // write first, then check: the live editor, answer only after trying (or on request)
-        b.innerHTML = `<span class="rd-tag">先写，再对答案</span>${s.title ? `<h3>${esc(s.title)}</h3>` : ''}`;
+        b.innerHTML = `${key}<span class="rd-tag">先写，再对答案</span>${s.title ? `<h3>${esc(s.title)}</h3>` : ''}`;
         const inner = el('div', 'rd-sql');
         SCR.sql(s, inner, ctx);
         const sol = [...inner.querySelectorAll('button')].find((x) => x.textContent.includes('看答案'));
