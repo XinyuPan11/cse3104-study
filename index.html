@@ -1272,6 +1272,55 @@ canvas.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointe
 .rd-notes li code { white-space: pre-wrap; overflow-wrap: anywhere; }
 .rd-what p { margin: 0 0 8px; }
 
+/* must-know concepts (c16 sheet) */
+.mu { display: grid; gap: 14px; margin-top: 12px; }
+.mu-mn { display: flex; flex-wrap: wrap; gap: 6px; }
+.mu-mn b { padding: 4px 11px; border-radius: 99px; font: 800 15px/1.4 var(--display); }
+.mu-c0 { background: oklch(93% 0.05 250); color: oklch(40% 0.15 250); }
+.mu-c1 { background: oklch(94% 0.04 25); color: oklch(45% 0.16 25); }
+.mu-c2 { background: oklch(93% 0.06 150); color: oklch(38% 0.12 150); }
+.mu-c3 { background: oklch(93% 0.07 60); color: oklch(45% 0.14 55); }
+.mu-c4 { background: oklch(92% 0.06 300); color: oklch(40% 0.17 300); }
+.mu-c5 { background: oklch(93% 0.05 200); color: oklch(40% 0.1 200); }
+.mu-c6 { background: oklch(93% 0.05 350); color: oklch(42% 0.15 350); }
+.mu-c7 { background: oklch(94% 0.06 95); color: oklch(42% 0.1 95); }
+.mu-note { margin: 0; font-size: 13px; color: var(--muted); }
+.mu-th { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; margin-bottom: 8px; }
+.mu-th b { font: 800 17px var(--display); padding: 2px 10px; border-radius: 8px; color: #fff; }
+.mu-t0 .mu-th b { background: oklch(55% 0.19 25); }
+.mu-t1 .mu-th b { background: oklch(60% 0.15 60); }
+.mu-t2 .mu-th b { background: oklch(55% 0.1 250); }
+.mu-th span { color: var(--muted); font-size: 13.5px; }
+.mu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.mu-it { min-width: 0; border-radius: 14px; background: var(--surface); border: 1.5px solid var(--line); padding: 12px 14px; display: grid; gap: 7px; align-content: start; }
+.mu-t0 .mu-it { border-top: 4px solid oklch(62% 0.19 25); }
+.mu-t1 .mu-it { border-top: 4px solid oklch(70% 0.15 60); }
+.mu-t2 .mu-it { border-top: 4px solid oklch(62% 0.1 250); }
+.mu-ih { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.mu-no { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font: 800 13px var(--display); background: var(--ink, #222); color: var(--bg, #fff); }
+.mu-k { font: 800 15px var(--display); }
+.mu-hit { font-size: 12px; color: var(--muted); margin-left: auto; }
+.mu-it h4 { margin: 0; font-size: 15.5px; }
+.mu-it p { margin: 0; font-size: 14px; line-height: 1.6; }
+.mu-q, .mu-en { display: grid; gap: 2px; }
+.mu-q span, .mu-en span { font-size: 11.5px; font-weight: 700; color: var(--muted); }
+.mu-q i { color: oklch(42% 0.12 250); }
+.mu-en { font-style: italic; padding: 8px 10px; border-radius: 10px; background: oklch(96% 0.025 150); color: oklch(30% 0.05 150); }
+.mu-en span { font-style: normal; }
+.mu-go { justify-self: start; display: inline-flex; align-items: center; gap: 4px; font-size: 13px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; }
+.mu-go:hover { color: inherit; border-color: currentColor; }
+.mu-go svg { width: 14px; height: 14px; }
+@media (max-width: 560px) { .mu-grid { grid-template-columns: minmax(0, 1fr); } .mu-hit { margin-left: 0; } }
+
+/* pseudo practice: answer box */
+.pz-pts { list-style: none; margin: 4px 0 12px; padding: 0; display: grid; gap: 4px; font-size: 14px; }
+.pz-pts li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 6px; align-items: baseline; }
+.pz-pts svg { width: 15px; height: 15px; color: var(--ok); }
+.pz-say { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: oklch(96% 0.025 150); color: oklch(28% 0.05 150); }
+.pz-say p { margin: 4px 0; line-height: 1.6; }
+.pz-say-en { font-style: italic; }
+.pz-say-zh { font-size: 14px; color: oklch(38% 0.04 150); }
+
 </style>
 <header class="top" id="top"></header>
 <main id="main"><div class="wrap" style="padding-block:40px">加载中…</div></main>
@@ -10615,6 +10664,67 @@ window.CHAPTERS.push({
       say: ['Let me check the model against the stories. To [story], I would use [table] and [columns].',
         'Good question. Right now my model would [x]. That breaks when [y], so I would change it to [z].',
         'If we need [new requirement], I would add a [new table] with a foreign key to [table]. Nothing else has to change.'] },
+    { h: '必考概念：老师最爱追问的 12 个', time: '追问阶段 · 考前看口诀',
+      must: {
+        mn: ['一事一处', '拆三异常', '开着那行', '唯一 + 事务', '改状态不删', '多对多中间表', '代理键 + UNIQUE', '价格记在事件上'],
+        note: '按第 6–8 章口试题 + 7 套模拟题里老师的追问出现次数排的。模拟题是照官方题目的形式原创的，次数只当参考；官方题目明确点名的是「三种异常」。',
+        tiers: [
+          { name: '第一档', sub: '几乎每套都追问：一定要能用英文说', items: [
+            { k: '一事一处', t: '「一个东西」和「它的每一次」拆两张表', hit: '7 套模拟题全有 · 第 8 章',
+              q: 'Your rooms table has the price on every row. What happens when the chain raises the King rate?',
+              a: '价格和床数属于<b>房型</b>，放在 room_types；rooms 只记「哪家酒店的哪间房、什么房型」。改价只改一行。书和副本、电影和场次、课程和每节课、病人和每次住院，都是同一招。这就是 2NF / 3NF，只是不用术语问。',
+              en: 'Price belongs to the room type, not the room, so it lives in room_types. Raising the King rate is a one-row update. Each fact lives in exactly one place.', go: ['c08', 'c'] },
+            { k: '拆三异常', t: '三种异常：更新、插入、删除', hit: '官方题目点名 · 第 7 章口试',
+              q: 'Explain insertion, update, and deletion anomalies with an example.',
+              a: '一张表塞了两种东西就会出现。<b>更新</b>：改一个事实要改很多行，漏一行就矛盾。<b>插入</b>：新餐馆还没订单就存不进去。<b>删除</b>：删掉它唯一的一单，餐馆地址也没了。拆成两张表，三种一起没了。',
+              en: "Changing a restaurant's address would mean updating every one of its orders, a new restaurant couldn't be stored until it had an order, and deleting its only order would lose the restaurant. Giving restaurants their own table fixes all three.", go: ['c07', 'a'] },
+            { k: '开着那行', t: '「现在是什么状态」：找还没结束的那一行', hit: '5 套：单车、图书馆、医院、健身房、实习',
+              q: 'How do you know which section a patient is in right now?',
+              a: '每段经历是一行，有开始和结束时间；<b>结束时间为空 = 现在正在发生</b>。查 <code>end_time IS NULL</code>，不另外存一个会过期的状态。陷阱：病人以前住过院但都出院了，只查 patient_id 会答错。',
+              en: "Each stay is a row with a start and an end time. The open row, where end_time is null, tells me where the patient is right now, so there's no separate status column that can go stale." },
+            { k: '唯一 + 事务', t: '防重复、防抢同一个', hit: '5 套 · 第 6 章口试「最后一个座位」',
+              q: 'How do you make sure the same seat is never sold twice for the same showing?',
+              a: '同一个座位不能卖两次：<code>UNIQUE (show_id, seat_id)</code>，让数据库替你拦。两人同时抢最后一个：用带条件的 UPDATE（<code>… AND passenger IS NULL</code>）再看改了几行，或者放进一个事务。',
+              en: "I put a UNIQUE constraint on (show_id, seat_id), so the database itself rejects a second sale. For the last seat, the check and the write happen in one statement or one transaction, so two buyers can't both win.", go: ['c06', 'd'] },
+          ] },
+          { name: '第二档', sub: '经常出现', items: [
+            { k: '改状态不删', t: '取消：改状态，不删行', hit: '4 套：健身房、酒店、实习、图书馆',
+              q: 'A guest cancels. Do you delete the reservation? What does that do to the cancellation report?',
+              a: "不删，改 <code>status = 'cancelled'</code>。删了就算不出取消率，历史也没了（这正是删除异常）。查空房时把 cancelled 排除掉就行。",
+              en: "I don't delete it; I set its status to cancelled. The availability check ignores cancelled rows, and the cancellation report still has the history.", go: ['c07', 'a'] },
+            { k: '多对多中间表', t: '多对多用中间表（junction table）', hit: '实习、电影院、酒店 · 第 7 章',
+              q: 'Where do the skills a posting requires live? Why not just a comma-separated column on postings?',
+              a: '一列塞多个值违反 <b>1NF</b>，没法查「哪些职位要 SQL」，也没法加约束。建 <code>posting_skills (posting_id, skill_id)</code>，每对一行，两列合起来做主键。一次买几张票、一次订两间房，也是这样拆。',
+              en: "A comma-separated column breaks first normal form and can't be queried or constrained. I'd add a posting_skills table with one row per posting and skill, and the pair as its primary key.", go: ['c07', 'd'] },
+            { k: '代理键 + UNIQUE', t: '键：代理键做主键，自然键加 UNIQUE', hit: '酒店、电影院 · 第 7 章两道口试',
+              q: 'Room 101 exists at every one of our hotels. How does your model tell them apart?',
+              a: '每间房有自己的 <code>room_id</code>（代理键）当主键；房号只在一家酒店里唯一，所以加 <code>UNIQUE (hotel_id, room_no)</code>。超键 ⊇ 候选键（最小的超键）⊇ 挑一个当主键。email、名字会变，不适合当主键。',
+              en: 'Each room gets its own room_id as the primary key. Room numbers are only unique within a hotel, so I add UNIQUE (hotel_id, room_no). I avoid natural keys like email as the primary key because they change.', go: ['c07', 'e'] },
+            { k: '两步就事务', t: '改两处就用事务（ACID）', hit: '医院、单车 · 第 6 章口试',
+              q: 'Walk me through what happens in the database when a patient moves from the ER to the ICU.',
+              a: '一个操作要改两处，就包进 <code>BEGIN … COMMIT</code>：结束 ER 那段、开 ICU 那段，要么都成，要么都不成。ACID 四个字母各举一个例子，最好用同一个转账例子讲完。',
+              en: "It's two writes in one transaction: close the ER stay and open the ICU stay at the same time. If either fails, neither happens, so the patient is never in two units or in none.", go: ['c06', 'c'] },
+            { k: '价格记在事件上', t: '成交价、应还日记在事件那一行', hit: '4 套：电影院、实习、图书馆、酒店',
+              q: 'Where does the ticket price live, and what happens when prices change?',
+              a: '目录表上的是<b>现在的标价</b>；成交那一刻的价格抄到事件行上（票价在 tickets，实际工资在 offers，应还日期在 loans）。以后改价，旧记录不会跟着变。这是一种「有理由的重复」。',
+              en: "The list price lives on the catalog table, but the price actually paid is copied onto the ticket at sale time, so changing prices later doesn't rewrite history." },
+          ] },
+          { name: '第三档', sub: '单独问到时要能说清', items: [
+            { k: '2NF · 3NF · BCNF', t: '三个范式怎么判断', hit: '第 8 章三道口试',
+              q: 'How do you tell whether a dependency violates 2NF or 3NF?',
+              a: '先找出<b>所有候选键</b>。非键列依赖组合键的<b>一部分</b> → 违反 2NF；非键列依赖<b>另一个非键列</b> → 违反 3NF；依赖的左边<b>不是超键</b> → 违反 BCNF。每种备一个例子。',
+              en: 'First I find all the candidate keys. If a non-key column depends on part of a composite key, that breaks 2NF. If it depends on another non-key column, that breaks 3NF. BCNF requires the left side of every dependency to be a superkey.', go: ['c08', 'd'] },
+            { k: '先规范再反', t: '什么时候反规范化 · OLTP 和 OLAP', hit: '医院 · 第 8 章口试',
+              q: 'Would you run these reports on the same database the nurses use?',
+              a: '先做到 3NF；只有测出某个读取确实慢才反规范化，而且要负责同步冗余。报表不跑在日常库上：日常操作是 <b>OLTP</b>，报表放到副本或数据仓库，是 <b>OLAP</b>。',
+              en: "No. The nurses' database is the OLTP side and has to stay fast. I'd copy the data to a replica or warehouse every night and run the reports there, on the OLAP side.", go: ['c08', 'f'] },
+            { k: '为什么用数据库', t: '关系型还是 NoSQL · 为什么不用 CSV', hit: '第 6 章两道口试',
+              q: 'How do you decide between a relational database and a NoSQL store?',
+              a: '关系多、出错代价高（钱、病历）→ 关系型（PostgreSQL），有约束和事务。点赞计数、会话、格式多变的 JSON → NoSQL 可以，放宽 ACID 换速度。CSV 放在每个人电脑上：没有唯一的真相、没有约束、不能多人同时写。',
+              en: "If the data is relational and mistakes are expensive, I'd use PostgreSQL for constraints and transactions. NoSQL fits when the shape is flexible or the scale is huge and losing one write is harmless, like a like counter.", go: ['c06', 'b'] },
+          ] },
+        ],
+      } },
     { h: '查询：8 个骨架', time: '20–28 分钟',
       do: ['说 SQL 的顺序：从哪张表出发 → JOIN 谁 → 留下哪些行 → 按什么分组 → 怎么排序', '每题先想：这题属于 8 个骨架里的哪一个', '最关键的一个空：「活跃条件」，也就是「这件事还在进行中」怎么写'],
       say: ['I would start from [event], join [item] and [catalog] to get [columns], keep only [condition], group by [dimension], count, and sort from most to least.'],
@@ -10963,7 +11073,8 @@ window.CHAPTERS.push({
         ['改状态 update status：把那条预约改成 fulfilled（不删行），这本副本给他留着', "UPDATE holds SET status = 'fulfilled' WHERE hold_id = :that_hold;"],
         ['通知 notify：给那位读者发邮件；整件事放进一个事务 transaction', null],
       ],
-      checks: ['只改「还没还」的那条借阅（return_date IS NULL），不是这个副本的所有借阅', '预约按书目 book_id 找，不是按副本', "只看 status = 'waiting'，按 placed_at 取最早的一条", '预约改状态（fulfilled / ready），不删除', '通知排第一的读者', '提到事务，或提到晚还要罚款'] },
+      checks: ['只改「还没还」的那条借阅（return_date IS NULL），不是这个副本的所有借阅', '预约按书目 book_id 找，不是按副本', "只看 status = 'waiting'，按 placed_at 取最早的一条", '预约改状态（fulfilled / ready），不删除', '通知排第一的读者', '提到事务，或提到晚还要罚款'],
+      say: { en: 'First I check that copy 13 has an open loan, a row in loans where return_date is null, and I set return_date to today on that one row only. If it came back late, I add a fee. Then I look for the earliest waiting hold on the book, not the copy, because holds are for the title. I mark that hold fulfilled instead of deleting it, set the copy aside for that member and email them. All of this runs in one transaction.', zh: '先确认副本 13 有一条没还的借阅（loans 里 return_date 为空的那行），只把这一行的 return_date 改成今天。如果晚还了，记一笔罚款。然后按「书」而不是按副本找最早的 waiting 预约，因为预约是针对书目的。把那条预约改成 fulfilled（不删），把这本副本留给那位读者并发邮件通知。整件事放在一个事务里。' } },
     { id: 'W2', theme: '图书馆', title: '借书',
       en: 'Member 4 wants to check out copy 7. What does the system do?',
       task: '读者 4 要借副本 7。借期 3 周。按步骤写出系统要做的事。',
@@ -10975,7 +11086,8 @@ window.CHAPTERS.push({
         ['改状态 update status：如果读者 4 有这本书的 waiting 预约，改成 fulfilled', "UPDATE holds SET status = 'fulfilled'\nWHERE member_id = 4 AND status = 'waiting'\n  AND book_id = (SELECT book_id FROM copies WHERE copy_id = 7);"],
         ['通知 notify：打印或发送借书凭条，写明到期日', null],
       ],
-      checks: ['先检查副本现在没被借走（看 return_date IS NULL 的借阅）', '考虑到有人在排队这本书', 'INSERT 一条借阅：copy、member、借出日、到期日，归还日为空', '到期日在借出时就算好（今天 + 3 周）', '读者自己的预约改成 fulfilled'] },
+      checks: ['先检查副本现在没被借走（看 return_date IS NULL 的借阅）', '考虑到有人在排队这本书', 'INSERT 一条借阅：copy、member、借出日、到期日，归还日为空', '到期日在借出时就算好（今天 + 3 周）', '读者自己的预约改成 fulfilled'],
+      say: { en: 'First I check that copy 7 is on the shelf, meaning it has no open loan. If other members are waiting for this book, member 4 has to be first in line. Then I insert a loan with the copy, the member, today\'s date and a due date three weeks out, with return_date left null. If member 4 had a waiting hold on this book, I mark it fulfilled, and I print a receipt with the due date.', zh: '先确认副本 7 在架上，也就是没有没还的借阅。如果有人在排这本书，读者 4 必须是排第一的。然后插入一条借阅：副本、读者、今天的日期、三周后的到期日，归还日留空。如果读者 4 对这本书有 waiting 预约，改成 fulfilled，最后打印写明到期日的凭条。' } },
     { id: 'W3', theme: '电影院', title: '一次买两张票',
       en: 'A customer buys two seats for tonight\'s 7:30 show. Walk me through it.',
       task: '顾客 7 买场次 12352 的 A1、A2 两个座位（seat_id 1、2），每张 14 元。按步骤写出系统要做的事。',
@@ -10988,7 +11100,8 @@ window.CHAPTERS.push({
         ['提交 COMMIT。两人同时抢同一座位时，UNIQUE(show_id, seat_id) 让后一个插入失败，整个事务回滚', null],
         ['通知 notify：发确认邮件', null],
       ],
-      checks: ['检查座位在这一场还没卖出', '先有 transaction，再插 tickets（外键）', '每张票指向场次 show_id 和座位 seat_id', '价格存在票上', '放进一个事务：要么全成功，要么全撤销', '提到 UNIQUE(show_id, seat_id) 防止重复卖'] },
+      checks: ['检查座位在这一场还没卖出', '先有 transaction，再插 tickets（外键）', '每张票指向场次 show_id 和座位 seat_id', '价格存在票上', '放进一个事务：要么全成功，要么全撤销', '提到 UNIQUE(show_id, seat_id) 防止重复卖'],
+      say: { en: 'I check that the show hasn\'t started and that neither seat is already sold for this show. Then, in one transaction, I insert a transaction row for the customer and two ticket rows that point to it, each with the show, the seat and the price paid. Because of the UNIQUE constraint on show and seat, if someone grabs one of those seats at the same moment, the insert fails and the whole purchase rolls back. Then I send a confirmation.', zh: '先确认这一场还没开始，两个座位在这一场都还没卖出。然后在一个事务里：先插一笔交易，再插两张指向它的票，每张写上场次、座位和成交价。因为有 UNIQUE(show_id, seat_id)，如果有人同时抢了其中一个座位，插入会失败，整笔购买回滚。最后发确认邮件。' } },
     { id: 'W4', theme: '电影院', title: '退一张票',
       en: 'A customer wants a refund for one of their tickets. What happens?',
       task: '顾客要退掉票 87（场次 12356 的一个座位），场次还没开始。按步骤写出系统要做的事，并说说你会删行还是改状态。',
@@ -10999,7 +11112,8 @@ window.CHAPTERS.push({
         ['写事件：两种做法。A：把票移到 refunds 表（ticket 信息 + 退款时间、金额）再从 tickets 删除，座位马上能再卖；B：给 tickets 加 status = refunded，保留历史，但 UNIQUE(show_id, seat_id) 要改成只管没退的票', "-- 做法 A\nINSERT INTO refunds (ticket_id, show_id, seat_id, amount, refunded_at)\nSELECT ticket_id, show_id, seat_id, price, datetime('now') FROM tickets WHERE ticket_id = 87;\nDELETE FROM tickets WHERE ticket_id = 87;"],
         ['放进一个事务；通知 notify 顾客退款成功', null],
       ],
-      checks: ['检查是本人的票、场次还没开始', '退款金额用票上的价格', '说出取舍：删行会丢历史，改状态要处理唯一约束', '退完座位能再卖', '放进事务，并通知顾客'] },
+      checks: ['检查是本人的票、场次还没开始', '退款金额用票上的价格', '说出取舍：删行会丢历史，改状态要处理唯一约束', '退完座位能再卖', '放进事务，并通知顾客'],
+      say: { en: 'I check that the ticket belongs to this customer and the show hasn\'t started. The refund is the price stored on the ticket, not today\'s price. Then there\'s a trade-off: I can move the ticket into a refunds table and delete it, which frees the seat right away, or mark it refunded and keep it, which keeps the history, but then the unique constraint should only cover active tickets. Either way it\'s one transaction, and I notify the customer.', zh: '先确认这张票是这位顾客的，而且场次还没开始。退款金额用票上存的价格，不是现在的价格。然后有个取舍：把票移到 refunds 表再从 tickets 删掉，座位马上能再卖；或者标成 refunded 保留历史，但唯一约束就要改成只管没退的票。不管哪种都放在一个事务里，并通知顾客。' } },
     { id: 'W5', theme: '酒店', title: '取消预订',
       en: 'A guest calls to cancel their reservation. Walk me through it.',
       task: '客人要取消预订 45（11 月 27 日入住）。按步骤写出系统要做的事。',
@@ -11011,7 +11125,8 @@ window.CHAPTERS.push({
         ['房间自动空出来：查空房时本来就排除 cancelled，不用改 rooms', null],
         ['（加分）退款记到 payments / refunds 表；通知 notify 客人', null],
       ],
-      checks: ["只在 status = 'booked' 时才取消", '改状态 cancelled，不删除', '说明房间为什么自动变回可订（查空房排除取消的预订）', '想到取消政策或退款', '通知客人'] },
+      checks: ["只在 status = 'booked' 时才取消", '改状态 cancelled，不删除', '说明房间为什么自动变回可订（查空房排除取消的预订）', '想到取消政策或退款', '通知客人'],
+      say: { en: 'I find the reservation and check that it\'s still booked, because a stay that\'s already checked in can\'t be cancelled. If it\'s close to the check-in date, the policy might charge one night. I set the status to cancelled instead of deleting the row, because the cancellation report needs it. The room frees itself, since the availability check already ignores cancelled reservations. Then I record any refund and notify the guest.', zh: '先找到这条预订，确认状态还是 booked，已经入住的不能取消。离入住日太近的话，按政策可能收一晚的钱。把状态改成 cancelled，不删行，因为取消率报表要用。房间自动空出来，因为查空房本来就排除 cancelled。最后记下退款并通知客人。' } },
     { id: 'W6', theme: '酒店', title: '办入住',
       en: 'A guest arrives at the front desk. How does check-in work in your data model?',
       task: '客人 Mara Quill 今天到店，她有一个今天入住的预订。按步骤写出系统要做的事。',
@@ -11023,7 +11138,8 @@ window.CHAPTERS.push({
         ['（加分）如果预订只订了房型、没分配具体房间，这一步才分配 room_id', null],
         ['通知 notify：发房卡，通知客房部', null],
       ],
-      checks: ['按客人 + 今天的入住日 + booked 找到预订', '确认房间已经空出来', "UPDATE 带 status = 'booked' 条件", '状态改成 checked_in', '提到分配房间或通知'] },
+      checks: ['按客人 + 今天的入住日 + booked 找到预订', '确认房间已经空出来', "UPDATE 带 status = 'booked' 条件", '状态改成 checked_in', '提到分配房间或通知'],
+      say: { en: 'I look up her reservation by guest, today\'s check-in date and status booked, and I make sure the room is free, meaning no other reservation on it is still checked in. Then I update the status to checked_in, with status = \'booked\' in the WHERE clause so it can\'t run twice. If the booking was only for a room type, this is when I assign the actual room. Then the front desk issues the key.', zh: '按客人、今天的入住日和 booked 状态找到她的预订，再确认那间房已经空出来（没有别的预订还是 checked_in）。然后把状态改成 checked_in，WHERE 里带 status = \'booked\'，这样不会重复执行。如果预订只订了房型，这一步才分配具体房间。最后前台发房卡。' } },
     { id: 'W7', theme: '健身房', title: '有人取消，候补补上',
       en: 'A class is full. Someone cancels their booking. What happens?',
       task: '会员取消了预约 booking 88（课程 session 15，已经满员，有人在候补）。按步骤写出系统要做的事。',
@@ -11035,7 +11151,8 @@ window.CHAPTERS.push({
         ['写事件 write the event：给他插一条 booked 预约，候补改成 promoted', "INSERT INTO bookings (session_id, member_id, booked_at, status)\nVALUES (15, :member, datetime('now'), 'booked');\nUPDATE waitlist SET status = 'promoted' WHERE waitlist_id = :wl;"],
         ['全部放进一个事务；通知 notify 补上的人（和取消的人）', null],
       ],
-      checks: ['取消的预约改状态，不删除', '候补按 session 找，只看 waiting，按 joined_at 取最早', '给候补的人插入新预约', '候补那条改成 promoted', '放进事务并通知'] },
+      checks: ['取消的预约改状态，不删除', '候补按 session 找，只看 waiting，按 joined_at 取最早', '给候补的人插入新预约', '候补那条改成 promoted', '放进事务并通知'],
+      say: { en: 'I check that the booking is still booked and the class hasn\'t started, then set it to cancelled instead of deleting it. Next I find the earliest waiting person on this session\'s waitlist, ordered by when they joined. I insert a booked booking for them and mark their waitlist row promoted, so they can\'t be promoted twice. All of that is one transaction, and I notify both members.', zh: '先确认这条预约还是 booked、课还没开始，然后改成 cancelled，不删行。再找这节课候补里最早加入的 waiting 那位，给他插一条 booked 预约，并把候补那行改成 promoted，避免被补两次。这些放在一个事务里，并通知两位会员。' } },
     { id: 'W8', theme: '共享单车', title: '还车',
       en: 'A rider docks bike 11 at a station. Walk me through what the system records.',
       task: '骑手把车 11 停进车站 3 的桩 dock 8。按步骤写出系统要做的事（包括算钱）。',
@@ -11047,7 +11164,8 @@ window.CHAPTERS.push({
         ['算钱：时长 = end_time - start_time，按 pass_type（会员 / 日票）的价格算；记到 payments', null],
         ['事务；通知 notify 骑手收据', null],
       ],
-      checks: ['只更新还没结束的那次骑行（end_time IS NULL）', '记下结束车站和结束时间', '更新车的位置（dock_id）', '按时长和票种算钱', '放进事务或说明两步要一起成功'] },
+      checks: ['只更新还没结束的那次骑行（end_time IS NULL）', '记下结束车站和结束时间', '更新车的位置（dock_id）', '按时长和票种算钱', '放进事务或说明两步要一起成功'],
+      say: { en: 'I find bike 11\'s open ride, where end_time is null, and check that dock 8 is free. I close only that ride, with the end station and the current time, and I set the bike\'s dock to 8. Then I work out the fare from the ride\'s length and the pass type and record a payment. Both updates go in one transaction, and the rider gets a receipt.', zh: '先找车 11 那次还没结束的骑行（end_time 为空），并确认桩 8 是空的。只结束这一次骑行，写上结束车站和当前时间，再把车的 dock_id 改成 8。然后按时长和票种算钱，记一笔付款。两个更新放在一个事务里，最后给骑手发收据。' } },
     { id: 'W9', theme: '实习网站', title: '学生申请职位',
       en: 'A student clicks "Apply" on a posting. What does the system do?',
       task: '学生 1 申请职位 19。按步骤写出系统要做的事。',
@@ -11059,7 +11177,8 @@ window.CHAPTERS.push({
         ['（可选）从收藏 saved_postings 里移掉这个职位', null],
         ['通知 notify：通知这个职位的招聘官', null],
       ],
-      checks: ["检查职位开放：status = 'open' 并且 deadline 没过（只看 status 不够）", '防止重复申请（UNIQUE 或先查）', 'INSERT 申请：学生、职位、日期、状态 submitted', '通知招聘官'] },
+      checks: ["检查职位开放：status = 'open' 并且 deadline 没过（只看 status 不够）", '防止重复申请（UNIQUE 或先查）', 'INSERT 申请：学生、职位、日期、状态 submitted', '通知招聘官'],
+      say: { en: 'I check that the posting is still open: its status is open and the deadline hasn\'t passed. I check that the student hasn\'t already applied, and a UNIQUE constraint on student and posting backs that up. Then I insert an application with today\'s date and status submitted. Optionally I remove it from their saved postings, and I notify the recruiter.', zh: '先确认职位还开放：状态是 open，截止日期也没过。再确认学生没申请过，UNIQUE(student_id, posting_id) 也会挡住重复申请。然后插入一条申请，日期是今天，状态 submitted。可以顺手把它从收藏里移掉，最后通知招聘官。' } },
   ],
   practice: [
     { id: 'T1',les: 'd', title: '① 搜索 · 电影院', prompt: '<b>电影院</b>（表 movies）：所有 R 级（<code>rating = \'R\'</code>）电影的片名和片长。',
@@ -15567,7 +15686,7 @@ function renderChapter(main) {
   ch.lessons.forEach((l, i) => {
     const r = st.les[l.id];
     const nI = l.screens.filter(isInter).length;
-    const b = btn('lnode' + (r?.done ? ' done' : '') + (l === nx && !r?.done ? ' next' : ''), `<span class="ln-dot">${r?.done ? icon('check') : i + 1}</span><span class="ln-main"><b>${esc(l.title)}</b><span>${ch.read ? `一页读完${ch.readTry && l.screens.some((s) => s.t === 'sql') ? ` · 页内 ${l.screens.filter((s) => s.t === 'sql').length} 道先写再对` : ''}${(ch.practice || []).some((p) => p.les === l.id) ? ` · 然后练 ${(ch.practice || []).filter((p) => p.les === l.id).length} 道题` : i === ch.lessons.length - 1 && (ch.practice || []).some((p) => !p.les) ? ` · 然后练 ${(ch.practice || []).filter((p) => !p.les).length} 道题` : (ch.oral || []).length ? ' · 然后练口试题' : ' · 然后考一场模拟考试'}` : `${l.min} 分钟 · ${l.screens.length} 屏 · ${nI} 个互动`}</span></span>${ch.read ? '' : `<span class="ln-stars">${[0, 1, 2].map((k) => `<i class="${k < (r?.stars || 0) ? 'on' : ''}">${icon('star')}</i>`).join('')}</span>`}`, () => openLesson(ch, l.id));
+    const b = btn('lnode' + (r?.done ? ' done' : '') + (l === nx && !r?.done ? ' next' : ''), `<span class="ln-dot">${r?.done ? icon('check') : i + 1}</span><span class="ln-main"><b>${esc(l.title)}</b><span>${ch.read ? `一页读完${ch.readTry && l.screens.some((s) => s.t === 'sql') ? ` · 页内 ${l.screens.filter((s) => s.t === 'sql').length} 道先写再对` : ''}${(ch.practice || []).some((p) => p.les === l.id) ? ` · 然后练 ${(ch.practice || []).filter((p) => p.les === l.id).length} 道题` : ch.readPlay && i === ch.lessons.length - 1 && (ch.practice || []).some((p) => !p.les) ? ` · 然后练 ${(ch.practice || []).filter((p) => !p.les).length} 道题` : ch.readPlay && (ch.oral || []).length ? ' · 然后练口试题' : ' · 然后考一场模拟考试'}` : `${l.min} 分钟 · ${l.screens.length} 屏 · ${nI} 个互动`}</span></span>${ch.read ? '' : `<span class="ln-stars">${[0, 1, 2].map((k) => `<i class="${k < (r?.stars || 0) ? 'on' : ''}">${icon('star')}</i>`).join('')}</span>`}`, () => openLesson(ch, l.id));
     path.append(b);
   });
   body.append(path);
@@ -15739,15 +15858,15 @@ function renderRead(main) {
   const end = el('div', 'rd-end');
   // pure practice for this lesson: exercises tagged with `les`, else the whole chapter's practice
   let mine = (ch.practice || []).filter((p) => p.les === les.id);
-  if (!mine.length && !nx) mine = (ch.practice || []).filter((p) => !p.les);
+  if (!mine.length && !nx && ch.readPlay) mine = (ch.practice || []).filter((p) => !p.les);
   const pz = ch.pseudo && ch.pseudoLes === les.id;
-  const oralEnd = !mine.length && !pz && (ch.oral || []).length;
+  const oralEnd = ch.readPlay && !mine.length && !pz && (ch.oral || []).length;
   if (pz) end.append(btn('btn primary big', `${icon('doc')}写伪代码：${ch.pseudo.length} 道操作题`, () => go('pseudo', { ch: ch.id, pq: ch.pseudo[0].id })));
   if (mine.length) end.append(btn(pz ? 'btn big' : 'btn primary big', `${icon('code')}练这一课的 SQL：${mine.length} 道题`, () => go('practice', { ch: ch.id, ex: mine[0].id })));
   else if (oralEnd) end.append(btn('btn primary big', `${icon('mic')}练本章口试题：${ch.oral.length} 题`, () => go('review', { rtab: 'oral', rch: ch.id, oral: ch.oral[0].id })));
   else if (!pz) end.append(btn('btn primary big', `${icon('clock')}去模拟考试练一场`, () => exOpenList()));
   finish.className = 'btn big';
-  end.prepend(el('p', 'rd-end-t', pz ? '读完就直接练：每道操作题自己按步骤写，提交后判分，参考答案提交后才显示。' : mine.length ? '读完就直接做题：只给题目，写完自动判分，答案要你点了才显示。' : oralEnd ? '读完就用英文说一遍：本章的口试题，每题都有要点和参考回答。' : '读完就去练：挑一道模拟考试题，用这一课的模板答一遍。'));
+  end.prepend(el('p', 'rd-end-t', pz ? '读完就直接练：每道操作题先自己按步骤写，再提交判分；想直接看答案也可以，每题都有参考步骤和中英口试说法。' : mine.length ? '读完就直接做题：只给题目，写完自动判分，答案要你点了才显示。' : oralEnd ? '读完就用英文说一遍：本章的口试题，每题都有要点和参考回答。' : '读完就去练：挑一道模拟考试题，用这一课的模板答一遍。'));
   end.append(finish);
   wrap.append(end);
   main.append(wrap);
@@ -15787,9 +15906,13 @@ function renderPseudo(main) {
   card.append(ta);
   const row = el('div', 'btnrow');
   const out = el('div', 'pz-out');
-  const showRef = () => {
-    out.insertAdjacentHTML('beforeend', `<div class="pz-ref"><div class="mini-h">参考步骤</div><ol>${cur.steps.map(([h, sql]) => `<li><span>${esc(h)}</span>${sql ? `<pre class="code"><code>${hl(sql)}</code></pre>` : ''}</li>`).join('')}</ol></div>`);
+  const showRef = (withPoints) => {
+    out.insertAdjacentHTML('beforeend', `<div class="pz-ref"><div class="mini-h">参考步骤</div><ol>${cur.steps.map(([h, sql]) => `<li><span>${esc(h)}</span>${sql ? `<pre class="code"><code>${hl(sql)}</code></pre>` : ''}</li>`).join('')}</ol>
+      ${withPoints ? `<div class="mini-h">判分要点</div><ul class="pz-pts">${cur.checks.map((c) => `<li>${icon('check')}<span>${esc(c)}</span></li>`).join('')}</ul>` : ''}
+      ${cur.say ? `<div class="pz-say"><div class="mini-h">口试时这样说</div><p class="pz-say-en">${esc(cur.say.en)}</p><p class="pz-say-zh">${esc(cur.say.zh)}</p></div>` : ''}</div>`);
   };
+  // straight to the answer, no submission needed
+  const peek = () => { out.innerHTML = ''; showRef(true); st.peek = true; save(); };
   const selfCheck = () => {
     out.innerHTML = '';
     showRef();
@@ -15849,11 +15972,13 @@ Reply with only a JSON object: {"score": integer 0-100 (mostly the share of chec
   };
   if (AI.ok) row.append(btn('btn primary', `${icon('spark')}提交，AI 判分`, gradeAI));
   row.append(btn(AI.ok ? 'btn' : 'btn primary', `${icon('check')}${AI.ok ? '自己对照打分' : '提交，对照参考答案'}`, () => { if (!ta.value.trim()) { toast('先写下你的步骤'); return; } selfCheck(); }));
+  row.append(btn('btn', `${icon('eye')}直接看答案`, peek));
   const i = list.indexOf(cur);
   if (list[i + 1]) row.append(btn('btn ghost', `下一题 ${icon('next')}`, () => go('pseudo', { ch: ch.id, pq: list[i + 1].id })));
   card.append(row, out);
   if (st.mode === 'ai' && st.ai) showAI(st.ai);
   else if (st.mode === 'self') selfCheck();
+  else if (st.peek) peek();
   wrap.append(card);
   main.append(wrap);
 }
@@ -15920,6 +16045,35 @@ function formulaCard(F) {
   draw();
   return box;
 }
+/* must-know concepts: mnemonic strip + three tiers of concept cards (probe → answer → say it) */
+function mustCard(M) {
+  const box = el('div', 'mu');
+  box.innerHTML = `<div class="mu-mn">${M.mn.map((w, i) => `<b class="mu-c${i % 8}">${esc(w)}</b>`).join('')}</div><p class="mu-note">${esc(M.note)}</p>`;
+  let n = 0;
+  M.tiers.forEach((T, ti) => {
+    const tier = el('div', 'mu-tier mu-t' + ti);
+    tier.innerHTML = `<div class="mu-th"><b>${esc(T.name)}</b><span>${esc(T.sub)}</span></div>`;
+    const grid = el('div', 'mu-grid');
+    T.items.forEach((it) => {
+      n += 1;
+      const c = el('article', 'mu-it');
+      c.innerHTML = `<div class="mu-ih"><span class="mu-no">${n}</span><span class="mu-k">${esc(it.k)}</span><span class="mu-hit">${esc(it.hit)}</span></div>
+        <h4>${esc(it.t)}</h4>
+        <p class="mu-q"><span>老师问</span><i>"${esc(it.q)}"</i></p>
+        <p class="mu-a">${it.a}</p>
+        <p class="mu-en"><span>照着说</span>${esc(it.en)}</p>`;
+      if (it.go && CH(it.go[0])) {
+        const g = CH(it.go[0]);
+        const les = g.lessons.find((l) => l.id === it.go[1]);
+        c.append(btn('mu-go', `${icon('next')}第 ${g.no} 章${les ? ' · ' + esc(les.title) : ''}`, () => openLesson(g, les ? les.id : g.lessons[0].id)));
+      }
+      grid.append(c);
+    });
+    tier.append(grid);
+    box.append(tier);
+  });
+  return box;
+}
 function renderSheet(main) {
   const ch = CH(ui.ch);
   setHue(ch.hue);
@@ -15937,6 +16091,7 @@ function renderSheet(main) {
       ${sec.say ? `<div class="sh-say"><span class="mini-h">照着说</span>${sec.say.map((x) => `<p>${slot(esc(x))}</p>`).join('')}</div>` : ''}
       ${sec.code ? `<pre class="code sh-code"><code>${slot(hl(sec.code))}</code></pre>` : ''}`;
     if (sec.formula) c.append(formulaCard(sec.formula));
+    if (sec.must) c.append(mustCard(sec.must));
     list.append(c);
   });
   wrap.append(list);
