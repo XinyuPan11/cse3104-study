@@ -11978,6 +11978,7 @@ window.CHAPTERS.push({
   id: 'c18', no: 18, cls: '考场实战', title: '考场实战：career center 与表关系', en: 'Career center, relationships, and your own project',
   blurb: '考完的同学说：默认题是 career center，开场会问你的专业和项目，可能当场换题；教授最看重一对多、多对多。这一章把这三件事讲透，重点都标了出来。',
   hue: 150, db: 'internship', read: true, readTry: true, source: '同学考完后的反馈 + 实习网站模拟题数据',
+  answers: [['internship', 'career center 默认题：从开场到收尾，中英对照'], ['flight', '你的项目被换成考题时：中英对照，重点讲关系']],
   lessons: [
     {
       id: 'a', title: '考场情报：考什么、教授看什么', min: 4,
@@ -12611,6 +12612,343 @@ window.MOCKS.push({
     close: {
       en: "To sum up: the dimension tables are movies, showtimes, locations, screens, seats and customers, and the fact tables are transactions and tickets. Movies and showtimes are split, and locations and screens are split, so nothing is stored twice. A ticket is one seat for one showing, and UNIQUE (show_id, seat_id) stops double sales; the price is stored on the ticket. Every report starts from tickets, joins showtimes and movies, then filters by starts_at and groups. If volume grows, I'd move reporting to a nightly data warehouse.",
       zh: '总结一下：维度表是 movies、showtimes、locations、screens、seats、customers，事实表是 transactions 和 tickets。电影和场次分开、影院和影厅分开，所以没有东西重复存。一张票 = 一个座位 + 一场放映，UNIQUE (show_id, seat_id) 防止重复卖票；票价存在票上。所有报表都从 tickets 出发，JOIN showtimes 和 movies，再按 starts_at 过滤、分组。量变大以后，把报表挪到每晚同步的数据仓库。',
+    },
+  },
+});
+
+/* Full mock interview: the learner's own project, shortest flight paths between airports (original scenario).
+   Defines its own `flight` seed. Route distances are haversine great-circle km from the airport coordinates;
+   each search's path_legs are the Dijkstra shortest path over the routes active when it ran. "Today" is 2026-11-20. */
+window.SEEDS = window.SEEDS || {};
+window.SEEDS.flight = `
+CREATE TABLE airlines (airline_id INTEGER PRIMARY KEY, name TEXT NOT NULL, iata TEXT UNIQUE);
+INSERT INTO airlines VALUES
+ (1,'American Airlines','AA'),
+ (2,'United Airlines','UA'),
+ (3,'Delta Air Lines','DL'),
+ (4,'Southwest Airlines','WN'),
+ (5,'British Airways','BA'),
+ (6,'All Nippon Airways','NH'),
+ (7,'Air France','AF'),
+ (8,'Frontier Airlines','F9');
+CREATE TABLE airports (airport_id INTEGER PRIMARY KEY, iata TEXT NOT NULL UNIQUE, name TEXT NOT NULL, city TEXT, country TEXT, lat REAL, lon REAL);
+INSERT INTO airports VALUES
+ (1,'STL','St. Louis Lambert','St. Louis','United States',38.7487,-90.37),
+ (2,'ORD','Chicago O''Hare','Chicago','United States',41.9786,-87.9048),
+ (3,'ATL','Atlanta Hartsfield-Jackson','Atlanta','United States',33.6367,-84.4281),
+ (4,'DFW','Dallas/Fort Worth','Dallas','United States',32.8968,-97.038),
+ (5,'DEN','Denver','Denver','United States',39.8617,-104.6731),
+ (6,'SEA','Seattle-Tacoma','Seattle','United States',47.449,-122.3093),
+ (7,'LAX','Los Angeles','Los Angeles','United States',33.9425,-118.4081),
+ (8,'JFK','New York JFK','New York','United States',40.6398,-73.7789),
+ (9,'LHR','London Heathrow','London','United Kingdom',51.4706,-0.4619),
+ (10,'CDG','Paris Charles de Gaulle','Paris','France',49.0128,2.55),
+ (11,'NRT','Tokyo Narita','Tokyo','Japan',35.7647,140.3864),
+ (12,'MCI','Kansas City','Kansas City','United States',39.2976,-94.7139);
+CREATE TABLE routes (route_id INTEGER PRIMARY KEY, airline_id INTEGER NOT NULL REFERENCES airlines(airline_id), from_airport_id INTEGER NOT NULL REFERENCES airports(airport_id), to_airport_id INTEGER NOT NULL REFERENCES airports(airport_id), distance_km INTEGER NOT NULL, active INTEGER NOT NULL DEFAULT 1, CHECK (from_airport_id <> to_airport_id), UNIQUE (airline_id, from_airport_id, to_airport_id));
+INSERT INTO routes VALUES
+ (1,1,1,2,415,1),
+ (2,2,1,2,415,1),
+ (3,4,1,2,415,1),
+ (4,1,2,1,415,1),
+ (5,2,2,1,415,1),
+ (6,4,2,1,415,1),
+ (7,3,1,3,779,1),
+ (8,4,1,3,779,1),
+ (9,3,3,1,779,1),
+ (10,4,3,1,779,1),
+ (11,1,1,4,885,1),
+ (12,1,4,1,885,1),
+ (13,4,1,5,1236,1),
+ (14,4,5,1,1236,1),
+ (15,4,1,7,2557,0),
+ (16,4,7,1,2557,1),
+ (17,1,2,9,6344,1),
+ (18,2,2,9,6344,1),
+ (19,5,2,9,6344,1),
+ (20,1,9,2,6344,1),
+ (21,2,9,2,6344,1),
+ (22,5,9,2,6344,1),
+ (23,2,2,11,10074,1),
+ (24,6,2,11,10074,1),
+ (25,2,11,2,10074,1),
+ (26,6,11,2,10074,1),
+ (27,2,2,6,2762,1),
+ (28,1,2,6,2762,1),
+ (29,2,6,2,2762,1),
+ (30,1,6,2,2762,1),
+ (31,1,2,8,1188,1),
+ (32,2,2,8,1188,1),
+ (33,1,8,2,1188,1),
+ (34,2,8,2,1188,1),
+ (35,2,2,10,6664,1),
+ (36,7,2,10,6664,1),
+ (37,2,10,2,6664,1),
+ (38,7,10,2,6664,1),
+ (39,3,3,10,7056,1),
+ (40,7,3,10,7056,1),
+ (41,3,10,3,7056,1),
+ (42,7,10,3,7056,1),
+ (43,3,3,9,6761,1),
+ (44,3,9,3,6761,1),
+ (45,1,4,9,7627,1),
+ (46,5,4,9,7627,1),
+ (47,1,9,4,7627,1),
+ (48,5,9,4,7627,1),
+ (49,1,4,11,10322,1),
+ (50,1,11,4,10322,1),
+ (51,2,5,6,1645,1),
+ (52,4,5,6,1645,1),
+ (53,2,6,5,1645,1),
+ (54,4,6,5,1645,1),
+ (55,2,5,7,1385,1),
+ (56,4,5,7,1385,1),
+ (57,2,7,5,1385,1),
+ (58,4,7,5,1385,1),
+ (59,6,7,11,8754,1),
+ (60,6,11,7,8754,1),
+ (61,3,6,11,7656,1),
+ (62,3,11,6,7656,1),
+ (63,5,8,9,5540,1),
+ (64,1,8,9,5540,1),
+ (65,3,8,9,5540,1),
+ (66,5,9,8,5540,1),
+ (67,1,9,8,5540,1),
+ (68,3,9,8,5540,1),
+ (69,7,8,10,5834,1),
+ (70,3,8,10,5834,1),
+ (71,7,10,8,5834,1),
+ (72,3,10,8,5834,1),
+ (73,6,8,11,10830,1),
+ (74,6,11,8,10830,1),
+ (75,1,7,8,3974,1),
+ (76,3,7,8,3974,1),
+ (77,1,8,7,3974,1),
+ (78,3,8,7,3974,1),
+ (79,4,12,5,855,1),
+ (80,4,5,12,855,1),
+ (81,8,1,5,1236,0),
+ (82,8,5,7,1385,0);
+CREATE TABLE flights (flight_id INTEGER PRIMARY KEY, route_id INTEGER NOT NULL REFERENCES routes(route_id), flight_no TEXT NOT NULL, departs_at TEXT NOT NULL);
+INSERT INTO flights VALUES
+ (1,23,'UA123','2026-11-21 11:10'),
+ (2,23,'UA123','2026-11-22 11:10'),
+ (3,24,'NH124','2026-11-21 10:40'),
+ (4,24,'NH124','2026-11-22 10:40'),
+ (5,1,'AA101','2026-11-21 06:00'),
+ (6,1,'AA101','2026-11-21 12:30'),
+ (7,1,'AA101','2026-11-21 17:45'),
+ (8,3,'WN103','2026-11-21 07:15'),
+ (9,3,'WN103','2026-11-21 15:20');
+CREATE TABLE searches (search_id INTEGER PRIMARY KEY, from_airport_id INTEGER NOT NULL REFERENCES airports(airport_id), to_airport_id INTEGER NOT NULL REFERENCES airports(airport_id), searched_at TEXT NOT NULL, direct_km INTEGER NOT NULL);
+INSERT INTO searches VALUES
+ (1,1,11,'2026-09-28 14:10',10228),
+ (2,1,7,'2026-10-02 09:30',2557),
+ (3,1,11,'2026-10-22 08:15',10228),
+ (4,1,9,'2026-10-25 19:40',6742),
+ (5,1,11,'2026-10-30 11:05',10228),
+ (6,12,11,'2026-11-02 16:20',9938),
+ (7,1,10,'2026-11-05 10:00',7059),
+ (8,6,9,'2026-11-08 21:30',7702),
+ (9,1,9,'2026-11-11 07:45',6742),
+ (10,5,8,'2026-11-14 13:15',2610),
+ (11,1,11,'2026-11-17 18:50',10228),
+ (12,3,11,'2026-11-19 09:25',11002);
+CREATE TABLE path_legs (search_id INTEGER NOT NULL REFERENCES searches(search_id), leg_no INTEGER NOT NULL, route_id INTEGER NOT NULL REFERENCES routes(route_id), PRIMARY KEY (search_id, leg_no));
+INSERT INTO path_legs VALUES
+ (1,1,1),
+ (1,2,23),
+ (2,1,15),
+ (3,1,1),
+ (3,2,23),
+ (4,1,1),
+ (4,2,17),
+ (5,1,1),
+ (5,2,23),
+ (6,1,79),
+ (6,2,51),
+ (6,3,61),
+ (7,1,1),
+ (7,2,35),
+ (8,1,29),
+ (8,2,17),
+ (9,1,1),
+ (9,2,17),
+ (10,1,14),
+ (10,2,1),
+ (10,3,31),
+ (11,1,1),
+ (11,2,23),
+ (12,1,9),
+ (12,2,1),
+ (12,3,23);
+`;
+window.MOCKS = window.MOCKS || [];
+window.MOCKS.push({
+  id: 'flight', order: 8, title: '你的项目：航班最短路径', en: 'Shortest flight paths (your project)', tag: '你的项目', seed: 'flight', today: '2026-11-20',
+  brief: '开场你说了自己的项目「两个机场之间怎么飞最短」，教授当场让你设计它背后的数据系统：机场、航空公司、航线、每次搜索和最短路径的每一段。重点是讲清每条线是一对多还是多对多。',
+  prompt: [
+    "You mentioned your project on finding the shortest way to fly between two airports. Let's make that the design question. Suppose we're building the data system behind a small route-search service: someone types in two airports, and we return the shortest way to fly between them using real airline routes. Walk me through how you would design it, down to a database schema, meaning a set of tables and their columns. After that, I'll ask how a few queries would work.",
+    "We have airports with their coordinates, the airlines, and the routes each airline flies. Routes change every season: airlines add new ones and drop old ones. We also want to keep every search and the path we returned, so we can study how people use the service and how much real routes make them detour compared with the straight-line distance.",
+  ],
+  stories: {
+    ops: [
+      'As a traveler, I want to search for the shortest way to fly from one airport to another.',
+      'As a traveler, I want to see each leg of that path, in order, with airport codes, airlines and distances.',
+      'As a traveler, I want to see where I can fly nonstop from my home airport.',
+      'As a traveler, I want to see the scheduled flights on a route for a given day.',
+      'As a data maintainer, I want to add a route when an airline starts flying it.',
+      'As a data maintainer, I want to mark a route as discontinued without breaking old search results.',
+    ],
+    analytic: [
+      'As an analyst, I want to know which searches forced the biggest detour compared with the straight-line distance.',
+      'As an analyst, I want to know which airports most often show up as connections in shortest paths.',
+      'As an analyst, I want to know the most searched airport pairs over the last 30 days.',
+      'As an analyst, I want to know how many active routes each airline flies, including airlines with none.',
+    ],
+  },
+  closing: "That's the setup. Design a data model, a set of tables, that supports these stories. Any questions before you start?",
+  clarify: [
+    ['Is a route one direction, or both ways?', 'One direction. St. Louis to Chicago and Chicago to St. Louis are two separate routes, even if the same airline flies both.'],
+    ['Can several airlines fly the same pair of airports?', 'Yes, often. Chicago to London is flown by three airlines in this data.'],
+    ['Do we deal with prices or seats?', 'No. Distance only. The goal is the shortest path, not the cheapest ticket.'],
+    ['How big is the data?', 'About 7,000 airports and around 67,000 routes worldwide, and a few thousand searches a day.'],
+    ['If a route is dropped, should old searches still show the path they returned?', "Yes. We want to study past searches exactly as they happened."],
+  ],
+  stakeholders: ['旅客 travelers：输入两个机场，看最短路径的每一段、直飞能去哪、某天有哪些航班', '数据维护 data maintainers：航空公司新开或停飞航线时更新 routes', '分析人员 analysts（也就是你自己做研究）：绕路比例、中转枢纽、热门搜索、各航空公司航线数'],
+  nouns: ['airport（机场：代码 + 经纬度）', 'airline（航空公司）', 'route（航线：某家航空公司从 A 飞到 B）', 'flight（航班：某条航线某天的一班）', 'search（一次查询：起点、终点、时间）', 'leg（最短路径里的一段）', 'great-circle distance（直线大圆距离）'],
+  checklist: ['先问了：航线是不是单向、同一对机场能不能有好几家航空公司、停飞后旧搜索还要不要', '讲出机场 ↔ 机场是多对多，routes 是中间表，两个外键都指向 airports', '讲出搜索 ↔ 航线是多对多，path_legs 是中间表，leg_no 记顺序', '停飞改 active，不删行，旧搜索的路径还在', '说清 Dijkstra 在内存里算，数据库负责存航线和记录搜索'],
+  model: {
+    ents: [
+      { id: 'al', name: 'airlines', cols: ['airline_id PK', 'name', 'iata UNIQUE'], x: 0, y: 0 },
+      { id: 'r', name: 'routes', cols: ['route_id PK', 'airline_id FK', 'from_airport_id FK', 'to_airport_id FK', 'distance_km', 'active'], x: 1, y: 0 },
+      { id: 'a', name: 'airports', cols: ['airport_id PK', 'iata UNIQUE', 'name', 'city', 'country', 'lat', 'lon'], x: 2, y: 0 },
+      { id: 'f', name: 'flights', cols: ['flight_id PK', 'route_id FK', 'flight_no', 'departs_at'], x: 0, y: 1 },
+      { id: 'pl', name: 'path_legs', cols: ['search_id PK FK', 'leg_no PK', 'route_id FK'], x: 1, y: 1 },
+      { id: 's', name: 'searches', cols: ['search_id PK', 'from_airport_id FK', 'to_airport_id FK', 'searched_at', 'direct_km'], x: 2, y: 1 },
+    ],
+    rels: [
+      { a: 'al', b: 'r', card: '1:N', label: '运营' }, { a: 'a', b: 'r', card: '1:N', label: '出发 / 到达' },
+      { a: 'r', b: 'f', card: '1:N', label: '每天几班' }, { a: 'r', b: 'pl', card: '1:N' },
+      { a: 's', b: 'pl', card: '1:N', label: '第几段' }, { a: 'a', b: 's', card: '1:N', label: '起点 / 终点' },
+    ],
+  },
+  design: [
+    '<b>机场 ↔ 机场是多对多</b>：一个机场飞往很多机场，也被很多机场飞来。中间表就是 routes，它的两个外键 <code>from_airport_id</code>、<code>to_airport_id</code> <b>都指向 airports</b>（自己和自己多对多）。加 <code>CHECK (from_airport_id &lt;&gt; to_airport_id)</code>，不能自己飞自己。',
+    '<b>航线是单向的、属于一家航空公司</b>：STL → ORD 和 ORD → STL 是两行；同一对机场三家航空公司飞，就是三行。<code>UNIQUE (airline_id, from_airport_id, to_airport_id)</code> 防止重复。航空公司 → 航线是一对多。',
+    '<b>距离存在 routes 上</b>：<code>distance_km</code> 用两端机场的经纬度、haversine 公式算一次存下来，Dijkstra 和报表都直接用，不用每次重算。机场坐标几乎不会变。',
+    '<b>搜索 ↔ 航线是多对多</b>：一次搜索的最短路径由好几段航线组成，一条航线也出现在很多次搜索里。中间表 path_legs，主键 <code>(search_id, leg_no)</code>，leg_no 记第几段，顺序就不会丢。',
+    '<b>停飞不删行</b>：routes 加 <code>active</code>。停飞改成 0，Dijkstra 只用 active = 1 的航线；旧搜索的 path_legs 还指着这条航线，历史照样能查。示例数据里 Southwest 停飞了 STL → LAX，10 月 2 日那次搜索还用过它。',
+    '<b>Dijkstra 不在 SQL 里跑</b>：全世界约 6.7 万条航线，整张读进内存用 networkx 建图很轻松。数据库负责存机场、航线，记录每次搜索和结果；搜索日志每晚导到数据仓库做分析。',
+  ],
+  probes: [
+    'Is a route one row for both directions, or two rows? Why?',
+    'Three airlines fly Chicago to London. What does that look like in your tables, and what does Dijkstra see?',
+    'Delta stops flying Seattle to Tokyo, but an old search used that route. What do you do?',
+    'Why store direct_km on searches instead of computing it every time?',
+    'How would you find the airports that act as hubs?',
+    'Would you run the shortest-path algorithm inside the database?',
+  ],
+  queries: [
+    { q: 'Show me every airport with its code, city and coordinates.', zh: '列出所有机场的代码、城市和经纬度', ordered: true, spec: '每个机场一行，输出 <code>iata, name, city, country, lat, lon</code>，按 iata 排序',
+      sql: "SELECT iata, name, city, country, lat, lon\nFROM airports\nORDER BY iata;" },
+    { q: 'Where can I fly nonstop from St. Louis right now?', zh: '现在从 St. Louis 能直飞哪些机场', exam: true, ordered: true, spec: '只算 active = 1 的航线；每个目的地只列一次（同一个目的地可能有好几家航空公司），输出 <code>to_code, city</code>，按 to_code 排序',
+      sql: "SELECT DISTINCT b.iata AS to_code, b.city\nFROM routes r\nJOIN airports a ON a.airport_id = r.from_airport_id\nJOIN airports b ON b.airport_id = r.to_airport_id\nWHERE a.iata = 'STL' AND r.active = 1\nORDER BY to_code;",
+      note: 'STL → ORD 有三家航空公司，不加 DISTINCT 会出现三次。LAX 不在结果里：Southwest 已经停飞 STL → LAX（active = 0）。' },
+    { q: 'Walk me through search 6: show each leg in order.', zh: '搜索 6 的每一段，按顺序', exam: true, ordered: true, spec: '搜索 6（MCI → NRT）的每一段一行，输出 <code>leg_no, from_code, to_code, airline, distance_km</code>，按 leg_no 排序',
+      sql: "SELECT pl.leg_no, a.iata AS from_code, b.iata AS to_code, al.name AS airline, r.distance_km\nFROM path_legs pl\nJOIN routes r    ON r.route_id = pl.route_id\nJOIN airports a  ON a.airport_id = r.from_airport_id\nJOIN airports b  ON b.airport_id = r.to_airport_id\nJOIN airlines al ON al.airline_id = r.airline_id\nWHERE pl.search_id = 6\nORDER BY pl.leg_no;",
+      note: 'routes 有两个外键都指向 airports，所以 airports 要 JOIN 两次，用两个别名 a 和 b。' },
+    { q: 'Which searches had the biggest detour compared with the straight-line distance?', zh: '哪些搜索绕路最多', exam: true, ordered: true, spec: '每次搜索：实际路径总长 ÷ 直线距离，保留 2 位。输出 <code>search_id, from_code, to_code, path_km, direct_km, detour</code>，按 detour 从大到小、相同按 search_id，取前 5 行',
+      sql: "SELECT s.search_id, f.iata AS from_code, t.iata AS to_code,\n       SUM(r.distance_km) AS path_km, s.direct_km,\n       ROUND(SUM(r.distance_km) * 1.0 / s.direct_km, 2) AS detour\nFROM searches s\nJOIN airports f   ON f.airport_id = s.from_airport_id\nJOIN airports t   ON t.airport_id = s.to_airport_id\nJOIN path_legs pl ON pl.search_id = s.search_id\nJOIN routes r     ON r.route_id = pl.route_id\nGROUP BY s.search_id, f.iata, t.iata, s.direct_km\nORDER BY detour DESC, s.search_id\nLIMIT 5;",
+      note: 'SEA → LHR 绕路最多（1.18）：数据里没有 Seattle 直飞 London，只能经过 Chicago。乘 1.0 避免整数除法。' },
+    { q: 'Which airports show up most often as connections in the shortest paths?', zh: '最短路径里最常当中转的机场', exam: true, ordered: true, spec: '中转 = 某段的到达机场，但不是这次搜索的最后一段。输出 <code>iata, connections</code>，按 connections 从多到少、相同按 iata',
+      sql: "SELECT a.iata, COUNT(*) AS connections\nFROM path_legs pl\nJOIN routes r   ON r.route_id = pl.route_id\nJOIN airports a ON a.airport_id = r.to_airport_id\nWHERE pl.leg_no < (SELECT MAX(p2.leg_no) FROM path_legs p2 WHERE p2.search_id = pl.search_id)\nGROUP BY a.airport_id, a.iata\nORDER BY connections DESC, a.iata;",
+      note: '最后一段的到达机场是终点，不算中转，所以用子查询找出这次搜索的最大 leg_no 排除掉。ORD 当了 10 次中转。' },
+    { q: 'What were the most searched airport pairs over the last 30 days?', zh: '过去 30 天搜得最多的机场对', exam: true, ordered: true, spec: '过去 30 天 = searched_at ≥ 2026-10-21。输出 <code>from_code, to_code, searches</code>，按 searches 从多到少，相同按 from_code、to_code',
+      sql: "SELECT f.iata AS from_code, t.iata AS to_code, COUNT(*) AS searches\nFROM searches s\nJOIN airports f ON f.airport_id = s.from_airport_id\nJOIN airports t ON t.airport_id = s.to_airport_id\nWHERE s.searched_at >= '2026-10-21'\nGROUP BY f.iata, t.iata\nORDER BY searches DESC, from_code, to_code;" },
+    { q: 'How many active routes does each airline fly? Include airlines with none.', zh: '每家航空公司现在有几条航线（没有的写 0）', exam: true, ordered: true, spec: '每家航空公司一行（8 家都要出现），只数 active = 1 的航线。输出 <code>airline, routes</code>，按 routes 从多到少、相同按 airline',
+      sql: "SELECT al.name AS airline, COUNT(r.route_id) AS routes\nFROM airlines al\nLEFT JOIN routes r ON r.airline_id = al.airline_id AND r.active = 1\nGROUP BY al.airline_id, al.name\nORDER BY routes DESC, airline;",
+      note: 'Frontier 的两条航线都停飞了。active = 1 要写在 ON 里；写在 WHERE 会把 Frontier 整行删掉，0 就显示不出来。' },
+    { q: 'Which flights leave Chicago for Tokyo on November 21?', zh: '11 月 21 日 Chicago 飞 Tokyo 的航班', ordered: true, spec: 'ORD → NRT、departs_at 在 2026-11-21 当天，输出 <code>flight_no, airline, departs_at</code>，按 departs_at 排序',
+      sql: "SELECT f.flight_no, al.name AS airline, f.departs_at\nFROM flights f\nJOIN routes r    ON r.route_id = f.route_id\nJOIN airlines al ON al.airline_id = r.airline_id\nJOIN airports a  ON a.airport_id = r.from_airport_id\nJOIN airports b  ON b.airport_id = r.to_airport_id\nWHERE a.iata = 'ORD' AND b.iata = 'NRT'\n  AND f.departs_at >= '2026-11-21' AND f.departs_at < '2026-11-22'\nORDER BY f.departs_at;" },
+    { q: 'Delta stops flying Seattle to Tokyo. Record that.', zh: 'Delta 停飞 Seattle → Tokyo', dml: true, spec: '把 Delta 的 SEA → NRT 航线标成停飞（active = 0），不要删行',
+      sql: "UPDATE routes SET active = 0\nWHERE airline_id = (SELECT airline_id FROM airlines WHERE iata = 'DL')\n  AND from_airport_id = (SELECT airport_id FROM airports WHERE iata = 'SEA')\n  AND to_airport_id = (SELECT airport_id FROM airports WHERE iata = 'NRT');",
+      check: "SELECT r.route_id, al.iata AS airline, r.active\nFROM routes r JOIN airlines al ON al.airline_id = r.airline_id\nWHERE r.from_airport_id = 6 AND r.to_airport_id = 11;",
+      note: '不能 DELETE：搜索 6 的第 3 段 path_legs 还指着这条航线（route 61）。删了，旧搜索的路径就断了。' },
+    { q: 'United starts flying St. Louis to Seattle. Add the route.', zh: 'United 新开 St. Louis → Seattle', dml: true, spec: '新增一条航线：United（airline_id = 2），STL（1）→ SEA（6），distance_km = 2744（haversine 算出来的），active = 1；route_id 让数据库自动生成',
+      sql: "INSERT INTO routes (airline_id, from_airport_id, to_airport_id, distance_km, active)\nVALUES (2, 1, 6, 2744, 1);",
+      check: "SELECT al.iata AS airline, a.iata AS from_code, b.iata AS to_code, r.distance_km, r.active\nFROM routes r\nJOIN airlines al ON al.airline_id = r.airline_id\nJOIN airports a ON a.airport_id = r.from_airport_id\nJOIN airports b ON b.airport_id = r.to_airport_id\nWHERE a.iata = 'STL' AND b.iata = 'SEA';" },
+  ],
+  /* bilingual model answer for the 「标准答卷」 page: what to say, in exam order (en = say this, zh = what it means) */
+  answer: {
+    open: {
+      en: "Sure. Let me make sure I have the scope. People type in two airports, and we return the shortest way to fly between them using real airline routes. We keep the airports, airlines and routes, which change every season, and we log every search with the path we returned, so we can analyze detours and usage. Before I design anything, a few quick questions.",
+      zh: '好的，我先确认范围：用户输入两个机场，我们用真实航线返回最短的飞法。要存机场、航空公司和每季都会变的航线，还要记录每次搜索和返回的路径，用来分析绕路和使用情况。设计之前，我先问几个问题。',
+    },
+    clarifyZh: [
+      '问：航线是单向的还是双向的？｜答：单向。St. Louis → Chicago 和 Chicago → St. Louis 是两条航线，即使是同一家航空公司飞。',
+      '问：同一对机场能有好几家航空公司飞吗？｜答：能，很常见。这份数据里 Chicago → London 有三家航空公司。',
+      '问：要管票价和座位吗？｜答：不用，只看距离。目标是最短路径，不是最便宜的票。',
+      '问：数据有多大？｜答：全世界大约 7,000 个机场、约 6.7 万条航线，每天几千次搜索。',
+      '问：航线停飞以后，旧搜索还要显示当时返回的路径吗？｜答：要。我们要按当时的样子研究过去的搜索。',
+    ],
+    people: {
+      en: "The users are travelers, who search for a shortest path and look at its legs, nonstop options and flights; data maintainers, who add routes and mark dropped ones as airlines change their schedules; and analysts, which is really me in this project, who look at detours, hub airports and popular searches.",
+      zh: '使用者有三类：旅客（搜最短路径，看每一段、直飞能去哪、有哪些航班）；数据维护人员（航空公司调整时刻表时，新增航线、标记停飞）；分析人员，其实就是做这个项目的我（看绕路、枢纽机场、热门搜索）。',
+    },
+    tech: {
+      en: "The data is relational with clear keys, and it's small: about 67,000 routes. So I'd store it in PostgreSQL. For the shortest path itself, I'd load the active routes into memory as a graph, with networkx or a small service, and run Dijkstra there, because graph search in SQL is slow and awkward. The database stores the airports and routes and logs every search and its legs. The search logs are append-only, so for analysis I'd copy them nightly to a warehouse or Parquet files, which keeps heavy reports off the live database.",
+      zh: '数据是关系型的，键很清楚，而且不大：约 6.7 万条航线，所以存在 PostgreSQL。最短路径本身，把 active 航线读进内存建图（networkx 或一个小服务），在那里跑 Dijkstra，因为在 SQL 里做图搜索又慢又别扭。数据库负责存机场、航线，记录每次搜索和每一段。搜索日志只增不改，分析时每晚复制到数据仓库或 Parquet 文件，重报表不压在线上库。',
+    },
+    walk: {
+      en: "I'll start with the dimension tables. airports has one row per airport: the IATA code, which is unique, the name, city, country, and lat and lon. airlines has one row per airline with its code.\nThe key table is routes. A route connects two airports, and an airport has routes to many other airports, so airports and airports are many-to-many. routes is the junction table: from_airport_id and to_airport_id are both foreign keys to airports, with a check that they're different. It also has airline_id, because a route belongs to one airline, so airlines to routes is one-to-many. A route is one direction, and if three airlines fly the same pair, that's three rows, with a unique constraint on airline, from and to. I store distance_km once, computed with the haversine formula from the coordinates. And active marks dropped routes, so I never delete a route that old searches point to.\nflights hangs under routes, one row per scheduled departure, so routes to flights is one-to-many.\nThen the event tables. searches has one row per search: the from and to airports, both foreign keys to airports, the time, and direct_km, the great-circle distance. path_legs is the second many-to-many: a search's path has several routes, and a route appears in many searches. Its key is search_id plus leg_no, so the order of the legs is kept.",
+      zh: '先说维度表。airports 一个机场一行：IATA 代码（唯一）、名称、城市、国家、lat 和 lon。airlines 一家航空公司一行，带代码。\n最关键的是 routes。一条航线连接两个机场，一个机场飞往很多机场，所以机场和机场是多对多。routes 就是中间表：from_airport_id 和 to_airport_id 都是指向 airports 的外键，再加一个检查保证两者不同。它还有 airline_id，因为一条航线属于一家航空公司，所以航空公司到航线是一对多。航线是单向的；同一对机场三家航空公司飞，就是三行，用 (airline, from, to) 的唯一约束防重复。distance_km 用经纬度和 haversine 公式算一次存下来。active 标记停飞，这样旧搜索指着的航线永远不用删。\nflights 挂在 routes 下面，一班一行，所以航线到航班是一对多。\n然后是事件表。searches 一次搜索一行：起点和终点机场（都是指向 airports 的外键）、时间、direct_km 直线大圆距离。path_legs 是第二个多对多：一次搜索的路径有好几段航线，一条航线也出现在很多次搜索里。它的主键是 search_id 加 leg_no，所以每一段的顺序不会丢。',
+    },
+    core: {
+      tables: [
+        ['x', 'airports', '地点：代码、经纬度只存一次'],
+        ['x', 'airlines', '航空公司：一家 → 很多航线（一对多）'],
+        ['c', 'routes', '机场 ↔ 机场多对多的中间表：两个外键都指向 airports；单向；active 标停飞'],
+        ['e', 'searches', '事件：一次查询的起点、终点、时间、直线距离'],
+        ['e', 'path_legs', '搜索 ↔ 航线多对多：最短路径的每一段，主键 (search_id, leg_no)'],
+      ],
+      extra: [['flights', 'need', '需求「某天某条航线有哪些航班」：一条航线每天好几班，航线 → 航班一对多']],
+      say: { en: "I'd start with five tables. airports and airlines are the dimensions. routes is the heart of it: a route connects two airports, so airports and airports are many-to-many, and routes is the junction table with two foreign keys that both point to airports, plus airline_id, since one airline has many routes. searches logs each query, and path_legs is the second many-to-many, between searches and routes, with a leg number to keep the order. Checking the stories, travelers also want flights on a given day, so I'd add flights under routes.",
+        zh: '先画五张表。airports 和 airlines 是维度表。routes 是核心：一条航线连两个机场，所以机场和机场是多对多，routes 是中间表，两个外键都指向 airports，再加 airline_id，因为一家航空公司有很多航线。searches 记录每次查询，path_legs 是第二个多对多（搜索和航线之间），用 leg_no 记顺序。再对着需求检查：旅客还要看某天的航班，所以在 routes 下面补一张 flights。' },
+    },
+    anom: {
+      en: "This design avoids the three anomalies. An airport's name or coordinates live only in airports, so a change is one update, not one per route. A new airport can be added before any airline flies there. And because I mark routes inactive instead of deleting them, dropping a route never loses the old searches that used it.",
+      zh: '这个设计避免了三种异常：机场的名称、坐标只存在 airports，改一次就行，不用每条航线都改（更新异常）；新机场还没有航线也能先加（插入异常）；航线停飞是改 active 不是删行，所以停飞不会弄丢用过它的旧搜索（删除异常）。',
+    },
+    probes: [
+      { en: "Two rows. A route is one direction: St. Louis to Chicago and Chicago to St. Louis are separate, because an airline can fly one without the other, and the graph for Dijkstra is directed. The distance is the same both ways, but storing it twice is fine, since it never changes.",
+        zh: '两行。航线是单向的：St. Louis → Chicago 和 Chicago → St. Louis 分开存，因为航空公司可以只飞一个方向，Dijkstra 用的图也是有向的。两个方向距离一样，存两次没关系，因为它不会变。' },
+      { en: "Three rows in routes with the same from and to airports and different airline_ids, and the unique constraint on airline, from and to stops duplicates. Dijkstra only cares about the distance, so all three are the same edge to it; when I save the path, path_legs points to one specific route, so we still know which airline the leg used.",
+        zh: 'routes 里三行，起点终点一样，airline_id 不同；(airline, from, to) 的唯一约束防重复。Dijkstra 只看距离，所以三行对它来说是同一条边；保存路径时，path_legs 指向其中一条具体航线，所以还能知道那一段是哪家航空公司。' },
+      { en: "I don't delete it. I set active to 0. Search 6, from Kansas City to Tokyo, has a leg on that Delta route, so deleting it would break the old path, or the foreign key would block the delete. With active = 0, new searches skip it, and the old search still shows exactly what it returned.",
+        zh: '不删，把 active 改成 0。搜索 6（Kansas City → Tokyo）有一段用的就是这条 Delta 航线，删了旧路径就断了，或者外键会直接拦住删除。改成 active = 0 以后，新搜索不会再用它，旧搜索还能显示当时返回的结果。' },
+      { en: "It's derived from the coordinates, so strictly I could compute it. But storing it at search time keeps the detour report a simple query, and it's cheap: one number per search. Airport coordinates basically never change, so it can't go stale in practice. If I wanted to avoid storing it, I'd use a view that computes it.",
+        zh: '它可以从经纬度算出来，严格说不用存。但搜索时存下来，绕路报表就是一个简单查询，而且很便宜，每次搜索一个数。机场坐标基本不会变，所以实际上不会过时。如果不想存，就用一个视图现算。' },
+      { en: "A connection is the arrival airport of every leg except the last one in a search. So I join path_legs to routes and airports on to_airport_id, keep legs whose leg_no is below that search's maximum, group by airport and count. In this data, Chicago O'Hare is the connection 10 times.",
+        zh: '中转 = 每次搜索里，除了最后一段以外，每一段的到达机场。所以 path_legs JOIN routes，再按 to_airport_id JOIN airports，只留 leg_no 小于这次搜索最大 leg_no 的段，按机场分组计数。这份数据里 Chicago O\'Hare 当了 10 次中转。' },
+      { en: "No. SQL can do it with a recursive query, but it's slow and hard to read. The graph is small, about 67,000 edges, so I load the active routes into memory once and run Dijkstra there. The database stays the source of truth and logs the result in searches and path_legs.",
+        zh: '不在数据库里跑。SQL 可以用递归查询做，但又慢又难读。图很小，约 6.7 万条边，所以把 active 航线一次读进内存，在那里跑 Dijkstra。数据库仍然是数据的来源，并且把结果记进 searches 和 path_legs。' },
+    ],
+    queries: [
+      { en: "Everything is on airports, so I select the code, name, city, country, lat and lon, ordered by code.", zh: '全在 airports 上，选代码、名称、城市、国家、经纬度，按代码排序。' },
+      { en: "I start from routes, join airports twice, once for the origin and once for the destination, keep origin STL and active = 1, and select DISTINCT destinations, because three airlines fly St. Louis to Chicago. Los Angeles is gone, since Southwest dropped that route.", zh: '从 routes 出发，airports JOIN 两次（起点一次、终点一次），只留起点 STL 且 active = 1，目的地加 DISTINCT，因为 STL → ORD 有三家航空公司。LAX 不见了，因为 Southwest 停飞了。' },
+      { en: "I start from path_legs for search 6, join routes, then airports twice for the two ends of each leg, and airlines for the name, ordered by leg_no. It shows Kansas City to Denver, Denver to Seattle, Seattle to Tokyo.", zh: '从搜索 6 的 path_legs 出发，JOIN routes，airports JOIN 两次拿每段的两端，再 JOIN airlines 拿名称，按 leg_no 排序。结果是 MCI → DEN → SEA → NRT。' },
+      { en: "I join searches to path_legs and routes, sum the leg distances per search, and divide by direct_km, times 1.0 to avoid integer division. Group by search, order by the ratio. Seattle to London is the worst at 1.18, because there's no direct Seattle–London route in this data.", zh: 'searches JOIN path_legs 和 routes，每次搜索把各段距离加起来，除以 direct_km（乘 1.0 避免整数除法），按搜索分组，按比例排序。SEA → LHR 最差，1.18，因为数据里没有 Seattle 直飞 London。' },
+      { en: "A connection is the arrival airport of every leg except the last, so I keep legs whose leg_no is below that search's maximum, with a correlated subquery, join to the arrival airport, group and count. Chicago comes first with 10.", zh: '中转 = 除最后一段外每段的到达机场，所以用关联子查询只留 leg_no 小于这次搜索最大值的段，JOIN 到达机场，分组计数。Chicago 第一，10 次。' },
+      { en: "I filter searches to the last 30 days, join airports twice for the codes, group by the pair, count and sort. St. Louis to Tokyo leads with three searches.", zh: '筛出过去 30 天的搜索，airports JOIN 两次拿代码，按机场对分组计数排序。STL → NRT 最多，3 次。' },
+      { en: "Every airline has to appear, so I start from airlines and LEFT JOIN routes, with active = 1 inside the ON clause, and count route_id. If I put active in WHERE, Frontier, whose routes are all dropped, would disappear instead of showing 0.", zh: '每家航空公司都要出现，所以从 airlines 出发 LEFT JOIN routes，active = 1 写在 ON 里，数 route_id。写在 WHERE 里，航线全停飞的 Frontier 就会消失，而不是显示 0。' },
+      { en: "I start from flights, join routes, airlines, and airports twice, keep ORD to NRT departing on November 21, from midnight up to but not including the 22nd, and order by departure time.", zh: '从 flights 出发，JOIN routes、airlines，airports JOIN 两次，只留 ORD → NRT、出发时间在 11 月 21 日当天（≥ 21 日、< 22 日），按出发时间排序。' },
+      { en: "An UPDATE, not a DELETE: set active to 0 for Delta's Seattle–Tokyo route, looking up the IDs by code. Search 6 still points to it through path_legs, so the old path stays intact.", zh: '用 UPDATE 不用 DELETE：把 Delta 的 SEA → NRT 航线 active 改成 0，用代码查出各个 ID。搜索 6 还通过 path_legs 指着它，所以旧路径完好。' },
+      { en: "One INSERT into routes with airline 2, from 1 to 6, the haversine distance of 2,744 kilometers, and active = 1. route_id is generated. Dijkstra picks it up the next time it loads the graph.", zh: '在 routes 里 INSERT 一行：airline 2，从 1 到 6，haversine 距离 2,744 公里，active = 1。route_id 自动生成。下次加载图时，Dijkstra 就会用上这条航线。' },
+    ],
+    close: {
+      en: "To sum up: airports and airlines are the dimensions. routes is the junction table that makes airports many-to-many with themselves, with one row per direction and airline. flights hangs under routes. searches and path_legs log every query, with path_legs as a second many-to-many between searches and routes. Dropped routes are marked inactive, never deleted, and the shortest path itself runs in memory, with the database as the source of truth.",
+      zh: '总结：airports 和 airlines 是维度表。routes 是中间表，让机场和机场形成多对多，每个方向、每家航空公司一行。flights 挂在 routes 下面。searches 和 path_legs 记录每次查询，path_legs 是搜索和航线之间的第二个多对多。停飞只标 inactive，不删行；最短路径在内存里算，数据库是数据的来源。',
     },
   },
 });
@@ -13895,8 +14233,8 @@ window.MOCKS.push({
     core: {
       tables: [['p', 'students', '人'], ['x', 'companies', '机构：公司信息只存一次'], ['i', 'postings', '③ 一家公司发很多个职位；截止日期和状态在这里'], ['e', 'applications', '② 事件：谁 + 哪个职位 + 何时 + 状态；UNIQUE 防重复']],
       extra: [['skills + posting_skills', 'need', '需求「按技能搜职位」「最热门的技能」：多对多中间表（五规 ⑤），不能写成逗号分隔'], ['student_skills', 'need', '需求「我完全符合要求的职位」：学生和技能也是多对多'], ['recruiters', 'need', '需求里招聘官要发职位、看自己的面试：招聘官属于公司'], ['interviews / offers', 'need', '需求「面试安排」「发 offer、学生是否接受」「offer 率」：都是挂在 application 上的事件'], ['saved_postings', 'need', '需求「收藏职位」：学生和职位多对多']],
-      say: { en: 'I\'d start with four tables. Students are the people, companies are the organizations, postings are the jobs each company lists, with a deadline and a status, and applications are the event: which student, which posting, when, and a status. A UNIQUE constraint on student and posting stops duplicate applications, and withdrawing only changes the status. Then I go through the stories: skills need a posting_skills junction table, since that\'s many-to-many, and recruiters, bookmarks, interviews and offers each get their own table.',
-        zh: '先画四张表。students 是人，companies 是公司，postings 是公司发的一个个职位（带截止日期和状态），applications 是事件：哪个学生、哪个职位、什么时候、状态。UNIQUE(student_id, posting_id) 防止重复申请，撤回只改状态。然后对着需求一条条过：技能要用中间表 posting_skills（多对多），招聘官、收藏、面试、offer 也各补一张表。' },
+      say: { en: 'I\'d start with four tables. Students are the people, companies are the organizations, postings are the jobs each company lists, with a deadline and a status, and applications are the event: which student, which posting, when, and a status. On the relationships: one company has many postings, so that\'s one-to-many, and company_id goes on postings. Students and postings are many-to-many, because a student applies to many postings and a posting gets many applicants, so applications is the junction table, with student_id and posting_id as foreign keys. A UNIQUE constraint on that pair stops duplicate applications, and withdrawing only changes the status. Then I go through the stories: skills are many-to-many with postings, so they need a posting_skills junction table, and recruiters, bookmarks, interviews and offers each get their own table. An application has many interview rounds, one-to-many, and at most one offer, one-to-one.',
+        zh: '先画四张表。students 是人，companies 是公司，postings 是公司发的一个个职位（带截止日期和状态），applications 是事件：哪个学生、哪个职位、什么时候、状态。再讲关系：一家公司有很多职位，是一对多，company_id 放在 postings 上。学生和职位是多对多（一个学生投很多职位，一个职位收到很多申请），所以 applications 是中间表，student_id 和 posting_id 两个外键。这一对加 UNIQUE 防止重复申请，撤回只改状态。然后对着需求一条条过：技能和职位也是多对多，要中间表 posting_skills；招聘官、收藏、面试、offer 也各补一张表。一份申请有好几轮面试（一对多），最多一个 offer（一对一）。' },
     },
     anom: {
       en: "This design avoids the three anomalies. Renaming a company is one update in companies, not one per posting. A new skill can be added before any posting requires it. And deleting an application never loses the student or the posting.",
@@ -16195,6 +16533,8 @@ function renderChapter(main) {
   const pool = ch.lessons.flatMap((l) => l.screens.filter((s) => isInter(s) && s.t !== 'sql'));
   const box = (ic, t, sub, f, cls = '') => { const b = btn('sidecard ' + cls, `<span class="sc-ico">${icon(ic)}</span><span class="sc-t"><b>${t}</b><span>${sub}</span></span>${icon('next')}`, f); side.append(b); return b; };
   if (ch.sheet) box('doc', '一页模板', '考前从上到下看一遍：每段做什么、照着哪句说', () => go('sheet', { ch: ch.id }), 'sheet-card');
+  // chapter-specific model answers (标准答卷) of mock topics, e.g. c18 → career center + the learner's own project
+  (ch.answers || []).forEach(([mid, sub]) => { const m = (window.MOCKS || []).find((x) => x.id === mid); if (m && m.answer) box('doc', `标准答卷：${esc(m.title)}`, sub, () => openAnswer(m.id), 'sheet-card'); });
   if (ch.pseudo) {
     const done = ch.pseudo.filter((p) => S.pseudo?.[ch.id + ':' + p.id]?.score != null).length;
     box('bolt', '写伪代码：操作题', `${done} / ${ch.pseudo.length} 题做过 · ${AI.ok ? 'AI 判分' : '对照参考答案打分'}`, () => go('pseudo', { ch: ch.id, pq: ch.pseudo[0].id }));
@@ -16211,7 +16551,7 @@ function renderChapter(main) {
   if ((ch.oral || []).length) box('mic', '口试演练', `${ch.oral.length} 题 · 用英文说出来`, () => go('review', { rtab: 'oral', rch: ch.id, oral: ch.oral[0].id }));
   const examId = { c13: null, c14: 'library', c15: 'cinema', c16: null }[ch.id];
   if (examId !== undefined) {
-    const eb = box('clock', '模拟考试', examId ? '这道题按真实考试走一遍 · 交卷评分' : '6 套题按真实考试走一遍 · 交卷评分', () => (examId ? exOpen(examId, eb) : exOpenList()));
+    const eb = box('clock', '模拟考试', examId ? '这道题按真实考试走一遍 · 交卷评分' : `${(window.MOCKS || []).length} 套题按真实考试走一遍 · 交卷评分`, () => (examId ? exOpen(examId, eb) : exOpenList()));
   }
   body.append(side);
   main.append(body);
@@ -17575,7 +17915,7 @@ const EX_GROUPS = [['官方练习题', '两道官方练习题，最重要，先�
 const exGroup = (m) => (m.tag.startsWith('原创') ? '原创模拟题' : m.tag);
 const exQueries = (m) => m.queries.filter((q) => q.exam);
 const MOCK_BY_ID = (id) => simList().find((m) => m.id === id);
-const MOCK_HUE = { library: 175, cinema: 320, hospital: 45, bikeshare: 140, hotel: 25, gym: 270, internship: 60 };
+const MOCK_HUE = { library: 175, cinema: 320, hospital: 45, bikeshare: 140, hotel: 25, gym: 270, internship: 60, flight: 205 };
 let EX = null; // the exam in progress; mirrored into S.examLive so a reload doesn't lose it
 let exList = false; // show the list of exams even though one is in progress
 let exGrading = false;
