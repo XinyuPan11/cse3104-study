@@ -16613,7 +16613,7 @@ function renderPractice(main) {
     <h2>${esc(ex.title)} ${rec.solved ? `<span class="pill ok">${icon('check')}已通过</span>` : ''}</h2>
     ${ex.en ? `<p class="prompt prompt-en" lang="en">${ex.en}</p><p class="prompt prompt-zh">${ex.prompt}</p>` : `<p class="prompt">${ex.prompt}</p>`}
     <div class="cols-need"><span class="mini-h">${ex.dml ? '判分方式' : '返回列'}</span><code>${esc(ex.cols)}</code></div>`;
-  const starter = ex.dml ? '-- 写 INSERT / UPDATE / DELETE，Ctrl/⌘ + Enter 运行并检查\n' : '-- 写一条 SELECT，Ctrl/⌘ + Enter 运行并检查\n';
+  const starter = ''; // the editor starts empty: no instruction comment in the learner's SQL
   const starB = btn('star-toggle' + (rec.star ? ' on' : ''), rec.star ? `${icon('star')}重点` : `${icon('star')}标为重点`, () => {
     const r = (st.prac[ex.id] ||= {});
     if (r.star) delete r.star; else r.star = true;
@@ -16625,7 +16625,9 @@ function renderPractice(main) {
   starB.setAttribute('aria-pressed', String(!!rec.star));
   starB.title = rec.star ? '再点一次取消重点' : '把这道题标为重点，之后可以只看重点题';
   $('h2', ws).append(starB);
-  const ed = mkEditor(rec.sql || starter, { onRun: () => doCheck(), label: `练习 ${ex.id}` });
+  // drafts saved before this change may still begin with the old instruction comment: drop it
+  const draft = (rec.sql || '').replace(/^-- 写(一条 SELECT| INSERT \/ UPDATE \/ DELETE)，Ctrl\/⌘ \+ Enter 运行并检查\r?\n?/, '');
+  const ed = mkEditor(draft || starter, { onRun: () => doCheck(), label: `练习 ${ex.id}` });
   const xdb = ex.db || ch.db;
   ws.append(mkSchemaPanel(xdb, { editor: ed, ref: (ex.ref || '') + ' ' + (ex.check || '') }), ed.wrap);
   const bar = el('div', 'btnrow');
