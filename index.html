@@ -14270,7 +14270,7 @@ function codeLines(src, lang = 'sql') {
 
 /* ───────── editor: textarea over a highlighted <pre> ───────── */
 const editors = new Set();
-function mkEditor(initial, { onRun, label = 'SQL 编辑器' } = {}) {
+function mkEditor(initial, { onRun, label = 'SQL 编辑器', caret = null } = {}) {
   const wrap = el('div', 'ed');
   const pre = el('pre', 'ed-hl');
   pre.setAttribute('aria-hidden', 'true');
@@ -14288,7 +14288,9 @@ function mkEditor(initial, { onRun, label = 'SQL 编辑器' } = {}) {
     ta.style.height = Math.max(ta.scrollHeight, 44) + 'px';
   };
   ta.addEventListener('input', sync);
-  let pos = null;
+  // caret: where typing / clicked names go first (e.g. right after a prefilled "SELECT ")
+  let pos = caret != null ? [caret, caret] : null;
+  if (caret != null) ta.setSelectionRange(caret, caret);
   const remember = () => { pos = [ta.selectionStart, ta.selectionEnd]; };
   ['keyup', 'click', 'select', 'input'].forEach((ev) => ta.addEventListener(ev, remember));
   ta.addEventListener('keydown', (e) => {
@@ -16599,7 +16601,7 @@ function renderPractice(main) {
     ws.innerHTML = '<div class="eyebrow">自由沙盒</div><h2>随便写，随便试</h2><p class="prompt">每次运行都从一份全新的数据库开始，改坏了也没关系。</p>';
     const out = el('div', 'run-out');
     const run = () => withDB(out, () => { const db = freshDB(ch.db); out.innerHTML = resultHTML(runSQL(db, ed.value), ch.db); db.close(); });
-    const ed = mkEditor(ui.sandbox || '-- 点上面的表名、列名可以直接插入\nSELECT ', { onRun: run, label: '沙盒 SQL' });
+    const ed = mkEditor(ui.sandbox || 'SELECT \nFROM ', { onRun: run, label: '沙盒 SQL', caret: ui.sandbox ? null : 'SELECT '.length });
     ed.ta.addEventListener('input', () => { ui.sandbox = ed.value.slice(0, 4000); saveUI(); });
     const row = el('div', 'btnrow');
     row.append(btn('btn primary', `${icon('play')} 运行 <kbd>Ctrl ↵</kbd>`, run));
@@ -16613,7 +16615,7 @@ function renderPractice(main) {
     <h2>${esc(ex.title)} ${rec.solved ? `<span class="pill ok">${icon('check')}已通过</span>` : ''}</h2>
     ${ex.en ? `<p class="prompt prompt-en" lang="en">${ex.en}</p><p class="prompt prompt-zh">${ex.prompt}</p>` : `<p class="prompt">${ex.prompt}</p>`}
     <div class="cols-need"><span class="mini-h">${ex.dml ? '判分方式' : '返回列'}</span><code>${esc(ex.cols)}</code></div>`;
-  const starter = ''; // the editor starts empty: no instruction comment in the learner's SQL
+  const starter = ex.dml ? '' : 'SELECT \nFROM '; // the fixed part is prefilled; DML questions start empty
   const starB = btn('star-toggle' + (rec.star ? ' on' : ''), rec.star ? `${icon('star')}重点` : `${icon('star')}标为重点`, () => {
     const r = (st.prac[ex.id] ||= {});
     if (r.star) delete r.star; else r.star = true;
@@ -16627,7 +16629,7 @@ function renderPractice(main) {
   $('h2', ws).append(starB);
   // drafts saved before this change may still begin with the old instruction comment: drop it
   const draft = (rec.sql || '').replace(/^-- 写(一条 SELECT| INSERT \/ UPDATE \/ DELETE)，Ctrl\/⌘ \+ Enter 运行并检查\r?\n?/, '');
-  const ed = mkEditor(draft || starter, { onRun: () => doCheck(), label: `练习 ${ex.id}` });
+  const ed = mkEditor(draft || starter, { onRun: () => doCheck(), label: `练习 ${ex.id}`, caret: draft || !starter ? null : 'SELECT '.length });
   const xdb = ex.db || ch.db;
   ws.append(mkSchemaPanel(xdb, { editor: ed, ref: (ex.ref || '') + ' ' + (ex.check || '') }), ed.wrap);
   const bar = el('div', 'btnrow');
